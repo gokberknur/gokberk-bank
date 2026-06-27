@@ -27,7 +27,7 @@ export const NAV: NavSection[] = [
 			{ label: 'Home', href: '/home', value: 'home', icon: 'home', ready: true },
 			{ label: 'Accounts', href: '/accounts', value: 'accounts', icon: 'wallet', ready: true },
 			{ label: 'Payments', href: '/payments', value: 'payments', icon: 'transfer', ready: true },
-			{ label: 'Cards', href: '/cards', value: 'cards', icon: 'card', ready: false }
+			{ label: 'Cards', href: '/cards', value: 'cards', icon: 'card', ready: true }
 		]
 	},
 	{

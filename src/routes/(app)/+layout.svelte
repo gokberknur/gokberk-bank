@@ -9,6 +9,8 @@
 	import AppSidenav from '$lib/components/shell/AppSidenav.svelte';
 	import AppNavbar from '$lib/components/shell/AppNavbar.svelte';
 	import BottomTabBar from '$lib/components/shell/BottomTabBar.svelte';
+	import { toasts } from '$lib/state/toasts.svelte';
+	import { on } from '$lib/wc.svelte';
 
 	let { children } = $props();
 
@@ -37,7 +39,15 @@
 
 <BottomTabBar />
 
-<gok-toast-region placement="bottom-end"></gok-toast-region>
+<gok-toast-region placement="bottom-end">
+	{#each toasts.items as t (t.id)}
+		<gok-toast
+			status={t.status}
+			duration={t.duration}
+			{@attach on('gok-dismiss', () => toasts.dismiss(t.id))}>{t.message}</gok-toast
+		>
+	{/each}
+</gok-toast-region>
 
 <style>
 	.skip {

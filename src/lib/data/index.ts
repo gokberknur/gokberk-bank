@@ -9,7 +9,8 @@ import type { Currency } from './money';
 import { WALLET_BLUEPRINTS, POTS } from './accounts';
 import { generateWalletTxns } from './transactions';
 import { PAYEES } from './payees';
-import type { Payee, Pot, Transaction, Wallet } from './types';
+import { CARDS, deriveCardSpend } from './cards';
+import type { Card, Payee, Pot, Transaction, Wallet } from './types';
 
 /** The fixed seed. Change it to regenerate a different (but still stable) life. */
 const SEED = 0x9e3779b9;
@@ -51,6 +52,7 @@ allTxns.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.id < b.id
 
 const pots: Pot[] = POTS.map((p) => ({ ...p }));
 const payees: Payee[] = PAYEES.map((p) => ({ ...p }));
+const cards: Card[] = CARDS.map((c) => ({ ...c, controls: { ...c.controls, regions: [...c.controls.regions] } }));
 
 // ---- Getters -------------------------------------------------------------
 
@@ -154,5 +156,46 @@ export function cancelTransaction(id: string): void {
 	allTxns.splice(i, 1);
 }
 
+// ---- Cards ----------------------------------------------------------------
+
+export function getCards(): Card[] {
+	return cards;
+}
+
+export function getCard(id: string): Card | undefined {
+	return cards.find((c) => c.id === id);
+}
+
+/** The card's spend stream (card-type rows on its linked wallet, sliced per card). */
+export function getCardSpend(id: string): Transaction[] {
+	const card = getCard(id);
+	if (!card) return [];
+	return deriveCardSpend(
+		card,
+		allTxns.filter((t) => t.walletId === card.walletId)
+	);
+}
+
+/** Today's settled+pending card spend on a card (minor units, positive). */
+export function getCardSpentToday(id: string, todayIso: string): number {
+	return getCardSpend(id)
+		.filter((t) => t.date === todayIso && t.amountMinor < 0)
+		.reduce((s, t) => s - t.amountMinor, 0);
+}
+
+/**
+ * Update a card's controls **immutably** — replace the card object (and its
+ * controls) with new references. Consumers read the card through a `$derived`
+ * (`cards.card(id)`); an in-place mutation returns the same reference, so Svelte
+ * would short-circuit the derived chain and the UI (status, frozen art, channel
+ * switches) wouldn't update. Swapping the reference makes the change propagate.
+ * The state layer still bumps the revision so the `$derived` re-runs.
+ */
+export function updateCardControls(id: string, patch: Partial<Card['controls']>): void {
+	const i = cards.findIndex((c) => c.id === id);
+	if (i === -1) return;
+	cards[i] = { ...cards[i], controls: { ...cards[i].controls, ...patch } };
+}
+
 export { HOME_CURRENCY };
-export type { Wallet, Pot, Transaction, Payee };
+export type { Wallet, Pot, Transaction, Payee, Card };

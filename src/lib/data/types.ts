@@ -75,6 +75,49 @@ export interface Pot {
 	emoji: string;
 }
 
+export type CardType = 'physical' | 'virtual' | 'disposable';
+export type CardStatus = 'active' | 'expired';
+export type CardNetwork = 'visa' | 'mastercard';
+/** Art treatment — the one place colour lives richly (still brand-anchored). */
+export type CardDesign = 'ink' | 'mist' | 'forest';
+
+export interface CardControls {
+	frozen: boolean;
+	/** Per-channel use. */
+	online: boolean;
+	contactless: boolean;
+	atm: boolean;
+	/** Daily spend cap in minor units, or null for no limit. */
+	dailyLimitMinor: number | null;
+	/** The highest limit this card allows (minor units). */
+	ceilingMinor: number;
+	/** Allowed ISO country codes; empty = anywhere. */
+	regions: string[];
+	/** The card's home region — pinned, can't be removed. */
+	homeRegion: string;
+}
+
+export interface Card {
+	id: string;
+	type: CardType;
+	network: CardNetwork;
+	design: CardDesign;
+	/** Last four digits (the at-a-glance identity). */
+	last4: string;
+	/** Full grouped PAN, revealed only behind step-up (mock). */
+	pan: string;
+	cvv: string;
+	/** MM/YY. */
+	expiry: string;
+	/** Embossed name. */
+	holder: string;
+	/** Linked funding wallet. */
+	walletId: string;
+	/** Base lifecycle status; the live "Frozen" state comes from `controls.frozen`. */
+	status: CardStatus;
+	controls: CardControls;
+}
+
 export type PayeeType = 'sepa' | 'swift' | 'gok';
 
 export interface Payee {
