@@ -33,7 +33,7 @@ export const NAV: NavSection[] = [
 	{
 		label: 'Invest',
 		items: [
-			{ label: 'Investments', href: '/invest', value: 'invest', icon: 'invest', ready: false },
+			{ label: 'Investments', href: '/invest', value: 'invest', icon: 'invest', ready: true },
 			{ label: 'Crypto', href: '/crypto', value: 'crypto', icon: 'crypto', ready: false }
 		]
 	},
@@ -60,7 +60,7 @@ export const BOTTOM_TABS: NavItem[] = [
 	{ label: 'Home', href: '/home', value: 'home', icon: 'home', ready: true },
 	{ label: 'Accounts', href: '/accounts', value: 'accounts', icon: 'wallet', ready: true },
 	{ label: 'Pay', href: '/payments', value: 'payments', icon: 'transfer', ready: true },
-	{ label: 'Invest', href: '/invest', value: 'invest', icon: 'invest', ready: false },
+	{ label: 'Invest', href: '/invest', value: 'invest', icon: 'invest', ready: true },
 	{ label: 'More', href: '/more', value: 'more', icon: 'more', ready: false }
 ];
 

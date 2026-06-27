@@ -4,6 +4,7 @@
 
 export { default as DonutChart } from './DonutChart.svelte';
 export { default as LineChart } from './LineChart.svelte';
+export { default as PriceChart } from './PriceChart.svelte';
 export { default as Sparkline } from './Sparkline.svelte';
 export { default as StackedBar } from './StackedBar.svelte';
 
