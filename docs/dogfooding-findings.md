@@ -21,6 +21,7 @@ and ADR-004). Building each is a vote for a future DS primitive.
 | 6 | **No file-upload / dropzone** | KYC, claims, mortgage docs, disputes, support | Dropzone composite + `gok-progress` (F09) | open |
 | 7 | **No free-text-filtering combobox / multi-select** | Payee & instrument search, split-bill people, watchlists, region allow-lists | Combobox + multi-select composites (F10). NOTE: native `gok-select` *does* ship keyboard typeahead and covers small single-value sets — only filtering/multi need composites | open |
 | 22 | **No card-art / wallet-strip / carousel primitive** | Cards wallet + detail (C01) | App-local `CardArt` (ISO-ratio card face, three brand-anchored treatments via core `--gok-*` tokens + `cqi` units) and `CardStrip` (scroll-snap rail + roving-tabindex keyboard nav). The card-art is intentionally app-local (it's brand object art, not a DS control) — logging it as the one place app UI legitimately reaches for the *core* colour tokens, not just semantic roles | open |
+| 31 | **No `gok-textarea` (multi-line text field).** `gok-input` is single-line only, so any free-form prose field has no DS primitive. Hit building the support ticket (raise body + reply, S01) — the one place the bank drops to raw HTML. | App-local tokened `<textarea>` mirroring `gok-input`'s label + reserved-message anatomy (`--gok-*` roles, focus ring via `--gok-color-primary`). A strong candidate for a real `gok-textarea` (label, sizing, error/help message, char-count). | open |
 
 ## Component-API friction
 

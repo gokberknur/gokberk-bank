@@ -50,7 +50,8 @@ export const NAV: NavSection[] = [
 			{ label: 'Budgets', href: '/budgets', value: 'budgets', icon: 'budget', ready: true },
 			{ label: 'Rewards', href: '/rewards', value: 'rewards', icon: 'rewards', ready: true },
 			{ label: 'Activity', href: '/activity', value: 'activity', icon: 'activity', ready: false },
-			{ label: 'Documents', href: '/documents', value: 'documents', icon: 'documents', ready: false }
+			{ label: 'Documents', href: '/documents', value: 'documents', icon: 'documents', ready: true },
+			{ label: 'Support', href: '/support', value: 'support', icon: 'support', ready: true }
 		]
 	}
 ];
