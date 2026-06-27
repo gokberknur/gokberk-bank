@@ -7,6 +7,7 @@
 	// CTA on the left, a calm cash/savings breakdown on the right.
 	import { accounts } from '$lib/state/accounts.svelte';
 	import { thisMonthNetEurMinor } from '$lib/home/insights';
+	import { LineChart, netWorthSeriesEur } from '$lib/charts';
 	import { formatMoney } from '$lib/format';
 	import { goto } from '$app/navigation';
 	import { on } from '$lib/wc.svelte';
@@ -20,6 +21,10 @@
 
 	let cash = $derived(formatMoney(accounts.walletsTotalEurMinor, 'EUR'));
 	let savings = $derived(formatMoney(accounts.potsTotalEurMinor, 'EUR'));
+
+	// The F11 net-worth trend: weekly net worth (EUR) over the last 12 weeks.
+	let trend = $derived(netWorthSeriesEur(12));
+	let trendLabel = $derived(`Net worth ${netWorth}, last 12 weeks.`);
 </script>
 
 <gok-card class="hero">
@@ -40,17 +45,22 @@
 			</div>
 		</div>
 
-		<!-- TODO: replace breakdown with the F11 net-worth area chart -->
-		<dl class="breakdown">
-			<div class="breakdown-row">
-				<dt class="breakdown-label">Cash</dt>
-				<dd class="breakdown-figure gok-tabular-nums">{cash}</dd>
-			</div>
-			<div class="breakdown-row">
-				<dt class="breakdown-label">Savings</dt>
-				<dd class="breakdown-figure gok-tabular-nums">{savings}</dd>
-			</div>
-		</dl>
+		<div class="trend">
+			<LineChart
+				data={trend}
+				formatValue={(m) => formatMoney(m, 'EUR')}
+				label={trendLabel}
+				area
+				height="13rem"
+			/>
+			<p class="trend-caption">
+				<span class="trend-term">Cash</span>
+				<span class="trend-figure gok-tabular-nums">{cash}</span>
+				<span class="trend-sep" aria-hidden="true">·</span>
+				<span class="trend-term">Savings</span>
+				<span class="trend-figure gok-tabular-nums">{savings}</span>
+			</p>
+		</div>
 	</div>
 </gok-card>
 
@@ -96,50 +106,45 @@
 		margin-block-start: var(--gok-space-400);
 	}
 
-	.breakdown {
+	/* The trend: a calm area line, with Cash · Savings as a small caption beneath
+	   so the breakdown still reads without competing with the figure. */
+	.trend {
 		display: flex;
 		flex-direction: column;
-		gap: 0;
-		margin: 0;
-		/* A hairline column that frames the breakdown without adding weight. */
-		border-block-start: var(--gok-border-width-hairline) solid var(--gok-color-border);
+		gap: var(--gok-space-200);
+		min-inline-size: 0;
 	}
 
-	.breakdown-row {
+	.trend-caption {
 		display: flex;
+		flex-wrap: wrap;
 		align-items: baseline;
-		justify-content: space-between;
-		gap: var(--gok-space-300);
-		padding-block: var(--gok-space-300);
-		border-block-end: var(--gok-border-width-hairline) solid var(--gok-color-border);
+		gap: var(--gok-space-100) var(--gok-space-200);
+		margin: 0;
+		padding-block-start: var(--gok-space-200);
+		border-block-start: var(--gok-border-width-hairline) solid var(--gok-color-border);
+		font-family: var(--gok-font-family-text);
+		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 	}
 
-	.breakdown-label {
-		margin: 0;
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-regular-line);
+	.trend-term {
 		color: var(--gok-color-text-muted);
 	}
 
-	.breakdown-figure {
-		margin: 0;
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-regular-line);
+	.trend-figure {
 		color: var(--gok-color-text);
+	}
+
+	.trend-sep {
+		color: var(--gok-color-border-strong);
 	}
 
 	@media (min-width: 48rem) {
 		.layout {
 			grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-			align-items: start;
+			align-items: center;
 			gap: var(--gok-space-700);
-		}
-
-		.breakdown {
-			/* On the right column, align the breakdown with the figure baseline. */
-			margin-block-start: var(--gok-space-700);
 		}
 	}
 </style>

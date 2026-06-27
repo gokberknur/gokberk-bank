@@ -10,6 +10,7 @@
 	import { accounts } from '$lib/state/accounts.svelte';
 	import { toast } from '$lib/state/toasts.svelte';
 	import { setProps, on } from '$lib/wc.svelte';
+	import { DonutChart, categoryBreakdown } from '$lib/charts';
 	import { formatMoney, formatDayMonth } from '$lib/format';
 	import { TODAY, isoDate } from '$lib/data/time';
 	import type { Currency } from '$lib/data/money';
@@ -34,6 +35,17 @@
 		)
 	);
 	const spentLabel = $derived(formatMoney(spentMinor, currency));
+
+	// This-month spend by category, for the F11 donut. One wallet → one currency,
+	// so the raw-minor breakdown is already in the card's currency.
+	const donutData = $derived(
+		categoryBreakdown(
+			spend.filter((t) => t.date.slice(0, 7) === monthKey && t.amountMinor < 0)
+		)
+	);
+	const donutLabel = $derived(
+		`Spent ${spentLabel} this month across ${donutData.length} ${donutData.length === 1 ? 'category' : 'categories'}.`
+	);
 
 	// gok-table cells are formatted strings only (dogfooding #11) — format in each
 	// column, never pass rich nodes.
@@ -176,25 +188,42 @@
 				<p class="spend-figure nums">{spentLabel}</p>
 			</div>
 
-			<!-- TODO: F11 spend donut -->
-
 			{#if spend.length === 0}
 				<gok-empty-state>
 					<p class="empty-title gok-headline-6">No spend yet</p>
 					<p class="empty-body">When I use this card, the transactions show up here.</p>
 				</gok-empty-state>
 			{:else}
-				<gok-table
-					accessible-label="Card transactions"
-					paginated
-					page-size={10}
-					{@attach setProps({ columns, rows: spend, getRowId })}
-				>
-					<div slot="caption" class="caption">
-						<p class="caption-eyebrow gok-eyebrow">Activity</p>
-						<h3 class="caption-title gok-headline-6">Recent transactions</h3>
+				<div class="spend-body">
+					<div class="spend-chart">
+						{#if donutData.length > 0}
+							<DonutChart
+								data={donutData}
+								formatValue={(m) => formatMoney(m, currency)}
+								centerTitle="Spent"
+								centerValue={spentLabel}
+								label={donutLabel}
+							/>
+						{:else}
+							<gok-empty-state>
+								<p class="empty-title gok-headline-6">Nothing this month</p>
+								<p class="empty-body">No spend on this card yet this month — older activity is listed.</p>
+							</gok-empty-state>
+						{/if}
 					</div>
-				</gok-table>
+
+					<gok-table
+						accessible-label="Card transactions"
+						paginated
+						page-size={10}
+						{@attach setProps({ columns, rows: spend, getRowId })}
+					>
+						<div slot="caption" class="caption">
+							<p class="caption-eyebrow gok-eyebrow">Activity</p>
+							<h3 class="caption-title gok-headline-6">Recent transactions</h3>
+						</div>
+					</gok-table>
+				</div>
 			{/if}
 		</section>
 	</div>
@@ -345,6 +374,30 @@
 		align-items: baseline;
 		justify-content: space-between;
 		gap: var(--gok-space-200);
+	}
+
+	/* Donut beside the transactions list: stacked on mobile, two columns from 48rem. */
+	.spend-body {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: var(--gok-space-500);
+	}
+
+	.spend-chart {
+		min-inline-size: 0;
+	}
+
+	@media (min-width: 48rem) {
+		.spend-body {
+			grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
+			align-items: start;
+			gap: var(--gok-space-600);
+		}
+
+		.spend-chart {
+			position: sticky;
+			top: var(--gok-space-section);
+		}
 	}
 
 	.spend-title {
