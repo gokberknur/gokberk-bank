@@ -6,23 +6,25 @@ gets its own planning + approval before code.
 
 ---
 
-## P0 — Repo init  `[~]`
+## P0 — Repo init + hello-world + deploy  `[x]`
 
 - [x] Create `~/Desktop/personal/gokberk-bank` + `git init`
 - [x] Commit the plan (`docs/PLAN.md`) and this backlog
-- [ ] First commit pushed / repo confirmed
+- [x] Scaffold SvelteKit (Svelte 5, adapter-static SPA, `ssr=false`) hello-world; `npm run build` green
+- [x] Push to GitHub: `github.com/gokberknur/gokberk-bank` (public)
+- [x] Cloudflare Pages project `gokberk-bank` (GitHub-connected, build `npm run build` → `build`,
+      `.nvmrc` pins Node 24) — **auto-deploys on push to `main`**, confirmed
+- [x] Live: `gokberk-bank.pages.dev` (HTTP 200) · custom domain `bank.gokberk.se` added + DNS CNAME
+      (proxied), SSL provisioning
 
-## P1 — Scaffold  `[ ]`  _(needs its own planning pass)_
+## P1 — Scaffold the real app shape  `[ ]`  _(needs its own planning pass)_
 
-- [ ] SvelteKit 2 + Svelte 5 + Vite 8 + TS project (adapter-static, `ssr=false`, `fallback: index.html`)
 - [ ] Install `@gokberknur/design-system`, `lightweight-charts`, `echarts`
-- [ ] Copy verbatim from gokberk-tools: `wc.svelte.ts`, `app.html`, `+layout.ts`, `svelte.config.js`,
-      `vite.config.ts` (`dedupe:['lit']`), `app.d.ts`, `tsconfig.json`, `.nvmrc`, `ci.yml`,
-      `state/density.svelte.ts`
-- [ ] `gok.ts` registration barrel (trimmed to elements used)
-- [ ] `standalone.css` import + pre-paint theme/density script wired
-- [ ] `CLAUDE.md` (two-authorities convention) + `README.md` + `renovate.json`
-- [ ] `npm run check` + `npm run build` green
+- [ ] Copy verbatim from gokberk-tools: `wc.svelte.ts`, `app.html` (pre-paint theme script),
+      `state/density.svelte.ts`, `app.d.ts` (`SVGAttributes.slot` patch); adapt `+layout.svelte`
+- [ ] `gok.ts` registration barrel (trimmed to elements used) + `standalone.css` import
+- [ ] `CLAUDE.md` (two-authorities convention) + `renovate.json` + CI (`ci.yml`)
+- [ ] `npm run check` green
 
 ## P2 — Data + state foundation  `[ ]`
 
