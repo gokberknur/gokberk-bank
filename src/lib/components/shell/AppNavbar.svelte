@@ -30,6 +30,9 @@
 			case 'density':
 				density.toggle();
 				break;
+			case 'security':
+				goto('/security');
+				break;
 			case 'open-account':
 				goto('/onboarding');
 				break;
@@ -65,6 +68,7 @@
 
 			<gok-menu-item value="account">Account</gok-menu-item>
 			<gok-menu-item value="settings">Settings</gok-menu-item>
+			<gok-menu-item value="security">Security</gok-menu-item>
 			<gok-menu-item
 				value="density"
 				type="checkbox"
