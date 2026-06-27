@@ -8,7 +8,8 @@ import { toEur, HOME_CURRENCY } from './money';
 import type { Currency } from './money';
 import { WALLET_BLUEPRINTS, POTS } from './accounts';
 import { generateWalletTxns } from './transactions';
-import type { Pot, Transaction, Wallet } from './types';
+import { PAYEES } from './payees';
+import type { Payee, Pot, Transaction, Wallet } from './types';
 
 /** The fixed seed. Change it to regenerate a different (but still stable) life. */
 const SEED = 0x9e3779b9;
@@ -49,6 +50,7 @@ for (const bp of WALLET_BLUEPRINTS) {
 allTxns.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.id < b.id ? 1 : -1));
 
 const pots: Pot[] = POTS.map((p) => ({ ...p }));
+const payees: Payee[] = PAYEES.map((p) => ({ ...p }));
 
 // ---- Getters -------------------------------------------------------------
 
@@ -89,5 +91,68 @@ export function getNetWorthEurMinor(): number {
 	return getWalletsTotalEurMinor() + getPotsTotalEurMinor();
 }
 
+export function getPayees(): Payee[] {
+	return payees;
+}
+
+export function getPayee(id: string): Payee | undefined {
+	return payees.find((p) => p.id === id);
+}
+
+/** Add a runtime payee (from the add-payee flow). Returns the stored payee. */
+export function addPayee(payee: Payee): Payee {
+	payees.unshift(payee);
+	return payee;
+}
+
+// ---- Money movement (mutates the in-memory spine + balances) --------------
+//
+// These are how a flow records a real transfer: a pending row is appended and
+// the source wallet's available balance drops by the held amount, so the change
+// reflects everywhere a screen reads the data (paired with a reactive bump in
+// the state layer). Nothing is persisted — a reload regenerates the seed.
+
+function applyToWallet(t: Transaction, direction: 1 | -1): void {
+	const w = wallets.find((x) => x.id === t.walletId);
+	if (!w) return;
+	if (t.status === 'pending' && t.amountMinor < 0) {
+		// A pending outflow is held: available drops, current (settled) unchanged.
+		w.holdMinor += direction * -t.amountMinor;
+	} else {
+		w.currentMinor += direction * t.amountMinor;
+	}
+	w.availableMinor = w.currentMinor - w.holdMinor;
+}
+
+/** Append a (usually pending) transaction and adjust the wallet balance. */
+export function appendTransaction(t: Transaction): void {
+	allTxns.unshift(t);
+	applyToWallet(t, 1);
+}
+
+/** Settle a pending transaction: release the hold into the settled balance. */
+export function settleTransaction(id: string): void {
+	const t = allTxns.find((x) => x.id === id);
+	if (!t || t.status !== 'pending') return;
+	const w = wallets.find((x) => x.id === t.walletId);
+	if (w && t.amountMinor < 0) w.holdMinor -= -t.amountMinor;
+	t.status = 'settled';
+	if (w) {
+		w.currentMinor += t.amountMinor;
+		w.availableMinor = w.currentMinor - w.holdMinor;
+		t.runningBalanceMinor = w.currentMinor;
+	}
+}
+
+/** Cancel a pending transaction within its window: remove it, restore the hold. */
+export function cancelTransaction(id: string): void {
+	const i = allTxns.findIndex((x) => x.id === id);
+	if (i === -1) return;
+	const t = allTxns[i];
+	if (t.status !== 'pending') return;
+	applyToWallet(t, -1);
+	allTxns.splice(i, 1);
+}
+
 export { HOME_CURRENCY };
-export type { Wallet, Pot, Transaction };
+export type { Wallet, Pot, Transaction, Payee };

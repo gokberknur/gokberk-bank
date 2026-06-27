@@ -74,3 +74,24 @@ export interface Pot {
 	roundUps: boolean;
 	emoji: string;
 }
+
+export type PayeeType = 'sepa' | 'swift' | 'gok';
+
+export interface Payee {
+	id: string;
+	/** Account holder / display name. */
+	name: string;
+	type: PayeeType;
+	/** Settlement currency. */
+	currency: Currency;
+	/** IBAN (SEPA/SWIFT) or null for a gök-user handle payee. */
+	iban: string | null;
+	/** BIC (required for SWIFT, optional for SEPA). */
+	bic: string | null;
+	/** ISO country (for SWIFT). */
+	country?: string;
+	/** gök handle for gok-user payees (e.g. "@lena"). */
+	handle?: string;
+	/** ISO date last paid, or null if never. */
+	lastUsedAt: string | null;
+}

@@ -1,6 +1,7 @@
-// The transactions view-state for the A02 grid. The full set is read **once**
-// from F03 (newest-first across all wallets) and held as a private, non-reactive
-// seed; the reactive surface is the `view` (filter / search / sort) plus an
+// The transactions view-state for the A02 grid. The full set is read **fresh**
+// from F03 (newest-first across all wallets) with a reactive dependency on the
+// shared `revision` signal, so a send or cancel re-derives `rows` everywhere.
+// The reactive surface on top is the `view` (filter / search / sort) plus an
 // optional wallet scope. `rows` re-derives on demand via the pure `applyView`.
 // The view is session-ephemeral and kept in memory only.
 
@@ -16,10 +17,15 @@ import {
 	type TxnDirection
 } from '$lib/accounts/txn-filter';
 import type { TxnType, TxnStatus, Category } from '$lib/data/types';
+import { revision } from './revision.svelte';
 
 class TransactionsState {
-	// Full set, all wallets, newest-first — a fixed seed, not reactive.
-	readonly #all: Transaction[] = getTransactions();
+	// Full set, all wallets, newest-first — read fresh and revision-dependent so a
+	// runtime send/cancel re-flows the grid.
+	get #all(): Transaction[] {
+		revision.value;
+		return getTransactions();
+	}
 
 	/** The active filter / search / sort. */
 	view = $state<TxnView>({ ...DEFAULT_VIEW });
