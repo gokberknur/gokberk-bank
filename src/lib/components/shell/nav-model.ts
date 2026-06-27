@@ -47,8 +47,8 @@ export const NAV: NavSection[] = [
 	{
 		label: 'Manage',
 		items: [
-			{ label: 'Budgets', href: '/budgets', value: 'budgets', icon: 'budget', ready: false },
-			{ label: 'Rewards', href: '/rewards', value: 'rewards', icon: 'rewards', ready: false },
+			{ label: 'Budgets', href: '/budgets', value: 'budgets', icon: 'budget', ready: true },
+			{ label: 'Rewards', href: '/rewards', value: 'rewards', icon: 'rewards', ready: true },
 			{ label: 'Activity', href: '/activity', value: 'activity', icon: 'activity', ready: false },
 			{ label: 'Documents', href: '/documents', value: 'documents', icon: 'documents', ready: false }
 		]

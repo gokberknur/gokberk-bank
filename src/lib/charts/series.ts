@@ -5,6 +5,7 @@
 import { getWallets, getTransactions, getPotsTotalEurMinor } from '$lib/data';
 import { toEur } from '$lib/data/money';
 import { TODAY, isoDate } from '$lib/data/time';
+import { CATEGORY_LABELS } from '$lib/data/categories';
 import type { Transaction, Category } from '$lib/data/types';
 
 export interface NamedValue {
@@ -19,23 +20,6 @@ export interface SeriesPoint {
 	/** EUR minor units. */
 	value: number;
 }
-
-const CATEGORY_LABELS: Record<Category, string> = {
-	groceries: 'Groceries',
-	dining: 'Dining',
-	transport: 'Transport',
-	shopping: 'Shopping',
-	utilities: 'Utilities',
-	housing: 'Housing',
-	income: 'Income',
-	transfers: 'Transfers',
-	entertainment: 'Entertainment',
-	health: 'Health',
-	travel: 'Travel',
-	subscriptions: 'Subscriptions',
-	fees: 'Fees',
-	cash: 'Cash'
-};
 
 /**
  * Outflow total by category for a set of transactions, biggest first, collapsed
