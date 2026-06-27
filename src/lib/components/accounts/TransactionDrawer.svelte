@@ -100,7 +100,7 @@
 			<gok-button variant="secondary" disabled>Repeat</gok-button>
 			<gok-button variant="secondary" disabled>Split</gok-button>
 			<gok-button variant="secondary" disabled>Dispute</gok-button>
-			<gok-button variant="ghost" disabled>Report a problem</gok-button>
+			<gok-button variant="secondary" disabled>Report a problem</gok-button>
 		</div>
 		<gok-tag size="s">Soon</gok-tag>
 	</div>

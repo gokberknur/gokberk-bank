@@ -171,7 +171,7 @@
 			{/each}
 
 			{#if transactions.hasFilters}
-				<gok-button variant="ghost" size="s" {@attach on('click', clearAll)}>Clear all</gok-button>
+				<gok-button variant="secondary" size="s" {@attach on('click', clearAll)}>Clear all</gok-button>
 			{/if}
 		</div>
 	{/if}
