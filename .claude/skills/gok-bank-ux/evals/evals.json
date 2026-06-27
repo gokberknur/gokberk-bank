@@ -1,0 +1,23 @@
+{
+  "skill_name": "gok-bank-ux",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "The send-money flow has too many steps — recipient, amount, FX, speed, review, confirm, success. Can we streamline it without losing trust?",
+      "expected_output": "Invokes the UX consultant; maps the flow against the money spine (gather → review → forced-decision confirm → success), distinguishes friction worth spending (review disclosure, forced-decision confirm, step-up/confirmation-of-payee for new payee or large amount — owned by gok-bank-payments) from friction to cut (collapse/skip steps via progressive disclosure, smart defaults, FX only for cross-currency); names the trade-off for a gok-bank-product-owner gate; cites .planning/ux/ux-flows.md §2 + patterns.md; defers rail truth to gok-bank-payments and visuals to gokberk-design.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Design the onboarding journey for the bank — KYC, identity, the works.",
+      "expected_output": "Invokes the UX consultant; lays out the resumable wizard (gok-tabs manual + gok-progress fraction + step-state + draft token), the 6 steps from .planning/ux/ux-flows.md §1, progressive disclosure and front-loaded value vs back-loaded verification, reward-early validation (age gate, postcode mask), per-step state coverage (pending 'Verifying…', OCR-mismatch recovery, resume token), and flow-level a11y (focus per step, announced progress); hands rail/KYC substance to gok-bank-identity and the look to gokberk-design.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Users are dropping off at the loan application. Improve it.",
+      "expected_output": "Invokes the UX consultant; locates the bleeding step before redesigning (too many fields, a surprise cost on the offer, a waiting state with no status), applies progressive disclosure to the finances step, reward-early affordability hints, an honest pending state for the soft check, a clear no-blame declined path with alternatives, resumability via draft token, and visible progress; cites ux-flows.md §7; defers APR/affordability rules to gok-bank-lending and the offer ledger's look to gokberk-design.",
+      "files": []
+    }
+  ]
+}

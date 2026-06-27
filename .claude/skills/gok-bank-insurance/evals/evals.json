@@ -1,0 +1,23 @@
+{
+  "skill_name": "gok-bank-insurance",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm about to build the insurance buy flow for the bank app — the quote and purchase wizard. What does it need to get right before I start?",
+      "expected_output": "Invokes the insurance domain expert; leads with cover vs exclusions at equal visual weight (the non-negotiable), then IPID-style disclosure (monthly + annual premium, excess, limits, cooling-off) before the forced-decision buy, demands-and-needs framing, e-sign via gok-bank-servicing (D02) and payment via gok-bank-payments; cites the N01 spec and hands off to gok-bank-ux.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Build the claims tracker so people can file a claim and see where it is. How should it work?",
+      "expected_output": "Invokes the insurance expert; frames claims as a calm, no-blame, tracked process with Submitted → In review → Decision stages and a reference; covers outside-window warning with forced acknowledgement (not a hard block by default), duplicate-claim check, withdraw while open, honest pending review (no faked instant decision), and a clear no-blame decline reason; cites N03 and the claims doctrine; routes a card/payment dispute to gok-bank-servicing, not here.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "On the quote screen, can we make the exclusions smaller and tuck them in a collapsed section so the cover looks stronger and we get more conversions?",
+      "expected_output": "Invokes the insurance expert; refuses firmly — exclusions must render at equal visual weight (same heading level, type size, prominence, default state) to cover, never quieter or collapsed-only; explains the why (trust is lost at claim time, it's the IPID principle and the brand's honesty, the test enforces equal weight) and that a buried exclusion makes a furious customer later; offers the on-brand alternative of clear, confident, honest disclosure.",
+      "files": []
+    }
+  ]
+}

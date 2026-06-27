@@ -1,0 +1,23 @@
+{
+  "skill_name": "gok-bank-payments",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm about to build the send-money wizard for the bank app — the one that handles SEPA and SWIFT with FX. What does it need to get right before I start?",
+      "expected_output": "Invokes the payments domain expert; gives requirements + guardrails (rail truth, fee/FX disclosure before confirm, SCA/step-up, confirmation of payee, pending vs settled), cites the P03 spec and the money spine, hands off to gok-bank-ux.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Add a standing order feature so people can pay rent every month. How should it work?",
+      "expected_output": "Invokes the payments expert; distinguishes standing order (push) from direct debit (pull/mandate), covers frequency/start/end, projected-balance check, cancel as forced-decision, next-run preview; scopes correctly.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Should we let users send crypto from the payments screen, and also support Swedish Swish payments?",
+      "expected_output": "Invokes the payments expert; pushes back on scope — crypto belongs to gok-bank-wealth, Swish is out (pan-European = SEPA + SWIFT); explains the why and the in-scope alternative.",
+      "files": []
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "skill_name": "gok-bank-servicing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm about to build the e-sign flow so people can sign their loan agreement in the app. What does it need to get right before I start?",
+      "expected_output": "Invokes the servicing domain expert; gives requirements + guardrails for the four beats (review with scroll-to-end gate satisfiable by keyboard, explicit legally-binding consent, step-up authenticate, timestamped signed copy written to the vault and downloadable, safe resume); frames eIDAS levels (AES-flavoured: intent, identity via step-up, retained record), routes the step-up to gok-bank-identity, cites the D02 spec, hands off to gok-bank-ux.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Build the dispute flow so users can chargeback a card transaction. How should it work?",
+      "expected_output": "Invokes the servicing expert; lays out the pre-filled transaction→reason→evidence→review→submit wizard and the Raised→Investigating→Provisional credit→Resolved tracker; insists on honest eligibility gating (outside-window/card-replaced/already-disputed with a reason + alternative), a merchant-first nudge with a dispute-anyway path, provisional credit stated as temporary/reversible, no-blame copy, forced-decision submit (no step-up by default); owns the dispute PROCESS while routing card mechanics to gok-bank-cards and the payment to gok-bank-payments; cites S02.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Should the documents vault store its own copy of generated statements, and can we wire up real DocuSign for signing and a real support chat backend?",
+      "expected_output": "Invokes the servicing expert; pushes back on scope — the vault is the single write-through (statements from gok-bank-accounts/A06 and signed copies from D02 feed one add() path, no duplicate storage); no real e-sign provider (mock token + ISO timestamp models the AES experience) and no real chat backend (mock panel, seeded replies); explains the why and the in-scope alternative.",
+      "files": []
+    }
+  ]
+}

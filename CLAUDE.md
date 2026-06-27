@@ -37,6 +37,45 @@ public repo). **Read the feature's spec under `.planning/features/<domain>/` bef
    `patterns.md`, `brand-language.md`, `voice-and-tone.md`; hold it against `verification.md` before calling
    it done.
 
+## The expert layer (domain experts · UX · product owner)
+
+On top of the two authorities sits a **team of expert skills** under `.claude/skills/` that governs *what*
+we build, *how it's experienced*, and *whether it earns its place*. They are advisory experts — they don't
+write code or pick colours; they lend judgment. Consult the relevant ones **before and while** building a
+feature; they auto-trigger from their descriptions, and the `expert-reminder.sh` PostToolUse hook nudges the
+right ones when you edit a domain's files.
+
+**Domain experts** (each a 20+-year head of that domain; owns its features + scope):
+
+| Skill | Domain / routes | Specs |
+|-------|------------------|-------|
+| `gok-bank-accounts` | accounts, wallets, balances, transactions table, pots, statements · `/accounts/**`, `/home` | A01–A06 |
+| `gok-bank-payments` | send money, SEPA/SWIFT/FX, scheduled, direct debits, payees, split · `/payments/**` | P01–P10 |
+| `gok-bank-cards` | card wallet, controls, limits, PIN/3-DS, add-to-wallet · `/cards/**` | C01–C05 |
+| `gok-bank-lending` | loans, mortgages, credit line, amortization · `/lending/**` | L01–L05 |
+| `gok-bank-insurance` | buy/quote, policies, claims · `/insurance/**` | N01–N03 |
+| `gok-bank-wealth` | portfolio, order ticket, instruments, watchlists, crypto · `/invest/**`, `/crypto/**` | V01–V07 |
+| `gok-bank-money` | budgets, spend analytics, rewards · `/budgets/**`, `/rewards/**` | M01–M02 |
+| `gok-bank-identity` | onboarding, KYC, auth, 2FA/passkey, step-up, security · `/onboarding/**`, `/login`, `/security/**` | O01–O03 |
+| `gok-bank-servicing` | documents vault, e-sign, support, disputes · `/documents/**`, `/support/**` | D01–D02, S01–S02 |
+
+**Cross-cutting:**
+- **`gok-bank-ux`** — the principal UX consultant: customer journeys, flow optimization, friction, states,
+  flow-level a11y. Owns the experience, **not** brand visuals (those stay with `gokberk-design`). Cites and
+  enforces `.planning/ux/patterns.md` + `ux-flows.md`.
+- **`gok-bank-product-owner`** — the Chief Product Owner: the value/competitive **gate** with veto rights.
+  Bring it in for any new feature, scope change, "should we build X", prioritization, or definition-of-done.
+
+**Collaboration order (the council)** — for any feature work:
+1. **Domain expert** sets requirements + guardrails (what must ship, what not, regulatory/edge cases) from
+   the feature's `.planning` spec.
+2. **`gok-bank-ux`** designs/optimizes the customer journey & flow on top.
+3. **`gok-bank-product-owner`** validates value & competitiveness and gates ship/cut/reshape.
+
+These compose *with* the two authorities above (Svelte MCP = how it's written, `gokberk-design` = how it
+looks) — never override them. Platform/foundation work (no single domain owner) → `gok-bank-ux` +
+`gok-bank-product-owner` + any touched domain expert.
+
 ## Brand discipline (non-negotiable)
 
 - **Never hardcode** a hex, px, radius, or easing curve — read a `--gok-*` token (a *semantic role*:

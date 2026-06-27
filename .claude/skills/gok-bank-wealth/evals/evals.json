@@ -1,0 +1,23 @@
+{
+  "skill_name": "gok-bank-wealth",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm about to build the order ticket for the bank app — buy/sell with market, limit, and stop. What does it need to get right before I start?",
+      "expected_output": "Invokes the wealth & brokerage domain expert; gives requirements + guardrails (the order spine: ticket → cost preview → review → forced-decision confirm → terminal state; cost + FX disclosed before confirm, buying power reward-early blocks confirm, market-order slippage note + 'prices indicative', honest Filled/Working/Queued, Buy/Sell not colour-coded, step-up over threshold); cites the V03 spec and the order spine; hands off to gok-bank-ux.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Build the crypto send screen so people can send Bitcoin to an address. How should it work?",
+      "expected_output": "Invokes the wealth expert; covers reward-early address validation + network-mismatch warning, the forced-decision gok-dialog tone=danger no-dismiss that NAMES the network and states irreversibility before funds move, network-fee disclosure, instrument-ccy vs home-ccy FX value, step-up over threshold, and honest Pending → Confirming state with tx hash; cites V07; scopes out real self-custody/seed phrases.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Should we add margin trading and a copy-trading leaderboard to the investing section, and let people fund their account from the order ticket?",
+      "expected_output": "Invokes the wealth expert; pushes back on scope — margin/leverage is appropriateness-gated and off-brand (cash equities, funds/ETFs, spot crypto only), copy-trading/leaderboards are hype and we're execution-only, and account funding is money movement that belongs to gok-bank-payments (the ticket only reads buying power); explains the why and the in-scope alternative.",
+      "files": []
+    }
+  ]
+}

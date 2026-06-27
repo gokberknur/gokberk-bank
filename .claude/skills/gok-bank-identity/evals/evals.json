@@ -1,0 +1,23 @@
+{
+  "skill_name": "gok-bank-identity",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm about to build the signup flow for the bank app — the onboarding wizard with ID upload and a selfie. What does it need to get right before I start?",
+      "expected_output": "Invokes the identity domain expert; gives requirements + guardrails (resumable Back-editable wizard, age ≥ 18 gate, the forced KYC consent screen — what data/why/retention, un-pre-ticked, biometric named as special-category — ID upload with blurry-retry + camera fallback, editable OCR review, liveness retry cap then a help path, honest \"Verifying…\" pending never faked, deterministic IBAN on done); cites the O01 spec; hands off to gok-bank-ux.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "The payments team wants to require 2FA before any transfer over 1000 euros, and the cards team is adding its own re-auth before revealing a card number. How should we wire this?",
+      "expected_output": "Invokes the identity expert; routes both through the single step-up policy registry (step-up-policy.ts) rather than hard-coded thresholds — transfer ≥ €1,000 is a threshold entry (minor units), PAN reveal is an 'always' entry; explains dynamic linking (name the action), cancel = no side effect, the cache window, and logging every step-up to /security/activity; clarifies identity owns the step-up mechanism/policy while payments owns the payment and cards owns the reveal; cites O02/F12.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Should we integrate a real KYC provider like Onfido so verification is authentic, and make the liveness check retry until the user passes?",
+      "expected_output": "Invokes the identity expert; pushes back on scope — it's a mock demo, so no real KYC-vendor/biometric integration (deterministic verify-from-seed models the same UX with no real PII/risk); and rejects retry-until-pass as a trap, requiring a retry cap then a human/help path; explains the why and the in-scope alternative.",
+      "files": []
+    }
+  ]
+}

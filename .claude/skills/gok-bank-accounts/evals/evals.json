@@ -1,0 +1,23 @@
+{
+  "skill_name": "gok-bank-accounts",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm building the wallet detail page with the big transactions table for the bank app. What does it need to get right before I start?",
+      "expected_output": "Invokes the accounts domain expert; gives requirements + guardrails for A02 (gok-table columns/rows as DOM properties via setProps not bind:, gok-sort/selection/page via on, pending-vs-settled by rule+icon+text, running balance, copyable IBAN/BIC, search/facet chips, smooth at 500–2,000 rows), cites the A02 spec and the ledger-as-system-of-record principle, hands off to gok-bank-ux.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Add a savings pots feature with round-ups so people can save toward goals. How should it work?",
+      "expected_output": "Invokes the accounts expert; scopes A04 — pots as sub-balances of a wallet, add/withdraw as instant reversible internal transfers (optimistic + toast, no forced-decision dialog), reward-early block on over-add/over-withdraw, round-up sweep + auto-save rule, progress ring with the one earned accent fill and mark-led completion (no confetti); benchmarks Monzo Pots; scopes correctly.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "On the accounts page, let's also show the user's crypto and stock balances in the total and add a spending-by-category chart to each wallet.",
+      "expected_output": "Invokes the accounts expert; pushes back on scope — crypto/securities aren't deposit wallets and don't belong in the accounts total (gok-bank-wealth); spend-by-category analytics belong to gok-bank-money, not the ledger; explains the domain borders and the in-scope alternatives (per-transaction categorize in A05, the balance-history chart).",
+      "files": []
+    }
+  ]
+}

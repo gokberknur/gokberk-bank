@@ -1,0 +1,23 @@
+{
+  "skill_name": "gok-bank-product-owner",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm thinking we should add crypto staking and a social feed where people can share their trades and spending. Should we build these for the bank app?",
+      "expected_output": "Invokes the Chief Product Owner as the gate. Returns decisive verdicts (likely Cut/Reshape) using the Ship/Cut/Reshape format: names the job-to-be-done (or its absence), weighs value vs. cost, flags that a social feed fights the calm/premium/trust posture and farms attention, places crypto staking against the foundation-first and brand-trust principles, cites competitors (e.g. social-feed banking churned; Revolut/Bitpanda for crypto). Defers crypto domain rules to gok-bank-wealth and offers a better use of the effort. Explains the why.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Is the rewards/cashback feature actually worth building, or is it a distraction from the core bank?",
+      "expected_output": "Invokes the CPO for a value/prioritization call. Applies the value framework: real JTBD, Kano bucket (performance, with Monzo/Revolut as bar-setters), value-vs-cost, opportunity cost, primary-relationship test. Likely Reshape to a transparent minimal cashback surfaced in existing activity/transaction surfaces rather than a gamified points economy that fights the calm. Returns the decision-format verdict with what would change the decision and hand-off to gok-bank-money (M02) for scope and gok-bank-ux for flow.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "We're about to ship the home dashboard. Is it good enough to ship?",
+      "expected_output": "Invokes the CPO as the definition-of-done gate. Treats the dashboard as a table-stake surface (must be flawless, not flashy), lists ship conditions: accurate/reconciling balances, available-vs-current distinguished, honest pending, all empty/loading/error states present (patterns.md), reads as one calm bank per gokberk-design verification, quick actions route correctly. Gives a conditional Ship (or Not-yet if a number can't be trusted), grounded in the trust-over-timeliness principle, with a competitive read. Holds against the gokberk-design standard without redesigning.",
+      "files": []
+    }
+  ]
+}

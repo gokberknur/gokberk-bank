@@ -1,0 +1,23 @@
+{
+  "skill_name": "gok-bank-money",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm building the budgets page for the bank app — the spending insights dashboard with the category donut, monthly trend, and a savings rate. What does it need to get right before I start?",
+      "expected_output": "Invokes the PFM domain expert; gives requirements + guardrails — derive everything from the F03 transactions spine (no parallel spend store, totals reconcile to accounts), honest/correctable categorisation, every chart drives an action and has a non-visual equivalent, one accent over the neutral ramp, budget warnings reward-early and never shame; cites the M01 spec; hands off to gok-bank-ux.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Add a subscription detector so people can find their recurring charges, and add a streak that rewards them for staying under budget each month to keep them engaged.",
+      "expected_output": "Invokes the PFM expert; scopes the subscription detector in (recurring charge → cadence → next estimated date → cancel/dispute action, derived from the ledger) but pushes back on the streak — loss-framing/gamified engagement is a dark pattern that pressures the customer for an engagement metric, not their wellbeing; offers the honest savings-rate trend as the in-scope alternative.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Build the rewards screen with the cashback balance and offers. Make the headline offer say 'up to 10% back — limited time!' and add confetti when they redeem.",
+      "expected_output": "Invokes the PFM expert; pushes back on the dark patterns — bait pricing ('up to X%'), manufactured urgency, and confetti are out; requires offers to disclose real rate/cap/qualifying-spend/expiry, redeem capped at available with a forced-decision confirm, pending cashback shown lighter than available, calm no-hype copy; cites the M02 spec and routes the transaction ledger/balances themselves to gok-bank-accounts.",
+      "files": []
+    }
+  ]
+}

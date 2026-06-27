@@ -1,0 +1,23 @@
+{
+  "skill_name": "gok-bank-cards",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm about to build the card detail screen where you can reveal the full card number. What does it need to get right before I start?",
+      "expected_output": "Invokes the cards domain expert; gives requirements + guardrails (mask by default, reveal only after step-up F12, focus-trapped dialog, WCAG-safe auto-hide countdown that re-masks, never persist/log the PAN), cites the C01 spec and the sensitive-reveal pattern, hands off to gok-bank-ux.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Add a freeze toggle and spending limits to the cards screen. How should they work?",
+      "expected_output": "Invokes the cards expert; freeze is reversible so it's optimistic + gok-toast with NO dialog (rollback + alert on failure), channels (online/contactless/ATM) apply independently, daily limit via F07 money input validated reward-early against ceiling + today's spend, region allow-list with empty = Anywhere and a pinned home region; cites C03; friction matches stakes.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "On the cards screen, can we add a flow to dispute a charge, and also let people apply for a credit card with a credit limit?",
+      "expected_output": "Invokes the cards expert; pushes back on scope — disputes/chargebacks belong to gok-bank-servicing (the 3-DS prompt only hands off into S02), and the revolving credit-card product belongs to gok-bank-lending (L05); explains the why and the in-scope alternative (this skill owns debit/virtual/disposable cards and their controls).",
+      "files": []
+    }
+  ]
+}

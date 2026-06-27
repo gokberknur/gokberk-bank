@@ -1,0 +1,23 @@
+{
+  "skill_name": "gok-bank-lending",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm about to build the personal loan apply flow for the bank app — sliders for amount and term, then a check, then an offer. What does it need to get right before I start?",
+      "expected_output": "Invokes the lending domain expert; gives requirements + guardrails (live estimate before any PII, soft search said plainly, the fully-disclosed offer — APR, monthly, total repayable, total cost of credit, representative example, fees itemised, first-payment date — no-blame decline with alternatives, e-sign with step-up, 14-day withdrawal right on success, funds not before sign); cites the L01 spec and the money spine; hands off to gok-bank-ux and notes e-sign is consumed from gok-bank-servicing.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Add overpayment to the mortgage servicing screen so people can pay a lump sum off their balance. How should it work?",
+      "expected_output": "Invokes the lending expert; distinguishes an overpayment within the annual ERC-free allowance (normal review) from one that exceeds it / falls in the fixed period (an ERC-warning forced decision showing the exact charge, the net effect, 'Pay €X incl. €Y ERC', with step-up); requires the effect/saving be shown before confirm; cites L04 and the ERC framing; never float-multiply a rate; declining step-up returns with no side effect.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Let's show the customer's credit score when we decline them so it feels transparent, and add a 0% intro BNPL pay-in-3 option at checkout.",
+      "expected_output": "Invokes the lending expert; pushes back on scope — never show a credit score on decline (it reads as a verdict; use a plain reason + at least two alternatives, no blame), and no '0%' teaser hype / BNPL checkout (different surface, invites affordability-nudging we refuse); explains the why and the in-scope alternative (the revolving credit line, which discloses APR + a representative example up front).",
+      "files": []
+    }
+  ]
+}
