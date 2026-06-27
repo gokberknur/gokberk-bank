@@ -59,19 +59,20 @@
 	// Columns close over `currency`, so they re-derive if the wallet's currency
 	// changes while the component stays mounted (e.g. navigating between wallets).
 	const columns = $derived<Column[]>([
-		{ key: 'date', label: 'Date', sortable: true, width: '7rem', format: (v) => formatDayMonth(v as string) },
+		{ key: 'date', label: 'Date', sortable: true, width: '6.5rem', format: (v) => formatDayMonth(v as string) },
 		{ key: 'merchant', label: 'Description', primary: true, sortable: true },
-		{ key: 'category', label: 'Category', format: (v) => capitalize(v as string) },
-		{ key: 'type', label: 'Type', format: (v) => typeLabel(v as TxnType) },
-		{ key: 'status', label: 'Status', format: (v) => (v === 'pending' ? 'Pending' : 'Settled') },
+		{ key: 'category', label: 'Category', width: '8rem', format: (v) => capitalize(v as string) },
+		{ key: 'type', label: 'Type', width: '6rem', format: (v) => typeLabel(v as TxnType) },
+		{ key: 'status', label: 'Status', width: '7rem', format: (v) => (v === 'pending' ? 'Pending' : 'Settled') },
 		{
 			key: 'amountMinor',
 			label: 'Amount',
 			numeric: true,
 			sortable: true,
+			width: '8.5rem',
 			format: (v) => formatMoney(v as number, currency, { signDisplay: true })
 		},
-		{ key: 'runningBalanceMinor', label: 'Balance', numeric: true, format: (v) => formatMoney(v as number, currency) }
+		{ key: 'runningBalanceMinor', label: 'Balance', numeric: true, width: '8.5rem', format: (v) => formatMoney(v as number, currency) }
 	]);
 
 	const getRowId = (r: Transaction) => r.id;

@@ -12,7 +12,7 @@
 	let current = $derived(formatMoney(wallet.currentMinor, wallet.currency));
 	let held = $derived(formatMoney(wallet.holdMinor, wallet.currency));
 	let hasHold = $derived(wallet.holdMinor > 0);
-	let ibanTail = $derived(wallet.iban.slice(-4));
+	let ibanTail = $derived(wallet.iban.replace(/\s/g, '').slice(-4));
 	let label = $derived(`${wallet.currency} wallet, available ${available}`);
 </script>
 
