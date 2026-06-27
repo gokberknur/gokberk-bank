@@ -5,8 +5,8 @@
 	// are live (the personal-loan application and the public mortgage calculator);
 	// the credit line waits as a muted "Soon" (L05). The forest-green accent stays
 	// unspent here — ink on paper — so the numbers carry the page. A quiet compliance
-	// footnote closes it. Read-only: servicing (L02) is deferred, so "View loan" is
-	// a disabled "Soon".
+	// footnote closes it. The active-loan card links through to the L02 servicing
+	// surface ("Manage loan").
 	import { lending } from '$lib/state/lending.svelte';
 	import { LOAN_PURPOSES, personalLoanAprBps } from '$lib/data/lending';
 	import { formatMoney, formatDate } from '$lib/format';
@@ -79,9 +79,8 @@
 						<p class="loan-original gok-tabular-nums">Borrowed {eur(loan.principalMinor)}</p>
 					</div>
 					<div class="loan-cta">
-						<!-- L02 servicing is deferred — no live loan detail yet. -->
-						<gok-button variant="secondary" size="s" disabled>View loan</gok-button>
-						<gok-tag size="s">Soon</gok-tag>
+						<!-- L02 servicing — the live loan-detail surface. -->
+						<gok-link href="/lending/loans/{loan.id}">Manage loan</gok-link>
 					</div>
 				</div>
 

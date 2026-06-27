@@ -23,7 +23,7 @@ export const WALLET_BLUEPRINTS: readonly WalletBlueprint[] = [
 		bic: 'GOKBDEB1XXX',
 		openedAt: '2023-02-14',
 		primary: true,
-		targetCurrentMinor: 482_050,
+		targetCurrentMinor: 700_000,
 		discretionary: 620
 	},
 	{

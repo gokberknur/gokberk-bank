@@ -34,6 +34,78 @@ import {
 import type { Loan, LoanStatus, LoanPurpose, Affordability, MortgageRateType } from '$lib/data/lending';
 import { TODAY, isoDate } from '$lib/data/time';
 
+// L02 — loan servicing: the mutable serviced-loan spine, its pure figures, the
+// EUR funding wallet + the F03 transactions spine for the repayment debit, the
+// reactive bridge (revision), and the toast store. Mirrors crypto.svelte.ts.
+import { monthlyPaymentMinor } from '$lib/data/lending';
+import {
+	currentBalanceMinor,
+	payoffQuote,
+	overpaymentEffect,
+	balanceGlide
+} from '$lib/lending/servicing';
+import type { PayoffQuote, OverpaymentEffect } from '$lib/lending/servicing';
+import {
+	getServicedLoan,
+	paidMonths,
+	applyOverpayment,
+	settleLoan
+} from '$lib/data/loan-account';
+import type { LoanLifecycle } from '$lib/data/loan-account';
+import type { AmortRow } from '$lib/data/lending';
+import { appendTransaction, getTransactions } from '$lib/data';
+import type { Transaction } from '$lib/data';
+import { formatMoney } from '$lib/format';
+import { revision } from './revision.svelte';
+import { accounts } from './accounts.svelte';
+import { toast } from './toasts.svelte';
+
+// Re-export the pure types the L02 surface is authored against (so it imports
+// everything it needs from this one runtime module).
+export type { PayoffQuote, OverpaymentEffect } from '$lib/lending/servicing';
+export type { ServicedLoan, LoanLifecycle } from '$lib/data/loan-account';
+export type { AmortRow } from '$lib/data/lending';
+
+/** The live loan-servicing summary for the L02 hub — computed fresh each read. */
+export interface ServicingSummary {
+	loan: Loan;
+	status: LoanLifecycle;
+	/** ISO date the settlement was requested, or null while still active. */
+	settledOn: string | null;
+	/** The drawn-down principal, EUR minor units (never changes). */
+	originalPrincipalMinor: number;
+	aprBps: number;
+	/** The contractual level monthly payment, EUR minor units. */
+	monthlyMinor: number;
+	/** Outstanding balance today, after any lump overpayments, EUR minor units. */
+	balanceMinor: number;
+	/** Lump sums paid ahead of schedule so far, EUR minor units. */
+	overpaidMinor: number;
+	/** Months paid so far, derived from the schedule vs TODAY. */
+	paidMonths: number;
+	/** The full term in months (loan.termMonths). */
+	totalMonths: number;
+	/** Months still to run from the payoff quote (overpayments shorten this). */
+	remainingMonths: number;
+	/** Fraction of the term elapsed, bps (paidMonths ÷ totalMonths). */
+	progressBps: number;
+	/** The next instalment due, EUR minor units (0 unless active with months left). */
+	nextPaymentMinor: number;
+	/** Next instalment date — the 1st of next month, ISO (YYYY-MM-DD). */
+	nextPaymentDate: string;
+	/** Whether any overpayment has been made (the loan runs ahead of schedule). */
+	aheadOfSchedule: boolean;
+}
+
+/** The live overpayment preview — its term/interest effect + the funds guard. */
+export interface OverpayPreview {
+	effect: OverpaymentEffect;
+	/** The extra exceeds the EUR funding wallet's available balance. */
+	insufficientFunds: boolean;
+	/** Spendable balance on the EUR funding wallet, minor units. */
+	fundsAvailableMinor: number;
+}
+
 // ── L01: the personal-loan application ────────────────────────────────────────
 
 /** Employment status as declared on the finances step. */
@@ -443,6 +515,191 @@ class LendingState {
 			rawRate === 'fixed' || rawRate === 'variable' ? rawRate : current.rateType;
 
 		this.setMortgage({ propertyMinor: property, depositMinor: deposit, termYears, rateType });
+	}
+
+	// ── 4. Loan servicing (L02) ──
+
+	// Unlike L01/L03 (pure derivations over fixed seeds), L02 reads the **mutable**
+	// serviced-loan record and **moves money**. The data spine mutates in-memory, so
+	// like the crypto state every read touches `revision.value` to take a dependency
+	// on the shared signal, and every mutation calls `revision.bump()` so balances,
+	// the schedule, and the EUR wallet re-flow on every surface at once. All money is
+	// integer EUR minor units; the repayment debit rides the F03 transactions spine
+	// exactly like a crypto buy. Overpayment shortens the term; settlement moves the
+	// loan to `settling` (held distinct from `closed` until the money clears).
+
+	/**
+	 * The live servicing summary for the lending hub — balance, progress, next
+	 * payment, and the lifecycle status — computed fresh each call from the mutable
+	 * serviced loan (its overpaid total + status) against the contractual schedule.
+	 */
+	servicing(): ServicingSummary {
+		revision.value;
+		const sl = getServicedLoan();
+		const loan = sl.loan;
+		const months = paidMonths();
+		const monthlyMinor = monthlyPaymentMinor(loan.principalMinor, loan.aprBps, loan.termMonths);
+		const quote = payoffQuote(loan, months, sl.overpaidMinor);
+		const next = new Date(TODAY);
+		next.setMonth(next.getMonth() + 1, 1);
+		return {
+			loan,
+			status: sl.status,
+			settledOn: sl.settledOn,
+			originalPrincipalMinor: loan.principalMinor,
+			aprBps: loan.aprBps,
+			monthlyMinor,
+			balanceMinor: currentBalanceMinor(loan, months, sl.overpaidMinor),
+			overpaidMinor: sl.overpaidMinor,
+			paidMonths: months,
+			totalMonths: loan.termMonths,
+			remainingMonths: quote.monthsRemaining,
+			progressBps: Math.round((months / loan.termMonths) * 10000),
+			nextPaymentMinor: sl.status === 'active' && quote.monthsRemaining > 0 ? monthlyMinor : 0,
+			nextPaymentDate: isoDate(next),
+			aheadOfSchedule: sl.overpaidMinor > 0
+		};
+	}
+
+	/**
+	 * The contractual amortization schedule (the seed loan, ignoring overpayments).
+	 * The surface tags paid rows (`month <= paidMonths`) and marks the next-due row
+	 * (`month === paidMonths + 1`); this just hands back the full pure schedule.
+	 */
+	schedule(): AmortRow[] {
+		revision.value;
+		const loan = getServicedLoan().loan;
+		return amortization(loan.principalMinor, loan.aprBps, loan.termMonths);
+	}
+
+	// ── Overpay ticket: draft → preview → place ──
+
+	/** The overpay ticket's working draft — ephemeral, never persisted. */
+	overpayDraft = $state<{ extraMinor: number }>({ extraMinor: 0 });
+
+	/** Open the overpay ticket — reset to nothing entered. */
+	openOverpay() {
+		this.overpayDraft = { extraMinor: 0 };
+	}
+
+	/** Set the lump overpayment amount (immutable replacement), EUR minor units. */
+	setOverpay(extraMinor: number) {
+		this.overpayDraft = { extraMinor };
+	}
+
+	/**
+	 * The live overpayment preview: the term/interest effect of the drafted lump
+	 * (keeping the level payment, finishing sooner) plus the funds guard against the
+	 * EUR funding wallet's available balance.
+	 */
+	overpayPreview(): OverpayPreview {
+		revision.value;
+		const sl = getServicedLoan();
+		const extraMinor = this.overpayDraft.extraMinor;
+		const fundsAvailableMinor = accounts.primary.availableMinor;
+		return {
+			effect: overpaymentEffect(sl.loan, paidMonths(), sl.overpaidMinor, extraMinor),
+			insufficientFunds: extraMinor > fundsAvailableMinor,
+			fundsAvailableMinor
+		};
+	}
+
+	/** Two balance glide paths (original vs after the drafted overpayment) for the chart. */
+	overpayGlide(): { original: number[]; afterAction: number[] } {
+		revision.value;
+		const sl = getServicedLoan();
+		return balanceGlide(sl.loan, paidMonths(), sl.overpaidMinor, this.overpayPreview().effect.newBalanceMinor);
+	}
+
+	/**
+	 * Commit the overpayment. Guards: a positive amount, enough funds, the loan still
+	 * `active` → returns false otherwise. Then debits the EUR funding wallet on the
+	 * F03 spine (modelled on the crypto buy), applies the overpayment to the serviced
+	 * loan, bumps the revision, and toasts the months saved. Returns true on success.
+	 */
+	placeOverpay(): boolean {
+		const preview = this.overpayPreview();
+		const sl = getServicedLoan();
+		const amountMinor = this.overpayDraft.extraMinor;
+		if (amountMinor <= 0 || preview.insufficientFunds || sl.status !== 'active') return false;
+
+		const loan = sl.loan;
+		const wallet = accounts.primary;
+		const debit: Transaction = {
+			id: 'loan-overpay-' + wallet.id + '-' + getTransactions().length,
+			walletId: wallet.id,
+			date: isoDate(TODAY),
+			merchant: 'Loan overpayment',
+			category: 'transfers',
+			type: 'transfer',
+			status: 'settled',
+			amountMinor: -amountMinor, // negative → outflow
+			currency: 'EUR',
+			runningBalanceMinor: wallet.currentMinor - amountMinor,
+			reference: `Overpaid loan ${loan.id}`
+		};
+		appendTransaction(debit);
+		applyOverpayment(amountMinor);
+		revision.bump();
+		toast(`Overpaid ${formatMoney(amountMinor, 'EUR')} — ${preview.effect.monthsSavedMinor} months sooner`, {
+			status: 'success'
+		});
+		return true;
+	}
+
+	// ── Payoff / settlement ──
+
+	/** The exact figure to settle in full today + the interest it saves (the quote). */
+	payoff(): PayoffQuote {
+		revision.value;
+		const sl = getServicedLoan();
+		return payoffQuote(sl.loan, paidMonths(), sl.overpaidMinor);
+	}
+
+	/** Glide paths for the payoff chart — the original path vs the line dropping to 0. */
+	payoffGlide(): { original: number[]; afterAction: number[] } {
+		revision.value;
+		const sl = getServicedLoan();
+		return balanceGlide(sl.loan, paidMonths(), sl.overpaidMinor, 0);
+	}
+
+	/** Whether the full payoff total exceeds the EUR funding wallet's available balance. */
+	payoffInsufficientFunds(): boolean {
+		return this.payoff().totalMinor > accounts.primary.availableMinor;
+	}
+
+	/**
+	 * Settle the loan in full. Guards: the loan still `active`, enough funds for the
+	 * payoff total → returns false otherwise. Debits the EUR funding wallet by the
+	 * payoff total on the F03 spine (merchant 'Loan settlement'), moves the loan to
+	 * `settling`, bumps the revision, and toasts. Returns true on success. NOTE: this
+	 * just moves the money — the surface gates it behind step-up + a forced decision.
+	 */
+	placeSettlement(): boolean {
+		const sl = getServicedLoan();
+		if (sl.status !== 'active' || this.payoffInsufficientFunds()) return false;
+
+		const loan = sl.loan;
+		const amountMinor = this.payoff().totalMinor;
+		const wallet = accounts.primary;
+		const debit: Transaction = {
+			id: 'loan-settle-' + wallet.id + '-' + getTransactions().length,
+			walletId: wallet.id,
+			date: isoDate(TODAY),
+			merchant: 'Loan settlement',
+			category: 'transfers',
+			type: 'transfer',
+			status: 'settled',
+			amountMinor: -amountMinor, // negative → outflow
+			currency: 'EUR',
+			runningBalanceMinor: wallet.currentMinor - amountMinor,
+			reference: `Settled loan ${loan.id}`
+		};
+		appendTransaction(debit);
+		settleLoan(isoDate(TODAY));
+		revision.bump();
+		toast('Loan settled — clearing now', { status: 'success' });
+		return true;
 	}
 }
 
