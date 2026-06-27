@@ -653,7 +653,7 @@
 		padding: var(--gok-space-300);
 		border: var(--gok-border-width-hairline) solid var(--gok-color-border);
 		border-radius: var(--gok-radius-m);
-		background: var(--gok-color-surface-sunken);
+		background: var(--gok-color-surface-strong);
 	}
 
 	.stepup-key {
@@ -686,7 +686,7 @@
 		justify-content: center;
 		inline-size: 1.25rem;
 		block-size: 1.25rem;
-		border-radius: var(--gok-radius-full);
+		border-radius: var(--gok-radius-pill);
 		color: var(--gok-color-primary);
 		border: var(--gok-border-width-strong) solid var(--gok-color-primary);
 	}
@@ -704,7 +704,7 @@
 		justify-content: center;
 		inline-size: 3rem;
 		block-size: 3rem;
-		border-radius: var(--gok-radius-full);
+		border-radius: var(--gok-radius-pill);
 		border: var(--gok-border-width-strong) solid currentcolor;
 		color: var(--gok-color-primary);
 	}

@@ -374,7 +374,7 @@
 		justify-content: center;
 		inline-size: 3rem;
 		block-size: 3rem;
-		border-radius: var(--gok-radius-full);
+		border-radius: var(--gok-radius-pill);
 		border: var(--gok-border-width-strong) solid currentcolor;
 		color: var(--gok-color-primary);
 	}

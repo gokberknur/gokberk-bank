@@ -143,7 +143,7 @@
 	.status-dot {
 		inline-size: 0.625rem;
 		block-size: 0.625rem;
-		border-radius: var(--gok-radius-full);
+		border-radius: var(--gok-radius-pill);
 		border: var(--gok-border-width-strong) solid var(--gok-color-text);
 	}
 

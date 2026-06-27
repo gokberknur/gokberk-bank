@@ -40,7 +40,7 @@ export const NAV: NavSection[] = [
 	{
 		label: 'Borrow & protect',
 		items: [
-			{ label: 'Lending', href: '/lending', value: 'lending', icon: 'lending', ready: false },
+			{ label: 'Lending', href: '/lending', value: 'lending', icon: 'lending', ready: true },
 			{ label: 'Insurance', href: '/insurance', value: 'insurance', icon: 'insurance', ready: false }
 		]
 	},
