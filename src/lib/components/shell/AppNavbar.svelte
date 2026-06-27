@@ -4,6 +4,7 @@
 	// events arrive via the `on` attachment; object/boolean props go in via
 	// setProps. Search/notifications/most menu items are deliberate no-ops for now
 	// (their surfaces land in later features) — never a 404.
+	import { goto } from '$app/navigation';
 	import { session } from '$lib/state/session.svelte';
 	import { density } from '$lib/state/density.svelte';
 	import { setProps, on } from '$lib/wc.svelte';
@@ -28,6 +29,9 @@
 				break;
 			case 'density':
 				density.toggle();
+				break;
+			case 'open-account':
+				goto('/onboarding');
 				break;
 			case 'signout':
 				// TODO: sign out → /
@@ -68,6 +72,7 @@
 			>
 				Compact density
 			</gok-menu-item>
+			<gok-menu-item value="open-account">Open an account</gok-menu-item>
 			<gok-menu-item value="signout">Sign out</gok-menu-item>
 		</gok-menu>
 
