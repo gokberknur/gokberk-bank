@@ -2,8 +2,22 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.svg" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<meta name="text-scale" content="scale" />
+		<meta name="description" content="gökberk bank — a personal pan-European bank: accounts, payments, cards, investing." />
+		<!--
+			Apply the persisted theme + density before first paint, so there is no
+			flash of the wrong theme. The gok-* components and tokens both read these
+			data-attributes on <html>.
+		-->
+		<script>
+			try {
+				var t = localStorage.getItem('gok-theme');
+				document.documentElement.dataset.theme = t === 'dark' ? 'dark' : 'light';
+				var d = localStorage.getItem('gok-density');
+				if (d === 'compact') document.documentElement.dataset.density = 'compact';
+			} catch (e) {}
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

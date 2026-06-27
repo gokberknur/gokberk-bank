@@ -1,0 +1,82 @@
+/*
+ * App-global styles. Everything reads --gok-* semantic role tokens — never a
+ * hardcoded hex, px, radius, or easing. The design system's foundation CSS
+ * (fonts → tokens → typography → layout, via standalone.css) is imported in
+ * +layout.svelte; this file holds only app-wide glue on top of it.
+ */
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	background: var(--gok-color-bg);
+	color: var(--gok-color-text);
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+}
+
+body {
+	margin: 0;
+	min-block-size: 100dvh;
+	font-family: var(--gok-type-body-regular-family);
+	font-size: var(--gok-type-body-regular-size);
+	line-height: var(--gok-type-body-regular-line);
+}
+
+/* Respect the brand's quiet-motion principle for anyone who asks for less. */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+/*
+ * Native View Transitions on client navigation (driven by the onNavigate hook in
+ * +layout.svelte). The page content crossfades with a small upward rise. Quiet
+ * and fast, per the brand's motion principle. Persistent chrome (the app shell's
+ * sidenav/navbar) pins itself via its own view-transition-name so only the
+ * content animates.
+ */
+::view-transition-group(root) {
+	animation-duration: var(--gok-motion-duration-moderate);
+}
+
+::view-transition-old(root) {
+	animation: vt-page-out var(--gok-motion-duration-moderate) var(--gok-motion-ease-dynamic) both;
+}
+
+::view-transition-new(root) {
+	animation: vt-page-in var(--gok-motion-duration-moderate) var(--gok-motion-ease-precise) both;
+}
+
+@keyframes vt-page-out {
+	to {
+		opacity: 0;
+	}
+}
+
+@keyframes vt-page-in {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+}
+
+/* The reduced-motion block above zeroes normal animations, but the universal selector
+   never matches view-transition pseudo-elements — disable them explicitly so navigation
+   becomes an instant swap. */
+@media (prefers-reduced-motion: reduce) {
+	::view-transition-group(*),
+	::view-transition-old(*),
+	::view-transition-new(*) {
+		animation: none !important;
+	}
+}
