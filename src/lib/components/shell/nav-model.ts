@@ -34,7 +34,7 @@ export const NAV: NavSection[] = [
 		label: 'Invest',
 		items: [
 			{ label: 'Investments', href: '/invest', value: 'invest', icon: 'invest', ready: true },
-			{ label: 'Crypto', href: '/crypto', value: 'crypto', icon: 'crypto', ready: false }
+			{ label: 'Crypto', href: '/crypto', value: 'crypto', icon: 'crypto', ready: true }
 		]
 	},
 	{

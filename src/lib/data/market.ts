@@ -77,7 +77,10 @@ export const INSTRUMENTS: readonly Instrument[] = [
 	{ symbol: 'NVDA', name: 'NVIDIA Corp.', exchange: 'NASDAQ', currency: 'USD', type: 'stock', sector: 'Technology', region: 'United States', about: 'GPUs and accelerated computing for AI, data centres, and graphics.', lastPriceMinor: 12790, priorCloseMinor: 12410, high52wMinor: 14090, low52wMinor: 6190, peRatioX100: 6420, marketCapEurMinor: 290000000000000, dividendYieldBps: 3, betaX100: 168, fractionalAllowed: true },
 	{ symbol: 'IWDA', name: 'iShares Core MSCI World', exchange: 'AEX', currency: 'EUR', type: 'etf', sector: 'Global equity', region: 'Global', about: 'Accumulating UCITS ETF tracking developed-market equities worldwide.', lastPriceMinor: 9842, priorCloseMinor: 9818, high52wMinor: 10120, low52wMinor: 7960, peRatioX100: null, marketCapEurMinor: 8900000000000, dividendYieldBps: 0, betaX100: 100, fractionalAllowed: true },
 	{ symbol: 'VWCE', name: 'Vanguard FTSE All-World', exchange: 'XETRA', currency: 'EUR', type: 'etf', sector: 'Global equity', region: 'Global', about: 'Accumulating UCITS ETF tracking developed + emerging market equities.', lastPriceMinor: 12810, priorCloseMinor: 12772, high52wMinor: 13180, low52wMinor: 10240, peRatioX100: null, marketCapEurMinor: 1640000000000, dividendYieldBps: 0, betaX100: 101, fractionalAllowed: true },
-	{ symbol: 'BTC', name: 'Bitcoin', exchange: 'Crypto', currency: 'EUR', type: 'crypto', sector: 'Digital asset', region: 'Global', about: 'Decentralised digital currency; the largest crypto asset by market cap.', lastPriceMinor: 5842000, priorCloseMinor: 5719000, high52wMinor: 9210000, low52wMinor: 4380000, peRatioX100: null, marketCapEurMinor: 115000000000000, dividendYieldBps: 0, betaX100: null, fractionalAllowed: true }
+	{ symbol: 'BTC', name: 'Bitcoin', exchange: 'Crypto', currency: 'EUR', type: 'crypto', sector: 'Digital asset', region: 'Global', about: 'Decentralised digital currency; the largest crypto asset by market cap.', lastPriceMinor: 5842000, priorCloseMinor: 5719000, high52wMinor: 9210000, low52wMinor: 4380000, peRatioX100: null, marketCapEurMinor: 115000000000000, dividendYieldBps: 0, betaX100: null, fractionalAllowed: true },
+	{ symbol: 'ETH', name: 'Ethereum', exchange: 'Crypto', currency: 'EUR', type: 'crypto', sector: 'Digital asset', region: 'Global', about: 'Programmable blockchain; the settlement layer for smart contracts and tokens.', lastPriceMinor: 240500, priorCloseMinor: 235100, high52wMinor: 372000, low52wMinor: 178000, peRatioX100: null, marketCapEurMinor: 28900000000000, dividendYieldBps: 0, betaX100: null, fractionalAllowed: true },
+	{ symbol: 'SOL', name: 'Solana', exchange: 'Crypto', currency: 'EUR', type: 'crypto', sector: 'Digital asset', region: 'Global', about: 'High-throughput blockchain favoured for low-fee, fast transactions.', lastPriceMinor: 14080, priorCloseMinor: 14620, high52wMinor: 24500, low52wMinor: 8900, peRatioX100: null, marketCapEurMinor: 6700000000000, dividendYieldBps: 0, betaX100: null, fractionalAllowed: true },
+	{ symbol: 'USDC', name: 'USD Coin', exchange: 'Crypto', currency: 'EUR', type: 'crypto', sector: 'Digital asset', region: 'Global', about: 'A fully-reserved stablecoin pegged to the US dollar.', lastPriceMinor: 92, priorCloseMinor: 92, high52wMinor: 95, low52wMinor: 90, peRatioX100: null, marketCapEurMinor: 3300000000000, dividendYieldBps: 0, betaX100: null, fractionalAllowed: true }
 ];
 
 export const HOLDINGS: readonly Holding[] = [
@@ -87,7 +90,9 @@ export const HOLDINGS: readonly Holding[] = [
 	{ symbol: 'NVDA', quantity: 16, avgCostMinor: 7420 },
 	{ symbol: 'IWDA', quantity: 32, avgCostMinor: 8910 },
 	{ symbol: 'VWCE', quantity: 11, avgCostMinor: 11240 },
-	{ symbol: 'BTC', quantity: 0.08, avgCostMinor: 4910000 }
+	{ symbol: 'BTC', quantity: 0.08, avgCostMinor: 4910000 },
+	{ symbol: 'ETH', quantity: 1.4, avgCostMinor: 198000 },
+	{ symbol: 'SOL', quantity: 22, avgCostMinor: 11200 }
 ];
 
 export interface Candle {
