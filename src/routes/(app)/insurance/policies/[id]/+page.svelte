@@ -9,6 +9,8 @@
 	// On confirm the status tag flips to Cancelled and the actions retire — no blame.
 	import { page } from '$app/state';
 	import { insurance } from '$lib/state/insurance.svelte';
+	import { claims, CLAIM_STATUS_LABELS, CLAIM_TYPE_LABELS } from '$lib/insurance/claims.svelte';
+	import type { ClaimStatus } from '$lib/insurance/claims.svelte';
 	import { getTier } from '$lib/data/insurance-data';
 	import { formatMoney, formatDate } from '$lib/format';
 	import { setProps, on } from '$lib/wc.svelte';
@@ -22,6 +24,9 @@
 	const cover = $derived(policy ? insurance.coverFor(policy) : { covered: [], excluded: [] });
 
 	const isActive = $derived(policy?.status === 'active');
+
+	// The claims filed against this policy (newest-first), for the claims block.
+	const policyClaims = $derived(policy ? claims.claimsForPolicy(policy.id) : []);
 
 	// The add-ons carried on this policy, by their display label, or "None".
 	const addOnLabels = $derived(
@@ -67,6 +72,46 @@
 <svelte:head>
 	<title>{product ? `${product.name} · ${policy?.insuredLabel}` : 'Policy'} · gökberk bank</title>
 </svelte:head>
+
+<!-- A claim's status as rule + icon + text: a glyph beside the status word, never
+     colour alone. -->
+{#snippet claimGlyph(status: ClaimStatus)}
+	{#if status === 'approved'}
+		<svg viewBox="0 0 24 24" width="12" height="12" fill="none" aria-hidden="true">
+			<path
+				d="M5 12.5l4.5 4.5L19 7"
+				stroke="currentColor"
+				stroke-width="1.9"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	{:else if status === 'declined'}
+		<svg viewBox="0 0 24 24" width="12" height="12" fill="none" aria-hidden="true">
+			<circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.75" />
+			<path d="M8.5 12h7" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+		</svg>
+	{:else if status === 'withdrawn'}
+		<svg viewBox="0 0 24 24" width="12" height="12" fill="none" aria-hidden="true">
+			<path d="M6 12h12" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+		</svg>
+	{:else if status === 'in-review'}
+		<svg viewBox="0 0 24 24" width="12" height="12" fill="none" aria-hidden="true">
+			<circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.75" />
+			<path
+				d="M12 8v4l2.5 2"
+				stroke="currentColor"
+				stroke-width="1.75"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	{:else}
+		<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true">
+			<circle cx="12" cy="12" r="5" />
+		</svg>
+	{/if}
+{/snippet}
 
 {#if !policy || !product}
 	<div class="missing">
@@ -243,6 +288,47 @@
 			</ul>
 			<p class="docs-note">Downloads open once my document vault lands.</p>
 		</section>
+
+		<!-- Claims — what's been filed against this policy, and the way in to file one. -->
+		{#if isActive || policyClaims.length > 0}
+			<section class="block" aria-labelledby="claims-heading">
+				<div class="block-titles">
+					<p class="block-eyebrow gok-eyebrow">Claims</p>
+					<h2 id="claims-heading" class="block-title gok-headline-5">Claims on this policy</h2>
+				</div>
+
+				{#if policyClaims.length > 0}
+					<ul class="claim-list">
+						{#each policyClaims as claim (claim.id)}
+							<li class="claim-cell">
+								<a class="claim-row" href={`/insurance/claims/${claim.id}`}>
+									<span class="claim-main">
+										<span class="claim-ref gok-tabular-nums">{claim.reference}</span>
+										<span class="claim-sub">
+											{CLAIM_TYPE_LABELS[claim.type]} · {formatDate(claim.incidentDate)}
+										</span>
+									</span>
+									<gok-tag size="s">
+										<span class="status">
+											{@render claimGlyph(claim.status)}
+											{CLAIM_STATUS_LABELS[claim.status]}
+										</span>
+									</gok-tag>
+								</a>
+							</li>
+						{/each}
+					</ul>
+				{:else}
+					<p class="claims-empty-note">No claims on this policy yet.</p>
+				{/if}
+
+				{#if isActive}
+					<gok-link href="/insurance/claims/new">
+						<gok-button variant="secondary">File a claim</gok-button>
+					</gok-link>
+				{/if}
+			</section>
+		{/if}
 
 		<!-- Payment schedule — a single calm line. -->
 		<section class="block" aria-labelledby="schedule-heading">
@@ -554,6 +640,64 @@
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
 		line-height: var(--gok-type-body-small-line);
+		color: var(--gok-color-text-muted);
+	}
+
+	/* ── Claims ── */
+	.claim-list {
+		display: flex;
+		flex-direction: column;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		border-block-start: var(--gok-border-width-hairline) solid var(--gok-color-border);
+	}
+
+	.claim-cell {
+		border-block-end: var(--gok-border-width-hairline) solid var(--gok-color-border);
+	}
+
+	.claim-row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--gok-space-300);
+		padding-block: var(--gok-space-300);
+		color: var(--gok-color-text);
+	}
+
+	.claim-row:focus-visible {
+		outline: var(--gok-focus-ring-width) solid var(--gok-color-primary);
+		outline-offset: calc(-1 * var(--gok-focus-ring-offset));
+		border-radius: var(--gok-radius-s);
+	}
+
+	.claim-main {
+		display: flex;
+		flex-direction: column;
+		gap: var(--gok-space-50);
+	}
+
+	.claim-ref {
+		font-family: var(--gok-font-family-text);
+		font-size: var(--gok-type-body-regular-size);
+		font-weight: var(--gok-font-weight-medium, var(--gok-font-weight-semibold));
+		color: var(--gok-color-text);
+	}
+
+	.claim-sub {
+		font-family: var(--gok-font-family-text);
+		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
+		color: var(--gok-color-text-muted);
+	}
+
+	.claims-empty-note {
+		margin: 0;
+		font-family: var(--gok-font-family-text);
+		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text-muted);
 	}
 
