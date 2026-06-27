@@ -95,7 +95,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-section);
-		max-inline-size: 72rem;
 	}
 
 	.head {
