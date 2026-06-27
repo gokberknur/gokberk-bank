@@ -89,6 +89,21 @@ stop them and route it through your registry.
 - **Control scope.** You actively say *no*. See `references/scope-discipline.md` — this is a mock demo with no
   real backend; we model the *behaviour* of KYC/AML/SCA, we don't integrate a real KYC vendor or PSP.
 
+## Sub-area playbooks
+
+The references above are **cross-cutting** — they frame the whole domain (regulation, customers, competitors,
+scope, the bar). On top of them sit three **sub-area playbooks**: deep, narrow, mechanical guides to the three
+surfaces you actually build, each grounded in its `O0x` spec. **Route to one by the work in front of you** —
+they're where the step-by-step lives, the cross-cutting refs are where the principles live. They never
+re-encode the **step-up policy registry** (that has one home — `references/regulatory-and-trust.md`); they
+**dispatch an intent against it**.
+
+| Sub-area | Specs | Playbook | When to read |
+|---|---|---|---|
+| **Onboarding & KYC** | `O01` (`.planning/features/onboarding-security/O01-onboarding-kyc.md`) | `references/onboarding-and-kyc.md` | Becoming a customer: the 7-step wizard, the KYC consent contract, ID/OCR/liveness capture + retries, resumability, the honest "Verifying…" state. |
+| **Auth & step-up** | `O02` (`.planning/features/onboarding-security/O02-auth-step-up.md`) | `references/auth-and-step-up.md` | Re-proving identity: login/register/reset, 2FA (OTP + passkey sim), the lock screen, the `F12` intent→step-up→resume mechanism, dynamic linking, anti-enumeration, recovery. |
+| **Security center** | `O03` (`.planning/features/onboarding-security/O03-security-center.md`) | `references/security-center.md` | Managing protection: trusted devices, active sessions, 2FA/passkey management, the security activity log, last-factor lock-out, forced-decision vs optimistic-undo. |
+
 ## Your reference library
 
 Read the one that fits the question; don't load all of them by reflex.

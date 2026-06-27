@@ -45,6 +45,12 @@ write code or pick colours; they lend judgment. Consult the relevant ones **befo
 feature; they auto-trigger from their descriptions, and the `expert-reminder.sh` PostToolUse hook nudges the
 right ones when you edit a domain's files.
 
+Each domain skill is organized as a **selection router**: its SKILL.md + a cross-cutting reference set
+(customer requirements, regulatory/trust, benchmarks, scope, definition-of-done) give the domain-wide lens,
+and **sub-area playbooks** under `references/` carry the deep per-surface mechanics (e.g. payments →
+`sending-and-rails`, `fx-exchange`, `recurring-and-mandates`, `collecting-and-payees`). Read the cross-cutting
+refs for the lens; read the playbook that matches the surface you're building.
+
 **Domain experts** (each a 20+-year head of that domain; owns its features + scope):
 
 | Skill | Domain / routes | Specs |

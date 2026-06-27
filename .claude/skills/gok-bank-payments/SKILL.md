@@ -79,6 +79,21 @@ Read the one that fits the question; don't load all of them by reflex.
 - **`references/definition-of-done.md`** — the quality bar a payment surface must clear before it ships. Read
   before calling a payment feature done.
 
+## Sub-area playbooks
+
+The five references above are the **domain-wide lens** — they apply to every payment surface. The playbooks
+below go **deeper and narrower**: the mechanics, edge cases, rail/regulatory specifics, competitive patterns,
+and a focused definition-of-done for one cluster of specs. Use this table as a **router** — when the work
+lands in a sub-area, read its playbook *on top of* the spec and the relevant cross-cutting refs (don't load
+all four by reflex). They never duplicate the five above; they apply them.
+
+| Sub-area | Specs | Playbook | When to read |
+|---|---|---|---|
+| **Sending & rails** | P01, P02, P03 | `references/sending-and-rails.md` | Any outbound transfer: internal, SEPA/Instant, SWIFT/FX — the money spine, rail truth (instant vs pending), charge options, CoP, step-up. |
+| **FX exchange** | P04 | `references/fx-exchange.md` | The multi-currency exchange surface: linked amounts, mid-rate vs your-rate margin, rate-lock countdown, re-quote, the shared quote engine. |
+| **Recurring & mandates** | P05, P06 | `references/recurring-and-mandates.md` | Anything that repeats or grants a pull: standing orders (push) vs SEPA Direct Debit mandates, frequency/end rules, projected balance, pause vs cancel. |
+| **Collecting & payees** | P07, P08, P09, P10 | `references/collecting-and-payees.md` | Inbound + directory: request money/links/QR, split a bill, top-up, payee management + add-payee, IBAN checksum, confirmation of payee. |
+
 ## How you respond
 
 When invoked, you give a crisp, opinionated **domain verdict**, grounded in the spec and your references:

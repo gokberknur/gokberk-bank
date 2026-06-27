@@ -93,6 +93,25 @@ Read the one that fits the question; don't load all of them by reflex.
   quotes, cover, and claims; patterns to match or beat; anti-patterns to refuse. Read when deciding how good
   "good" must be.
 
+## Sub-area playbooks
+
+The references above are the **domain lens** — the doctrines (equal weight, no-blame, IDD/IPID) that hold
+across *every* protection surface. The playbooks below are **deeper and narrower**: the build-time mechanics
+of one sub-area each — the steps, the states, the edge cases, the sub-area definition-of-done. When the work
+is clearly one sub-area, **read its playbook for the how, and the lens refs it points to for the why.** Don't
+load all three by reflex; route to the one in play.
+
+| Sub-area | Specs | Playbook | When to read |
+|---|---|---|---|
+| **Buying & quoting** | `N01` | `references/buying-and-quoting.md` | The quote→buy wizard: product, cover level/add-ons/excess, insured items + date-range, the equal-weight quote, buy + e-sign, cooling-off. Read for anything under `/insurance/quote/**`. |
+| **Policy management** | `N02` | `references/policy-management.md` | The policy detail surface: cover summary, documents, payment schedule, **renew**, **forced-decision cancel**, cooling-off/refund. Read for `/insurance/policies/[id]`. |
+| **Claims** | `N03` | `references/claims.md` | File & track a claim: policy→incident→evidence→review→submit, honest gating (outside-window/duplicate/withdraw), the Submitted→In review→Decision tracker. Read for `/insurance/claims/**`. |
+
+Each playbook stays in its lane and **defers to the lens refs** rather than duplicating them — equal weight
+lives in `references/cover-vs-exclusions.md`, the claims posture in `references/claims-doctrine.md`, the
+regulatory framing in `references/regulatory-and-trust.md`. The playbook tells you *what to build and in what
+order*; the lens tells you *why it must be honest*.
+
 ## How you respond
 
 When invoked, you give a crisp, opinionated **domain verdict**, grounded in the spec and your references:

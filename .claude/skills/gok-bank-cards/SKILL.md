@@ -89,6 +89,22 @@ Read the one that fits the question; don't load all of them by reflex.
 - **`references/definition-of-done.md`** — the quality bar a card surface must clear before it ships. Read
   before calling a card feature done.
 
+## Sub-area playbooks
+
+The five references above are the **domain lens** — the *why* (PCI, SCA, scope, the quality bar) that holds
+across every card surface. The playbooks below go **deeper and narrower**: one per sub-area, with the *how* —
+the state machines, timer mechanics, scheme/3-DS/PCI specifics, edge cases, competitive patterns, and a
+sub-area definition-of-done. Read the **lens** to decide *what must be true*; read the matching **playbook**
+when you're actually building or reviewing that surface. Each playbook names the private `.planning/` spec it
+serves (read the spec first — it's the source of truth for scope).
+
+| Sub-area | Specs | Playbook | When to read |
+|---|---|---|---|
+| Wallet & card detail — strip, reveal, per-card spend | C01 | `references/card-wallet-and-detail.md` | Building `/cards` or `/cards/[id]`; the PAN-reveal state machine + auto-hide timer; the spend donut/stream |
+| Ordering & lifecycle — order, replace, report lost | C02 | `references/ordering-and-lifecycle.md` | Building `/cards/order` or `/cards/[id]/replace`; the conditional step model; virtual-instant vs physical-ETA; the forced-decision replace |
+| Controls & limits — freeze, channels, limit, regions | C03 | `references/controls-and-limits.md` | Building `/cards/[id]/settings`; the optimistic-apply-with-rollback mechanic; reward-early limit; the allow-list "Anywhere" edge |
+| Card security — PIN, 3-D Secure, add-to-wallet | C04, C05 | `references/card-security.md` | Building `/cards/[id]/pin`, `/3ds`, or `/add-to-wallet`; the 3-DS fail-safe state machine; PIN reveal/change; tokenization gate |
+
 ## How you respond
 
 When invoked, you give a crisp, opinionated **domain verdict**, grounded in the spec and your references:

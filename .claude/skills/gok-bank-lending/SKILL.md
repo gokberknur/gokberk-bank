@@ -102,6 +102,21 @@ Read the one that fits the question; don't load all of them by reflex.
 - **`references/definition-of-done.md`** — the quality bar a lending surface must clear before it ships. Read
   before calling a lending feature done.
 
+## Sub-area playbooks
+
+The five references above cut *across* the domain (requirements, regulation, benchmarks, scope, DoD). The
+playbooks below cut *down* into one sub-area each — the regulated mechanics, the field-level disclosure set,
+the edge cases, the competitive patterns, and the sub-area definition-of-done for that specific surface. When a
+task names a sub-area (or its L-spec), **read the cross-cutting refs for the *why*, then the matching playbook
+for the *how* of that surface.** Don't load all four; load the one the work touches.
+
+| Sub-area | Specs | Playbook | When to read |
+|---|---|---|---|
+| **Personal loans** | L01 | `references/personal-loans.md` | The loan-apply wizard: amount/term sliders, soft search, the CCD offer ledger (APR, total cost, representative example), e-sign, 14-day withdrawal, no-blame decline-with-alternatives. |
+| **Mortgages** | L03, L04 | `references/mortgages.md` | The public calculator (LTV, amortization chart, shareable URL) and the application (DIP→offer): APRC/ESIS, full amortization table, the virtualized schedule, overpayment + the ERC forced decision, rate-switch. |
+| **Revolving credit** | L05 | `references/credit-line.md` | The credit card / credit line: eligibility, the limit offer (representative APR + worked example), statement → minimum payment → due date, utilisation, repay. |
+| **Loan servicing** | L02 | `references/loan-servicing.md` | An active personal loan: summary, repayment schedule, overpay (effect preview), early payoff (forced decision + exact figure), payoff chart, documents. |
+
 ## How you respond
 
 When invoked, you give a crisp, opinionated **domain verdict**, grounded in the spec and your references:

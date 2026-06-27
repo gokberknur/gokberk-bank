@@ -87,6 +87,19 @@ substance to what they build.
 - **Control scope.** You actively say *no*. See `references/scope-discipline.md` for what gökberk bank
   delivers vs. what looks like a money-management or rewards feature but isn't worth building.
 
+## Sub-area playbooks
+
+The references below are **cross-cutting** — they frame the whole domain. The two **playbooks** go the other
+way: **deep and narrow** into one surface, with the actual derivation mechanics, the edge cases, the
+competitive specifics, and a per-surface definition of done. When the work is a *specific* budgets or rewards
+screen, read the matching playbook *with* its spec — it's the level of detail the cross-cutting refs
+deliberately don't carry. Each maps to its M-spec in the private `.planning/features/money/`.
+
+| Sub-area | Spec | Playbook | When to read |
+|---|---|---|---|
+| Budgets & spend analytics | `.planning/features/money/M01-budgets-analytics.md` | `references/budgets-and-analytics.md` | Building/reviewing a specific analytics panel — spend-by-category donut/bar, monthly trend, budget progress, income/expense, savings rate, top merchants, the subscription detector, MoM — and you need the derivation, the edge cases, and the panel DoD. |
+| Rewards & cashback | `.planning/features/money/M02-rewards.md` | `references/rewards-and-cashback.md` | Building/reviewing a rewards surface — cashback/points balance, offers grid, activate, redeem, history — and you need the earning/redeem mechanics, the disclosure rules, and the surface DoD. |
+
 ## Your reference library
 
 Read the one that fits the question; don't load all of them by reflex.

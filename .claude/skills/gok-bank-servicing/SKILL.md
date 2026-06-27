@@ -98,6 +98,21 @@ Read the one that fits the question; don't load all of them by reflex.
 - **`references/definition-of-done.md`** — the quality bar a servicing surface must clear before it ships.
   Read before calling a servicing feature done.
 
+## Sub-area playbooks
+
+The references above are **cross-cutting** — they hold for every servicing surface. The playbooks below go
+**deep and narrow** on one sub-area each: the step-by-step build contract, the state machines, the specific
+mechanics (the scroll gate, eligibility gating, provisional credit), the edge cases, and a sub-area
+definition-of-done on top of the cross-cutting one. When work lands squarely on one sub-area, **read its
+playbook** — it's where the real decisions live. (Routing rule: a card dispute is `S02`, never the `S01`
+ticket form; a non-card complaint is `S01`, never the dispute wizard.)
+
+| Sub-area | Specs | Playbook | When to read |
+|---|---|---|---|
+| **Documents vault & e-sign** | `D01`, `D02` | `references/documents-and-esign.md` | Building `/documents/**` — the vault list/filters/viewer, the single `add()` write-through, or the e-sign four-beat flow (scroll gate, consent, step-up, signed copy, safe resume). |
+| **Support** | `S01` | `references/support.md` | Building `/support/*` — the help center, raising a ticket (textarea + attachments), the ticket list/detail + status, or the mock live chat; calm no-blame tone. |
+| **Disputes & chargebacks** | `S02` | `references/disputes-and-chargebacks.md` | Building `/support/disputes/*` — the dispute wizard, eligibility gating, the merchant-first nudge, provisional-credit transparency, or the Raised→Resolved tracker. |
+
 ## How you respond
 
 When invoked, you give a crisp, opinionated **domain verdict**, grounded in the spec and your references:

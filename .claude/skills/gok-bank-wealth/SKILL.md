@@ -97,6 +97,26 @@ Read the one that fits the question; don't load all of them by reflex.
 - **`references/definition-of-done.md`** — the quality bar an investing surface must clear before it ships.
   Read before calling a feature done.
 
+The five references above are **cross-cutting** — they hold across every investing surface. The four
+**sub-area playbooks** below are the opposite: deep and narrow, one per slice of the domain, with the
+mechanics, regulatory specifics, edge cases, and a sub-area definition of done for *that* slice.
+
+## Sub-area playbooks
+
+When the work lands in one slice of the domain, read its playbook for the deep mechanics — it goes further than
+the cross-cutting references and is grounded in the matching V-specs. Route by what the user is building:
+
+| Sub-area | Specs | Playbook | When to read |
+|---|---|---|---|
+| **Portfolio & performance** | V01 | `references/portfolio-and-performance.md` | The holdings grid, allocation donut/treemap, the performance chart + ranges + benchmark, total value / P&L — any read-only "what do I own and how is it doing" surface. |
+| **Trading & orders** | V02, V03, V04 | `references/trading-and-orders.md` | Instrument detail + candlestick, the order ticket (market/limit/stop, qty/notional, TIF), cost preview + buying-power, the forced-decision confirm + slippage, the orders blotter — anything that places or manages an order. |
+| **Discovery** | V05, V06 | `references/discovery.md` | Watchlists, the funds/ETFs explorer (fee/risk), the dividend calendar/history + yield-on-cost — the research & tracking surfaces that feed the ticket. |
+| **Crypto** | V07 | `references/crypto.md` | The crypto wallet: buy/sell, send/receive, the irreversible network-send forced-decision, MiCA/custody framing, the on-chain-style activity ledger. |
+
+Read the **spec** first (scope), then the **sub-area playbook** (mechanics + sub-area DoD), pulling in a
+cross-cutting reference only when the question is genuinely cross-cutting (disclosure framing, competitors,
+scope). Don't load all four playbooks by reflex — pick the slice you're in.
+
 ## How you respond
 
 When invoked, you give a crisp, opinionated **domain verdict**, grounded in the spec and your references:

@@ -93,6 +93,21 @@ Read the one that fits the question; don't load all of them by reflex.
 - **`references/definition-of-done.md`** — the quality bar an account surface must clear before it ships.
   Read before calling an account feature done.
 
+## Sub-area playbooks
+
+The five references above are the **cross-cutting domain lens** — read them for any account feature. On top of
+them, each sub-area has a **deep, narrow playbook**: the mechanics, edge cases, rail/regulatory specifics,
+competitive patterns, and a sub-area definition-of-done for *that* surface. Read the cross-cutting references
+for the lens, then read the **one playbook that matches the sub-area you're building** — don't load all four
+by reflex. The playbooks go deeper than the cross-cutting refs and cite them; they don't duplicate them.
+
+| Sub-area | Specs | Playbook | When to read |
+|---|---|---|---|
+| Wallets & balances | A01, A03 | `references/wallets-and-balances.md` | `/accounts`, the `/home` strip, a wallet card, the home-currency total, available-vs-current, or opening a new currency wallet |
+| Transactions ledger | A02, A05 | `references/transactions-ledger.md` | the flagship `gok-table` ledger (filter/sort/search/page/virtualize), running balance, pending-vs-settled, the transaction detail drawer, or the cancel-window model |
+| Pots & vaults | A04 | `references/pots-and-vaults.md` | savings goals, progress rings, add/withdraw, round-ups, or auto-save rules under `/accounts/pots/*` |
+| Statements | A06 | `references/statements.md` | listing/generating statements, the date-range generator, the on-screen/print render, or statement reconciliation |
+
 ## How you respond
 
 When invoked, you give a crisp, opinionated **domain verdict**, grounded in the spec and your references:
