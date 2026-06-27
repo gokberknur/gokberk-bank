@@ -8,9 +8,9 @@ flagship dogfooding consumer alongside `gokberk-tools`.
 
 Live: **[bank.gokberk.se](https://bank.gokberk.se)**
 
-> Status: scaffold (hello-world). The full surface inventory is planned in
-> [`docs/PLAN.md`](docs/PLAN.md) and tracked in [`tasks/backlog.md`](tasks/backlog.md), built across
-> multiple passes.
+> Status: in active development. How the app is built (design-system rules, web-component interop, the
+> market model) is documented in [`CLAUDE.md`](CLAUDE.md). Detailed specs and the backlog live in a
+> local-only planning folder and are intentionally not published here.
 
 ## Stack
 
