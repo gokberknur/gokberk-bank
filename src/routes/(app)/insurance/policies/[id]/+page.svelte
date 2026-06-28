@@ -14,6 +14,7 @@
 	import { getTier } from '$lib/data/insurance-data';
 	import { formatMoney, formatDate } from '$lib/format';
 	import { setProps, on } from '$lib/wc.svelte';
+	import StickyActionBar from '$lib/components/layout/StickyActionBar.svelte';
 	import { TODAY, isoDate } from '$lib/data/time';
 
 	const eur = (minor: number) => formatMoney(minor, 'EUR');
@@ -321,12 +322,6 @@
 				{:else}
 					<p class="claims-empty-note">No claims on this policy yet.</p>
 				{/if}
-
-				{#if isActive}
-					<gok-link href="/insurance/claims/new">
-						<gok-button variant="secondary">File a claim</gok-button>
-					</gok-link>
-				{/if}
 			</section>
 		{/if}
 
@@ -344,12 +339,17 @@
 		<!-- Actions — renew (reversible) and cancel (forced decision). They retire once
 		     the policy is no longer active. -->
 		{#if isActive}
-			<section class="actions" aria-label="Policy actions">
-				<gok-button variant="secondary" {@attach on('click', renew)}>Renew policy</gok-button>
-				<gok-button variant="secondary" {@attach on('click', () => (cancelOpen = true))}>
-					Cancel policy
-				</gok-button>
-			</section>
+			<StickyActionBar label="Policy actions">
+				{#snippet actions()}
+					<gok-link href="/insurance/claims/new">
+						<gok-button variant="primary">File a claim</gok-button>
+					</gok-link>
+					<gok-button variant="secondary" {@attach on('click', renew)}>Renew policy</gok-button>
+					<gok-button variant="secondary" {@attach on('click', () => (cancelOpen = true))}>
+						Cancel policy
+					</gok-button>
+				{/snippet}
+			</StickyActionBar>
 		{:else if policy.status === 'cancelled'}
 			<gok-alert status="neutral" open>
 				<span slot="title">This policy is cancelled</span>
@@ -706,16 +706,6 @@
 		font-size: var(--gok-type-body-regular-size);
 		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text);
-	}
-
-	/* ── Actions ── */
-	.actions {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: var(--gok-space-200);
-		padding-block-start: var(--gok-space-400);
-		border-block-start: var(--gok-border-width-hairline) solid var(--gok-color-border);
 	}
 
 	/* ── Cancel dialog ── */

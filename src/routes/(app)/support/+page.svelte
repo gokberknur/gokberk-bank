@@ -12,6 +12,7 @@
 	import { getTransactionById } from '$lib/data/disputes-data';
 	import { setProps, on } from '$lib/wc.svelte';
 	import { formatDate } from '$lib/format';
+	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 
 	// Help center: the query drives whether we show search results or the browse-
 	// by-category index. Both read from the store's reactive getters.
@@ -41,6 +42,10 @@
 	function send() {
 		const ticket = support.raiseTicket();
 		if (ticket) goto(`/support/tickets/${ticket.id}`);
+	}
+
+	function scrollToRaise() {
+		document.getElementById('raise-heading')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 	}
 </script>
 
@@ -117,14 +122,18 @@
 {/snippet}
 
 <div class="page">
-	<header class="head">
-		<p class="head-eyebrow gok-eyebrow">Support</p>
-		<h1 class="head-title gok-headline-2">How can I help myself today?</h1>
-		<p class="head-sub">
-			Most answers are a search away. If I still need a hand, I can raise a ticket and I’ll
-			hear back soon — usually within a day.
-		</p>
-	</header>
+	<PageHeader
+		eyebrow="Support"
+		title="How can I help myself today?"
+		titleClass="gok-headline-2"
+		caption="Most answers are a search away. If I still need a hand, I can raise a ticket and I’ll hear back soon — usually within a day."
+	>
+		{#snippet actions()}
+			<gok-button variant="secondary" {@attach on('click', scrollToRaise)}>
+				Raise a ticket
+			</gok-button>
+		{/snippet}
+	</PageHeader>
 
 	<!-- 1 · Help center: search first, then browse. -->
 	<section class="help" aria-labelledby="help-heading">
@@ -300,31 +309,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-section);
-	}
-
-	.head {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-200);
-	}
-
-	.head-eyebrow {
-		margin: 0;
-		color: var(--gok-color-text-muted);
-	}
-
-	.head-title {
-		margin: 0;
-		color: var(--gok-color-text);
-	}
-
-	.head-sub {
-		margin: 0;
-		max-inline-size: 46rem;
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-regular-line);
-		color: var(--gok-color-text-muted);
 	}
 
 	/* --- Section scaffolding --- */

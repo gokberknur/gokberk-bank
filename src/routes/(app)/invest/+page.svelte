@@ -17,6 +17,7 @@
 	import { LineChart, DonutChart, Sparkline } from '$lib/charts';
 	import { setProps, on } from '$lib/wc.svelte';
 	import OrderTicket from '$lib/components/invest/OrderTicket.svelte';
+	import StickyActionBar from '$lib/components/layout/StickyActionBar.svelte';
 
 	// ── Portfolio reads (all derived fresh from the seed) ──
 	const summary = $derived(invest.summary);
@@ -347,7 +348,6 @@
 				<h2 id="actions-heading" class="block-title gok-headline-5">Make a move</h2>
 			</div>
 			<div class="action-row">
-				<gok-button variant="primary" {@attach on('click', placeOrder)}>Place order</gok-button>
 				<!-- Orders (V04) and watchlists (V05) are both live. -->
 				<gok-button variant="secondary" {@attach on('click', () => goto('/invest/orders'))}>
 					My orders
@@ -364,6 +364,14 @@
 				</gok-button>
 			</div>
 		</section>
+	{/if}
+
+	{#if hasPositions}
+		<StickyActionBar label="Invest">
+			{#snippet actions()}
+				<gok-button variant="primary" {@attach on('click', placeOrder)}>Place order</gok-button>
+			{/snippet}
+		</StickyActionBar>
 	{/if}
 </div>
 

@@ -469,6 +469,22 @@
 		gap: var(--gok-space-200);
 	}
 
+	@media (max-width: 40rem) {
+		/* Pin the Review-send CTA above the fixed bottom tab bar; content scrolls under it. */
+		.form-actions {
+			position: sticky;
+			inset-block-end: calc(var(--gok-space-900) + env(safe-area-inset-bottom));
+			z-index: var(--gok-z-sticky);
+			padding-block: var(--gok-space-300);
+			background: var(--gok-color-surface-translucent);
+			backdrop-filter: blur(var(--gok-blur-chrome));
+		}
+
+		.form-actions :global(gok-button) {
+			flex: 1 1 0;
+		}
+	}
+
 	@media (max-width: 24.375rem) {
 		.row {
 			gap: var(--gok-space-200);

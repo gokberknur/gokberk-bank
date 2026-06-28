@@ -18,6 +18,7 @@
 	import { TODAY, isoDate } from '$lib/data/time';
 	import type { Currency } from '$lib/data/money';
 	import type { Transaction } from '$lib/data/types';
+	import StickyActionBar from '$lib/components/layout/StickyActionBar.svelte';
 	import CardArt from '$lib/components/cards/CardArt.svelte';
 	import RevealDialog from '$lib/components/cards/RevealDialog.svelte';
 	import PinDialog from '$lib/components/cards/PinDialog.svelte';
@@ -175,11 +176,6 @@
 			</div>
 
 			<div class="action-buttons">
-				<gok-button variant="primary" {@attach on('click', () => (revealOpen = true))}>
-					Show card number
-				</gok-button>
-				<!-- Card settings (controls / limits / regions) — C03. -->
-				<gok-link href={`/cards/${card.id}/settings`}>Settings</gok-link>
 				{#if !cancelled}
 					<!-- PIN view / change (C04) — quiet, gated behind the step-up. -->
 					<gok-button variant="secondary" {@attach on('click', () => (pinOpen = true))}>
@@ -224,9 +220,6 @@
 					<dd class="field-value nums">•••</dd>
 				</div>
 			</dl>
-			<gok-button variant="secondary" size="s" {@attach on('click', () => (revealOpen = true))}>
-				Show card number
-			</gok-button>
 		</section>
 
 		<section class="spend" aria-labelledby="spend-heading">
@@ -273,6 +266,17 @@
 				</div>
 			{/if}
 		</section>
+
+		<StickyActionBar label="Card actions">
+			{#snippet actions()}
+				<gok-button variant="primary" {@attach on('click', () => (revealOpen = true))}>
+					Show card number
+				</gok-button>
+				<gok-link href={`/cards/${card.id}/settings`}>
+					<gok-button variant="secondary">Settings</gok-button>
+				</gok-link>
+			{/snippet}
+		</StickyActionBar>
 	</div>
 
 	<RevealDialog {card} open={revealOpen} onClose={() => (revealOpen = false)} />

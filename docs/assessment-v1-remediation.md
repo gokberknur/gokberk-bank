@@ -80,9 +80,17 @@ Legend: `[ ]` todo · `[x]` done (committed) · each item → its finding ID(s) 
 - [ ] dead "Soon" stubs that point at live routes → wire or hide (PLT-Q-01, ACC-U-02, INV-U-01, MON-U-02, CARD-Q-05)
 
 ## Batch 5 — UX ergonomics (gok-bank-ux-led; larger, post-blocker).
-- [ ] **Scroll-hunted primary actions + header whitespace** (~12 surfaces) → shared sticky-CTA pattern + trim
-  header band (ACC-U-01, PAY-U-01/04, CARD-U-01, LEND-U-01/02, INS-U-04/05, INV-U-05, CRY-U-01/02, SVC-U-2)
-- [ ] **Cross-domain stepper inconsistency** (LEND-U-03 — three apply flows, three steppers) → unify on the wizard composite
+- [x] **5A Foundation** — three reusable patterns: `StickyActionBar` (extracted from the proven instrument/crypto
+  `.cta-bar`), `PageHeader` (standard eyebrow+title+caption that trims the header→content void), and the
+  `Wizard` footer made sticky on mobile (fixes the Continue/submit on every wizard flow at once). Trade pages
+  refactored onto `StickyActionBar` (DRY).
+- [~] **Scroll-hunted primary actions + header whitespace** → shared sticky-CTA + header trim. **Done (5B):**
+  INV-U-05 (Place order pinned), INS-U-04 (policy actions pinned), CARD-U-01 (reveal/settings pinned),
+  CRY-U-01 (SendPanel CTA sticky on mobile), SVC-U-2 (support header shortcut → form). PAY-U-01/INS-U-05/
+  LEND-U-01 ride the sticky wizard footer (5A). Each with a mobile (WebKit) reachability spec
+  (`*.reachability.mobile.spec.ts`, `toBeInViewport`). **Remaining:** ACC-U-01 (/home content order),
+  LEND-U-02 (mortgage sticky result), header-void trim on CRY-U-02 / PAY-U-04 → 5D.
+- [ ] **Cross-domain stepper inconsistency** (LEND-U-03 — three apply flows, three steppers) → unify on the wizard composite (5C)
 
 ## Deferred / backlog (not ship-blocking).
 - Pure S4 cosmetics (tabular-numeral lapses, minor alignment), the funds fact-sheet/Buy build-out (INV-U-01
