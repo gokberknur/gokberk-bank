@@ -103,8 +103,10 @@ Legend: `[ ]` todo · `[x]` done (committed) · each item → its finding ID(s) 
   (`*.reachability.mobile.spec.ts`, `toBeInViewport`). **Done (5D):** ACC-U-01 — /home dashboard flattened to
   flat grid children; on mobile (single column) recent activity now rides high (right after balances) while
   desktop keeps the sticky right rail via `grid-template-areas`; mobile order spec added.
-  **Deferred to council (CPO call):** LEND-U-02 (mortgage-calculator sticky result needs a bespoke compact
-  monthly-payment summary — S3, calculator-specific design) and CRY-U-02 / PAY-U-04 (the broad header-void
+  **Done (LEND-U-02):** the mortgage calculator now pins a compact, mobile-only sticky monthly-payment readout
+  at the top (hidden on desktop, where the results column already sits beside the inputs); mobile reachability
+  spec added.
+  **Deferred to council (CPO call):** CRY-U-02 / PAY-U-04 (the broad header-void
   sweep across every crypto/payments surface — S3, low-value churn; the `PageHeader` trim mechanism is in place
   for routes that adopt it). → council/design queue.
 - [x] **5C Stepper consistency** (LEND-U-03, INS-U-02) — **CPO reshape:** a full `createWizard` migration of

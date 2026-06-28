@@ -144,6 +144,14 @@
 	<gok-alert status="info">This is an estimate — not a quote or an offer.</gok-alert>
 
 	<div class="layout">
+		<!-- Mobile-only sticky readout: the headline number stays in view while I adjust the
+		     figures below; on desktop the results column already sits beside the inputs (LEND-U-02).
+		     aria-hidden — it mirrors the accessible results ledger, so don't double-announce it. -->
+		<aside class="calc-summary" aria-hidden="true">
+			<span class="calc-summary-label gok-eyebrow">Monthly payment</span>
+			<span class="calc-summary-value gok-tabular-nums">{eur(results.monthlyMinor)}</span>
+		</aside>
+
 		<!-- ── Inputs ── -->
 		<section class="inputs" aria-labelledby="inputs-heading">
 			<h2 id="inputs-heading" class="section-title gok-headline-5">My figures</h2>
@@ -341,6 +349,36 @@
 		font-size: var(--gok-type-body-regular-size);
 		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text-muted);
+	}
+
+	/* Mobile-only sticky monthly-payment readout (LEND-U-02). */
+	.calc-summary {
+		position: sticky;
+		inset-block-start: var(--gok-space-300);
+		z-index: var(--gok-z-sticky);
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--gok-space-300);
+		padding-block: var(--gok-space-300);
+		padding-inline: var(--gok-space-400);
+		border: var(--gok-border-width-hairline) solid var(--gok-color-border);
+		border-radius: var(--gok-radius-l);
+		background: var(--gok-color-surface-translucent);
+		backdrop-filter: blur(var(--gok-blur-chrome));
+	}
+
+	.calc-summary-label {
+		margin: 0;
+		color: var(--gok-color-text-muted);
+	}
+
+	.calc-summary-value {
+		font-family: var(--gok-font-family-display);
+		font-size: var(--gok-type-headline-5-size);
+		font-weight: var(--gok-font-weight-semibold);
+		line-height: var(--gok-type-headline-5-line);
+		color: var(--gok-color-text);
 	}
 
 	/* ── Two-column layout (collapses below 48rem) ── */
@@ -595,6 +633,10 @@
 
 	/* ── Responsive ── */
 	@media (min-width: 48rem) {
+		.calc-summary {
+			display: none;
+		}
+
 		.layout {
 			grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 		}

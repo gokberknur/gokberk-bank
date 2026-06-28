@@ -17,8 +17,9 @@ test('mortgage calculator: deep-linked URL rehydrates fields and recomputes the 
 	// Estimate disclosure is present (never presented as an offer).
 	await expect(page.getByText(/This is an estimate — not a quote or an offer/i)).toBeVisible();
 
-	// Computed ledger reflects the deep-linked figures.
-	await expect(page.getByText('€1,421.20').first()).toBeVisible(); // monthly payment
+	// Computed ledger reflects the deep-linked figures. Scope to the results ledger — the
+	// mobile-only sticky readout (.calc-summary, hidden on desktop) mirrors the same number.
+	await expect(page.locator('.results').getByText('€1,421.20')).toBeVisible(); // monthly payment
 	await expect(page.getByRole('definition').filter({ hasText: '80%' }).first()).toBeVisible(); // LTV
 
 	// Round-trip the other way: the seeded fields produce a different result, and
