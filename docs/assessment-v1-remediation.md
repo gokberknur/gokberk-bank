@@ -74,8 +74,13 @@ Legend: `[ ]` todo · `[x]` done (committed) · each item → its finding ID(s) 
   `TransactionDrawer` blank the balance for non-settled rows. The fixme spec was rewritten to the *true*
   invariant — settled rows reconcile row-to-row (newer.balance − older.balance == newer.amount), not a flawed
   monotonic assumption — and is now active (gok-bank-accounts). Spec active.
-- [ ] **PAY-Q-05** missing confirmation-of-payee — **feature build** (new Verify step: name-match + mismatch
-  proceed-anyway gate); route through the council (gok-bank-payments + gok-bank-ux + CPO), not a quick fix.
+- [x] **PAY-Q-05** missing confirmation-of-payee → **built** (CPO ship: anti-APP-fraud is table-stakes for a
+  premium EU neobank). A deterministic CoP sim (`confirm-payee.ts`, name-match by IBAN hash) feeds a new
+  SEPA-only "Confirm" step in the add-payee wizard: a clean match shows a positive confirmation; a mismatch
+  surfaces the registered account name in a `gok-alert` and **gates Continue** behind an explicit
+  "I've checked this is correct" acknowledgement (the wizard's forward-gating via the step's `validate`).
+  No-blame copy per gok-bank-payments `collecting-and-payees` / `regulatory-and-trust`. Two E2E paths (match
+  proceeds; mismatch blocks until acknowledged). Duplicate-payee detection remains the one deferred TODO.
 - [x] **SVC-Q-01** reply to a resolved ticket didn't reopen it → `addReply` now flips a `resolved` ticket
   back to `open` on reply, honoring the on-screen "a reply reopens the conversation" promise (gok-bank-servicing). Spec active.
 - [ ] **ACC-Q** / **CARD-Q** / **INS-Q** / **INV-Q** remaining S2s per per-domain files
