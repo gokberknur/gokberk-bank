@@ -6,6 +6,7 @@
 	// (filled = settled, ring = pending), so it never relies on hue alone.
 	import { setProps, on } from '$lib/wc.svelte';
 	import { formatMoney, formatDate } from '$lib/format';
+	import { disputes } from '$lib/disputes/disputes.svelte';
 	import type { Currency } from '$lib/data/money';
 	import type { Transaction, TxnType } from '$lib/data/types';
 
@@ -38,6 +39,13 @@
 	const amount = $derived(txn ? formatMoney(txn.amountMinor, currency, { signDisplay: true }) : '');
 	const balance = $derived(txn ? formatMoney(txn.runningBalanceMinor, currency) : '');
 	const statusLabel = $derived(txn?.status === 'pending' ? 'Pending' : 'Settled');
+
+	// Disputes (S02) — a card outflow can be disputed; if one already exists for this
+	// charge, link to its tracker instead. The raise flow starts from the transaction.
+	const existingDispute = $derived(txn ? disputes.disputesForTransaction(txn.id)[0] : undefined);
+	const canDispute = $derived(!!txn && txn.type === 'card' && txn.amountMinor < 0);
+	const disputeHref = $derived(txn ? `/support/disputes/new?txn=${txn.id}` : '');
+	const existingHref = $derived(existingDispute ? `/support/disputes/${existingDispute.id}` : '');
 </script>
 
 <gok-drawer
@@ -96,10 +104,17 @@
 	{/if}
 
 	<div slot="footer" class="footer">
+		<!-- Dispute (S02) — a real entry for an eligible card charge, or a link to the
+		     existing dispute's tracker. A real <a href> so it's keyboard-navigable. -->
+		{#if existingDispute}
+			<gok-link href={existingHref}>View dispute</gok-link>
+		{:else if canDispute}
+			<gok-link href={disputeHref}>Dispute this charge</gok-link>
+		{/if}
+
 		<div class="actions">
 			<gok-button variant="secondary" disabled>Repeat</gok-button>
 			<gok-button variant="secondary" disabled>Split</gok-button>
-			<gok-button variant="secondary" disabled>Dispute</gok-button>
 			<gok-button variant="secondary" disabled>Report a problem</gok-button>
 		</div>
 		<gok-tag size="s">Soon</gok-tag>
