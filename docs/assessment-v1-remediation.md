@@ -17,7 +17,9 @@ Legend: `[ ]` todo · `[x]` done (committed) · each item → its finding ID(s) 
   the custom checkbox). No code change — reverted a wrong attempt; the active E2E now proves reachability.
   Residual DS gap (no full-row click / no keyboard activation) logged in dogfooding #12, not ship-blocking.
   (gok-bank-accounts)
-- [ ] **PLT-U-01** 9/14 sections unbrowsable on mobile → make the mobile "More" tab a real all-sections sheet (gok-bank-ux)
+- [x] **PLT-U-01** 9/14 sections unbrowsable on mobile → the mobile "More" tab now opens a bottom overflow
+  sheet listing every NAV section (≤2 taps to all 14); guarded by `e2e/platform/mobile-nav.mobile.spec.ts`
+  on the iPhone/WebKit project (gok-bank-ux)
 
 ## Batch 1 — Systemic single-fixes (cheap, clear many findings at the source).
 - [ ] **Forced-decision dialog contract** (dogfooding #33): guard parent drawer `gok-cancel`/`gok-close` on

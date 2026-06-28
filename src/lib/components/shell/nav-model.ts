@@ -56,14 +56,22 @@ export const NAV: NavSection[] = [
 	}
 ];
 
-/** The five canonical mobile tabs (Pay centered). `value` matches the rail. */
+/**
+ * The five canonical mobile tabs (Pay centered). `value` matches the rail.
+ * 'More' is not a route — it's an overflow trigger that opens the all-sections sheet
+ * in BottomTabBar, so every section in NAV is reachable on a phone (≤2 taps). There is
+ * no /more page; `ready: true` marks the overflow as built (the href is unused for it).
+ */
 export const BOTTOM_TABS: NavItem[] = [
 	{ label: 'Home', href: '/home', value: 'home', icon: 'home', ready: true },
 	{ label: 'Accounts', href: '/accounts', value: 'accounts', icon: 'wallet', ready: true },
 	{ label: 'Pay', href: '/payments', value: 'payments', icon: 'transfer', ready: true },
 	{ label: 'Invest', href: '/invest', value: 'invest', icon: 'invest', ready: true },
-	{ label: 'More', href: '/more', value: 'more', icon: 'more', ready: false }
+	{ label: 'More', href: '/more', value: 'more', icon: 'more', ready: true }
 ];
+
+/** The mobile tab `value`s that are first-class tabs; anything else lives under "More". */
+export const PRIMARY_TAB_VALUES: readonly string[] = ['home', 'accounts', 'payments', 'invest'];
 
 /** Flat list of every nav item (both groupings deduped by value). */
 const ALL_ITEMS: NavItem[] = NAV.flatMap((s) => s.items);
