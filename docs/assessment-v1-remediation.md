@@ -89,7 +89,13 @@ Legend: `[ ]` todo · `[x]` done (committed) · each item → its finding ID(s) 
 - [ ] **favicon.svg 404** on every route → add `static/favicon.svg` (ACC-Q-05, LEND-Q-03, MON-Q-03, CRY, PLT-Q-06)
 - [ ] **/settings 404** bare unstyled page → add a settings root (IDN-Q-02, PLT-Q-05)
 - [ ] native `<input type=date>` → the F06 date picker on the flows that regressed (ACC-Q-03, IDN-U-02, insurance claim)
-- [ ] dead "Soon" stubs that point at live routes → wire or hide (PLT-Q-01, ACC-U-02, INV-U-01, MON-U-02, CARD-Q-05)
+- [~] dead "Soon" stubs that point at live routes → wire or hide. **Done (PLT-Q-01 / ACC-U-02):** home's
+  "See budgets" and "See all activity" were disabled "Soon" though `/budgets` and `/activity` are live (and in
+  the sidenav + command registry) → both now navigate (the recorded `home-launchpad` fixme is active). While
+  wiring them, found `gok-button` silently ignores `href` (dogfooding #40), so the top-up receipt's "View
+  wallet"/"Activity" CTAs (4 buttons) were also dead — fixed to the `on('click', goto)` pattern. **Not stubs
+  (left honest):** CARD-Q-05 (region allow-list editing genuinely unbuilt — a real "Soon", not a dead link).
+  **Out of scope (feature builds, normal council):** INV-U-01 (funds fact-sheet/Buy), MON-U-02 (spend drill).
 
 ## Batch 5 — UX ergonomics (gok-bank-ux-led; larger, post-blocker).
 - [x] **5A Foundation** — three reusable patterns: `StickyActionBar` (extracted from the proven instrument/crypto

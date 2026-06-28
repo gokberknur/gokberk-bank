@@ -12,6 +12,7 @@
 	// from `wc.svelte` — never `bind:` on a gok-* element (the MoneyInput composite is a
 	// Svelte component, so `bind:value` is fine there). Inbound money, so the confirm is
 	// a plain gok-dialog (no danger tone); a large top-up gates behind the F12 step-up.
+	import { goto } from '$app/navigation';
 	import { topup } from '$lib/payments/topup.svelte';
 	import type { TopUpReceipt } from '$lib/payments/topup.svelte';
 	import { setProps, on } from '$lib/wc.svelte';
@@ -176,10 +177,15 @@
 					</dl>
 
 					<div slot="actions" class="outcome-actions">
-						<gok-button variant="primary" href={`/accounts/${receipt.walletId}`}>
+						<gok-button
+							variant="primary"
+							{@attach on('click', () => receipt && goto(`/accounts/${receipt.walletId}`))}
+						>
 							View {receipt.walletName}
 						</gok-button>
-						<gok-button variant="secondary" href="/activity">Activity</gok-button>
+						<gok-button variant="secondary" {@attach on('click', () => goto('/activity'))}
+							>Activity</gok-button
+						>
 						<gok-button variant="secondary" {@attach on('click', topUpAgain)}>Top up again</gok-button>
 					</div>
 				</gok-empty-state>
@@ -233,10 +239,15 @@
 					<p class="outcome-note">The top-up isn't in my balance yet — it lands when it settles.</p>
 
 					<div slot="actions" class="outcome-actions">
-						<gok-button variant="primary" href={`/accounts/${receipt.walletId}`}>
+						<gok-button
+							variant="primary"
+							{@attach on('click', () => receipt && goto(`/accounts/${receipt.walletId}`))}
+						>
 							View {receipt.walletName}
 						</gok-button>
-						<gok-button variant="secondary" href="/activity">Activity</gok-button>
+						<gok-button variant="secondary" {@attach on('click', () => goto('/activity'))}
+							>Activity</gok-button
+						>
 						<gok-button variant="secondary" {@attach on('click', topUpAgain)}>Top up again</gok-button>
 					</div>
 				</gok-empty-state>

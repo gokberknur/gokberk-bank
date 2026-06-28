@@ -1,11 +1,13 @@
 <script lang="ts">
 	// X01 recent activity — the latest five events as a hairline list. Each row is
-	// a real link into that wallet's ledger (/accounts/[walletId]); the section's
-	// "See all activity" is a disabled "Soon" because the unified feed (X02) isn't
-	// built. Amounts read by sign (tabular), pending shown by a text marker.
+	// a real link into that wallet's ledger (/accounts/[walletId]); "See all activity"
+	// deep-links to the unified feed at /activity (X02). Amounts read by sign
+	// (tabular), pending shown by a text marker.
+	import { goto } from '$app/navigation';
 	import { recentActivity } from '$lib/home/insights';
 	import { formatMoney, formatRelative } from '$lib/format';
 	import { TODAY } from '$lib/data/time';
+	import { on } from '$lib/wc.svelte';
 
 	let rows = $derived(
 		recentActivity(5).map((txn) => ({
@@ -48,8 +50,9 @@
 	{/if}
 
 	<div class="more">
-		<gok-button variant="secondary" size="s" disabled>See all activity</gok-button>
-		<gok-tag size="s">Soon</gok-tag>
+		<gok-button variant="secondary" size="s" {@attach on('click', () => goto('/activity'))}
+			>See all activity</gok-button
+		>
 	</div>
 </div>
 

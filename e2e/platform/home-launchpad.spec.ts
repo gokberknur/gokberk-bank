@@ -39,12 +39,12 @@ test('quick actions each launch a live payments surface', async ({ page }) => {
 	}
 });
 
-test.fixme(
+test(
 	'PLT-Q-01: spend + activity blocks deep-link to their live surfaces (not disabled "Soon")',
 	async ({ page }) => {
 		await gotoApp(page, '/home');
 		// Both /budgets and /activity are live (in the sidenav) — these CTAs must be
-		// enabled links, not disabled "Soon" stubs.
+		// enabled, navigating buttons, not disabled "Soon" stubs.
 		const seeBudgets = page.getByRole('button', { name: 'See budgets' });
 		await expect(seeBudgets).toBeEnabled();
 		await seeBudgets.click();

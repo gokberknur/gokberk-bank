@@ -1,7 +1,7 @@
 <script lang="ts">
 	// X01 this-month spend — a calm total and the top categories as a quiet list
 	// with a neutral proportion bar (the accent is spent in the hero, never here).
-	// Read-only: budgets (M01) aren't built, so "See budgets" is a disabled "Soon".
+	// "See budgets" deep-links to the live budgets surface at /budgets (M01).
 	import {
 		thisMonthSpendEurMinor,
 		topCategoriesThisMonth,
@@ -10,6 +10,8 @@
 	import { DonutChart, type NamedValue } from '$lib/charts';
 	import { formatMoney } from '$lib/format';
 	import type { Category } from '$lib/data/types';
+	import { goto } from '$app/navigation';
+	import { on } from '$lib/wc.svelte';
 
 	function capitalize(category: Category): string {
 		return category.charAt(0).toUpperCase() + category.slice(1);
@@ -80,8 +82,9 @@
 	{/if}
 
 	<div class="more">
-		<gok-button variant="secondary" size="s" disabled>See budgets</gok-button>
-		<gok-tag size="s">Soon</gok-tag>
+		<gok-button variant="secondary" size="s" {@attach on('click', () => goto('/budgets'))}
+			>See budgets</gok-button
+		>
 	</div>
 </div>
 
