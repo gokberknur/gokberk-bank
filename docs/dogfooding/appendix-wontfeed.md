@@ -1,7 +1,7 @@
 # Appendix — findings intentionally NOT fed as DS work
 
 For completeness, every dogfooding `#` is accounted for. These are deliberately excluded from the spec items,
-with the reason — so the DS team doesn't re-triage them. [← index](index.md)
+with the reason — so the DS team doesn't re-triage them. [← README](README.md)
 
 | `#` | Finding | Why not fed |
 |----:|---------|-------------|

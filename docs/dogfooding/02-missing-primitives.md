@@ -4,7 +4,7 @@ The DS ships no element for these, so the bank built an app-local composite (or 
 control) for each. **All but `gok-textarea` are absent from `tasks/backlog.md`** — they are genuine gaps with
 proven demand: each was needed on real screens, sometimes many. Where a composite exists, it is a **working
 reference implementation** the DS can lift the API and acceptance from (it composes `gok-*` + `--gok-*` tokens
-only — it never restyles a DS component). [← index](index.md)
+only — it never restyles a DS component). [← README](README.md)
 
 > The bank ships these under `src/lib/components/` per ADR-004. Promoting any of them retires the corresponding
 > app-local file.

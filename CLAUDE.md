@@ -125,7 +125,8 @@ looks) — never override them. Platform/foundation work (no single domain owner
 The design system lacks a few things a premium bank needs. Build these **app-local** under
 `src/lib/components/` (and `src/lib/charts/`) — they compose `gok-*` + tokens; they **never** restyle DS
 component visuals. DS gaps stay app-local; dogfooding findings → **this repo only**
-(`docs/dogfooding-findings.md`), not the design-system backlog.
+(`docs/dogfooding/findings.md`, curated into the DS handoff spec alongside it under `docs/dogfooding/`), not
+the design-system backlog.
 
 - **wizard/stepper** (purpose-built `<nav><ol>` step rail + `gok-progress format="fraction"` + own step-state
   — deliberately **not** `gok-tabs`, which models free non-linear nav while a wizard is forward-gated; the

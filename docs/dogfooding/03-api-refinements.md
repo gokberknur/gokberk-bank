@@ -2,7 +2,7 @@
 
 These components exist and work; each item is a **bounded API gap** the bank hit on real screens. They don't
 shift the brand — they let already-shipped components express patterns the design language already mandates
-(e.g. "status by rule + icon + text, never colour alone"). [← index](index.md)
+(e.g. "status by rule + icon + text, never colour alone"). [← README](README.md)
 
 ---
 

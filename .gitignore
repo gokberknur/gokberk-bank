@@ -29,6 +29,9 @@ vite.config.ts.timestamp-*
 # The E2E specs that come out of an assessment ARE committed, under e2e/.
 assessmentv1/
 
+# Local-only UI/visual-design assessment findings (working notes + screenshots) — never committed.
+assessment-ui/
+
 # Playwright artifacts
 /test-results/
 /playwright-report/

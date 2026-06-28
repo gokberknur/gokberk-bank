@@ -10,7 +10,7 @@
     {
       "id": 2,
       "prompt": "The statements list seems to show two solid green buttons. Is that a bug?",
-      "expected_output": "Invokes the QA consultant; recognizes the known footgun from docs/dogfooding-findings.md (#18 — an invalid gok-button variant like 'ghost' silently falls back to 'primary', so a quiet action renders as a second accent button, not caught by npm run check); reproduces it in the browser with playwright-cli and a screenshot; classifies it as ui-visual, S2 because hierarchy is broken on an action surface; files it to assessmentv1/<domain>/qa-findings.md routed to the domain owner + gok-bank-product-owner with a suggested fix area (use a secondary variant) while leaving the visual/brand decision to gokberk-design; adds an e2e assertion that exactly one primary button renders in that context.",
+      "expected_output": "Invokes the QA consultant; recognizes the known footgun from docs/dogfooding/findings.md (#18 — an invalid gok-button variant like 'ghost' silently falls back to 'primary', so a quiet action renders as a second accent button, not caught by npm run check); reproduces it in the browser with playwright-cli and a screenshot; classifies it as ui-visual, S2 because hierarchy is broken on an action surface; files it to assessmentv1/<domain>/qa-findings.md routed to the domain owner + gok-bank-product-owner with a suggested fix area (use a secondary variant) while leaving the visual/brand decision to gokberk-design; adds an e2e assertion that exactly one primary button renders in that context.",
       "files": []
     },
     {

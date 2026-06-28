@@ -13,7 +13,7 @@ import { toMinorUnits } from '../support/money';
  * from synthetic/CDP clicks that don't trigger the custom checkbox; the active test
  * below proves real-click reachability and guards it. (The genuine residual is a DS
  * gap — no full-row click and the select control is tabindex=-1, so no keyboard
- * activation — tracked in docs/dogfooding-findings.md #12, not a ship blocker.)
+ * activation — tracked in docs/dogfooding/findings.md #12, not a ship blocker.)
  *
  * ACC-Q-02 (S2, the incoherent running-balance column) remains `test.fixme`.
  */

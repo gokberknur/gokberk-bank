@@ -48,7 +48,7 @@ throwing — that verification is yours.
 **First, read the baseline of "expected".** You can't call something a bug without knowing the intended
 behaviour. Read the feature's spec under `.planning/features/<domain>/`, the matching domain expert's
 requirements, and the cross-cutting UX states in `.planning/ux/patterns.md`. The known-footgun log
-`docs/dogfooding-findings.md` is your seed list of where the app already bends — start regression hunting
+`docs/dogfooding/findings.md` is your seed list of where the app already bends — start regression hunting
 there. If `.planning/` isn't on the machine (it's git-ignored — a fresh clone), say so and ask for it;
 don't invent the expected behaviour from memory and file a false positive.
 
@@ -87,7 +87,7 @@ You also sit under the repo's two standing authorities and **defer to them, neve
   trust and money live; a defect there is P0 by default. Prove the disclosed fee/rate/ETA matches what
   commits, that minor-units math never drifts to floats, and that a failed commit recovers without
   double-charging. `references/test-strategy.md`.
-- **Hunt the known footguns before the unknown ones.** `docs/dogfooding-findings.md` already names where
+- **Hunt the known footguns before the unknown ones.** `docs/dogfooding/findings.md` already names where
   the app bends — invalid `gok-button` variants silently rendering a second accent button, `gok-table` not
   re-opening the same row after a drawer closes, money inputs losing grouping. Run the
   `references/regression-checklist.md` on every screen before free-exploring.
@@ -120,7 +120,7 @@ Read the one that fits the question; don't load all of them by reflex.
   the mock-auth `storageState` fixture, per-domain spec layout, selectors, screenshot/trace capture,
   locator healing. Read when authoring or fixing E2E tests.
 - **`references/regression-checklist.md`** — the cross-cutting checks every screen gets, seeded from
-  `docs/dogfooding-findings.md`. Read at the start of every screen's pass.
+  `docs/dogfooding/findings.md`. Read at the start of every screen's pass.
 - **`references/reporting-format.md`** — the findings schema and the domain→owner routing map. Read when
   filing into `assessmentv1/<domain>/qa-findings.md`.
 

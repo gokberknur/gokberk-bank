@@ -67,5 +67,6 @@ and ADR-004). Building each is a vote for a future DS primitive.
 
 ---
 
-_Add a row when you hit new friction; promote items to the design-system backlog later if a pattern proves
-broadly reusable._
+_Add a row when you hit new friction. These findings are curated into the **design-system handoff spec** that
+sits beside this file — see [`README.md`](README.md) (plus `01-footguns.md` / `02-missing-primitives.md` /
+`03-api-refinements.md` / `appendix-wontfeed.md`) for the prioritized, DS-facing version._

@@ -1,7 +1,7 @@
 # Regression checklist — run this on every screen before free-exploring
 
 These are the cross-cutting checks every screen gets, seeded from the real footguns already logged in
-`docs/dogfooding-findings.md`. Run them first; they catch the repeat offenders fast. Then free-explore the
+`docs/dogfooding/findings.md`. Run them first; they catch the repeat offenders fast. Then free-explore the
 screen's own behaviour.
 
 ## On every screen

@@ -5,8 +5,12 @@ A consumer-to-maintainer **spec**, not a backlog dump. It turns the friction log
 work — each item states the *need*, shows the **real source** (where it bit, the workaround, the desired
 call-site), and reframes the wish as **testable acceptance criteria** a DS agent can build and verify against.
 
-> **Source of truth:** the bank's app-side log, [`docs/dogfooding-findings.md`](../dogfooding-findings.md)
-> (findings `#1`–`#40`). This handoff curates, dedupes, and prioritizes those into DS work items.
+> **This folder is self-contained — hand it over whole.** Two layers sit side by side:
+> [`findings.md`](findings.md) is the raw app-side log (findings `#1`–`#40`); the curated spec is this
+> `README.md` plus [`01-footguns.md`](01-footguns.md), [`02-missing-primitives.md`](02-missing-primitives.md),
+> [`03-api-refinements.md`](03-api-refinements.md), and [`appendix-wontfeed.md`](appendix-wontfeed.md).
+>
+> **Source of truth:** the spec curates, dedupes, and prioritizes [`findings.md`](findings.md) into DS work items.
 >
 > **Delivery is the DS team's call.** This is the artifact; filing it into `tasks/backlog.md` / issues is theirs.
 

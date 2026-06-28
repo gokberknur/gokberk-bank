@@ -2,7 +2,7 @@
 
 Each of these is **invisible to `npm run check`** and each produced a **real, shipped defect** in gökberk-bank.
 They are the highest-value fixes in this handoff: any consumer building real screens hits them, and the failure
-mode is "looks fine, behaves wrong" — the worst kind. [← index](index.md)
+mode is "looks fine, behaves wrong" — the worst kind. [← README](README.md)
 
 ---
 
