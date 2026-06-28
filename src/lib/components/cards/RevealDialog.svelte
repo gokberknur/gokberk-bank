@@ -124,7 +124,7 @@
 					<dd class="field-value">
 						<span class="field-text nums">{card.pan}</span>
 						<gok-button
-							variant="ghost"
+							variant="secondary"
 							size="s"
 							accessible-label="Copy card number"
 							{@attach on('click', () => copy(card.pan))}
@@ -139,7 +139,7 @@
 					<dd class="field-value">
 						<span class="field-text nums">{card.expiry}</span>
 						<gok-button
-							variant="ghost"
+							variant="secondary"
 							size="s"
 							accessible-label="Copy expiry"
 							{@attach on('click', () => copy(card.expiry))}
@@ -154,7 +154,7 @@
 					<dd class="field-value">
 						<span class="field-text nums">{card.cvv}</span>
 						<gok-button
-							variant="ghost"
+							variant="secondary"
 							size="s"
 							accessible-label="Copy CVV"
 							{@attach on('click', () => copy(card.cvv))}

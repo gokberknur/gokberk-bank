@@ -346,7 +346,7 @@
 		{#if isActive}
 			<section class="actions" aria-label="Policy actions">
 				<gok-button variant="secondary" {@attach on('click', renew)}>Renew policy</gok-button>
-				<gok-button variant="ghost" {@attach on('click', () => (cancelOpen = true))}>
+				<gok-button variant="secondary" {@attach on('click', () => (cancelOpen = true))}>
 					Cancel policy
 				</gok-button>
 			</section>

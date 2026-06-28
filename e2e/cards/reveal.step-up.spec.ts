@@ -31,10 +31,10 @@ test('card number is masked until the step-up is approved', async ({ page }) => 
  * (dogfooding #18), painting three solid-green accent buttons in one sensitive
  * context. The brand rule is one earned accent per context.
  *
- * FIXME until RevealDialog.svelte stops using the invalid `ghost` variant
- * (e.g. `secondary`). The assertion is deterministic: no ghost-variant buttons.
+ * Fixed: RevealDialog.svelte now uses `secondary` for the Copy buttons. The
+ * assertion is deterministic: no ghost-variant buttons remain.
  */
-test.fixme('CARD-Q-01: reveal dialog Copy buttons must not use the invalid ghost variant', async ({
+test('CARD-Q-01: reveal dialog Copy buttons must not use the invalid ghost variant', async ({
 	page
 }) => {
 	await gotoApp(page, '/cards/card-physical');

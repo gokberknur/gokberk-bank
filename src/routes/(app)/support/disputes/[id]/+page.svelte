@@ -234,7 +234,7 @@
 		<!-- Withdraw — only while the dispute is open; a forced decision. -->
 		{#if isOpen}
 			<section class="actions" aria-label="Dispute actions">
-				<gok-button variant="ghost" {@attach on('click', openWithdraw)}>Withdraw dispute</gok-button>
+				<gok-button variant="secondary" {@attach on('click', openWithdraw)}>Withdraw dispute</gok-button>
 				<p class="actions-note">Withdrawing closes the dispute. I can't reopen it.</p>
 			</section>
 		{/if}

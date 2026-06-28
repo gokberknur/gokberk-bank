@@ -8,24 +8,21 @@ import { test, expect, gotoApp } from '../support/fixtures';
  */
 test.describe('insurance · regressions', () => {
 	// INS-Q-01 — `gok-button variant="ghost"` is invalid and silently falls back to
-	// `primary`, so the destructive "Cancel policy" renders as a solid-green accent
-	// button next to the reversible "Renew policy". The accent must NOT sit on the
-	// destructive action. (Same root cause on the claim "Withdraw claim" button.)
-	test.fixme(
-		'INS-Q-01: Cancel policy is not the solid-green accent button',
-		async ({ page }) => {
-			await gotoApp(page, '/insurance/policies/pol-device');
-			const cancel = page.getByRole('button', { name: 'Cancel policy' }).first();
-			const renew = page.getByRole('button', { name: 'Renew policy' });
-			await expect(cancel).toBeVisible();
-			await expect(renew).toBeVisible();
-			// The accent (primary) belongs to at most the constructive action; the
-			// destructive Cancel must read quieter than a solid-green primary.
-			const cancelBg = await cancel.evaluate((el) => getComputedStyle(el).backgroundColor);
-			const renewBg = await renew.evaluate((el) => getComputedStyle(el).backgroundColor);
-			expect(cancelBg).not.toBe(renewBg); // currently identical-tier; both go through primary fallback
-		}
-	);
+	// `primary`, so the destructive "Cancel policy" trigger rendered as a solid-green
+	// accent button. Fixed by using `secondary`: the destructive trigger must be a
+	// quiet (neutral) action — the danger is carried by the forced-decision dialog it
+	// opens, never by painting the trigger as the green accent. (Same fix on the claim
+	// "Withdraw claim" button.)
+	test('INS-Q-01: Cancel policy trigger is a quiet (secondary) action, not the accent', async ({
+		page
+	}) => {
+		await gotoApp(page, '/insurance/policies/pol-device');
+		// The first "Cancel policy" gok-button is the page trigger (the confirm dialog's
+		// is later in the DOM and only renders when opened).
+		const cancel = page.locator('gok-button').filter({ hasText: 'Cancel policy' }).first();
+		await expect(cancel).toBeVisible();
+		await expect(cancel).toHaveAttribute('variant', 'secondary');
+	});
 
 	// INS-Q-02 — the forced-decision cancel dialog is `no-dismiss`, but pressing
 	// Escape still closes it (the page wires gok-cancel → close and gok-dialog emits

@@ -180,7 +180,7 @@
 							View {receipt.walletName}
 						</gok-button>
 						<gok-button variant="secondary" href="/activity">Activity</gok-button>
-						<gok-button variant="ghost" {@attach on('click', topUpAgain)}>Top up again</gok-button>
+						<gok-button variant="secondary" {@attach on('click', topUpAgain)}>Top up again</gok-button>
 					</div>
 				</gok-empty-state>
 			</section>
@@ -237,7 +237,7 @@
 							View {receipt.walletName}
 						</gok-button>
 						<gok-button variant="secondary" href="/activity">Activity</gok-button>
-						<gok-button variant="ghost" {@attach on('click', topUpAgain)}>Top up again</gok-button>
+						<gok-button variant="secondary" {@attach on('click', topUpAgain)}>Top up again</gok-button>
 					</div>
 				</gok-empty-state>
 			</section>

@@ -73,7 +73,7 @@
 					<dd class="id-value">
 						<span class="id-text gok-tabular-nums">{wallet.iban}</span>
 						<gok-button
-							variant="ghost"
+							variant="secondary"
 							size="s"
 							accessible-label="Copy IBAN"
 							{@attach on('click', () => copy('iban', wallet.iban))}
@@ -87,7 +87,7 @@
 					<dd class="id-value">
 						<span class="id-text gok-tabular-nums">{wallet.bic}</span>
 						<gok-button
-							variant="ghost"
+							variant="secondary"
 							size="s"
 							accessible-label="Copy BIC"
 							{@attach on('click', () => copy('bic', wallet.bic))}

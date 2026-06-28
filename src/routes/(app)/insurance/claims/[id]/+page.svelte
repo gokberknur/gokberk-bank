@@ -201,7 +201,7 @@
 		<!-- Withdraw — only while the claim is open; a forced decision. -->
 		{#if isOpen}
 			<section class="actions" aria-label="Claim actions">
-				<gok-button variant="ghost" {@attach on('click', openWithdraw)}>Withdraw claim</gok-button>
+				<gok-button variant="secondary" {@attach on('click', openWithdraw)}>Withdraw claim</gok-button>
 				<p class="actions-note">Withdrawing closes the claim. I can't reopen it.</p>
 			</section>
 		{/if}
