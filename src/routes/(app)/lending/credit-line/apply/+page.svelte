@@ -26,6 +26,7 @@
 		MAX_LIMIT_MINOR
 	} from '$lib/lending/credit';
 	import MoneyInput from '$lib/components/money/MoneyInput.svelte';
+	import WizardProgress from '$lib/components/wizard/WizardProgress.svelte';
 
 	// A brief considered dwell on the soft check before the (already-deterministic)
 	// outcome shows — long enough to feel real, short enough to stay calm. A plain
@@ -156,6 +157,12 @@
 			any annual fee — before I sign.
 		</p>
 	</header>
+
+	<WizardProgress
+		step={stepIndex + 1}
+		total={STEP_ORDER.length}
+		label={STEP_ORDER[stepIndex].title}
+	/>
 
 	<!-- Step indicator — quiet, by rule + number, never the accent. -->
 	<ol class="steps" aria-label="Application steps">

@@ -90,7 +90,17 @@ Legend: `[ ]` todo · `[x]` done (committed) · each item → its finding ID(s) 
   LEND-U-01 ride the sticky wizard footer (5A). Each with a mobile (WebKit) reachability spec
   (`*.reachability.mobile.spec.ts`, `toBeInViewport`). **Remaining:** ACC-U-01 (/home content order),
   LEND-U-02 (mortgage sticky result), header-void trim on CRY-U-02 / PAY-U-04 → 5D.
-- [ ] **Cross-domain stepper inconsistency** (LEND-U-03 — three apply flows, three steppers) → unify on the wizard composite (5C)
+- [x] **5C Stepper consistency** (LEND-U-03, INS-U-02) — **CPO reshape:** a full `createWizard` migration of
+  the mortgage / credit-line flows was rejected as high-risk/low-value — they're decision-gated state machines
+  (amount → soft-check → eligible/referred/declined → offer → sign), not the forward-gated linear model the
+  composite assumes, and the loan reference flow itself runs its outcome phases outside the composite. Instead,
+  extracted the composite's progress signal into a shared `WizardProgress` ("Step k of N" + `gok-progress`
+  fraction) and dropped it into credit-line, mortgage, and the insurance quote (which had *no* indicator at
+  all). Every multi-step flow now shows the same progress signal without rewriting compliant disclosure logic.
+  Consistency spec added. **Deferred to council** (documented, not done here): **LEND-U-04** (loans signs inline
+  vs mortgage/credit-line routing to `/documents/[id]/sign` — rerouting a working compliant flow is risk without
+  clear value) and **PAY-U-03** (collapse scheduled frequency/start/end into one step — S3 effort, moderate-risk
+  refactor of a working wizard). → moved to the council/design queue.
 
 ## Deferred / backlog (not ship-blocking).
 - Pure S4 cosmetics (tabular-numeral lapses, minor alignment), the funds fact-sheet/Buy build-out (INV-U-01

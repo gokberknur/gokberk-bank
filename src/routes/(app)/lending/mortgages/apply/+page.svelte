@@ -23,6 +23,7 @@
 	import { EMPLOYMENT_TYPES, PROPERTY_TYPES } from '$lib/lending/mortgage';
 	import type { AmortRow } from '$lib/data/lending';
 	import MoneyInput from '$lib/components/money/MoneyInput.svelte';
+	import WizardProgress from '$lib/components/wizard/WizardProgress.svelte';
 
 	// The brief dwell on the pending decision screen before the (already-deterministic)
 	// decision-in-principle shows — long enough to feel considered, short enough to stay
@@ -225,6 +226,11 @@
 		</p>
 	</header>
 
+	<WizardProgress
+		step={stepIndex + 1}
+		total={STEP_ORDER.length}
+		label={STEP_ORDER[stepIndex].title}
+	/>
 	<!-- Step indicator — quiet, by rule + number, never the accent. -->
 	<ol class="steps" aria-label="Application steps">
 		{#each STEP_ORDER as s, i (s.id)}

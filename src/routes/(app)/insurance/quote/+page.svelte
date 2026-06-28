@@ -22,10 +22,20 @@
 	import { setProps, on } from '$lib/wc.svelte';
 	import { formatMoney } from '$lib/format';
 	import { insurance } from '$lib/state/insurance.svelte';
+	import WizardProgress from '$lib/components/wizard/WizardProgress.svelte';
 	import type { InsuranceProductId, CoverTier, BillingPeriod } from '$lib/data/insurance-data';
 
 	type Phase = 'choose' | 'configure' | 'review' | 'done';
 	let phase = $state<Phase>('choose');
+
+	// The three buy steps (the 'done' success screen is terminal, not a step). Mirrors the
+	// claims wizard's progress signal for cross-domain consistency (INS-U-02).
+	const QUOTE_STEPS: { id: Phase; title: string }[] = [
+		{ id: 'choose', title: 'Choose cover' },
+		{ id: 'configure', title: 'Set it up' },
+		{ id: 'review', title: 'Review & buy' }
+	];
+	const quoteStepIndex = $derived(QUOTE_STEPS.findIndex((s) => s.id === phase));
 
 	// On mount (SPA, client-only): a valid `?product=` deep-links straight into
 	// configure with that product seeded; otherwise we start at the product grid.
@@ -238,6 +248,13 @@
 {/snippet}
 
 <div class="page">
+	{#if phase !== 'done'}
+		<WizardProgress
+			step={quoteStepIndex + 1}
+			total={QUOTE_STEPS.length}
+			label={QUOTE_STEPS[quoteStepIndex].title}
+		/>
+	{/if}
 	{#if phase === 'choose'}
 		<!-- ── Choose a product ──────────────────────────────────────────────── -->
 		<header class="head">
