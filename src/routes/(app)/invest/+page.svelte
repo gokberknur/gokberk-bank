@@ -355,6 +355,13 @@
 				<gok-button variant="secondary" {@attach on('click', () => goto('/invest/watchlists'))}>
 					Watchlists
 				</gok-button>
+				<!-- V06 · Funds & ETFs explorer and the dividends surface (built alongside). -->
+				<gok-button variant="secondary" {@attach on('click', () => goto('/invest/funds'))}>
+					Funds &amp; ETFs
+				</gok-button>
+				<gok-button variant="secondary" {@attach on('click', () => goto('/invest/dividends'))}>
+					Dividends
+				</gok-button>
 			</div>
 		</section>
 	{/if}
