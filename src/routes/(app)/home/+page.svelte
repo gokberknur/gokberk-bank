@@ -1,11 +1,13 @@
 <script lang="ts">
 	// X01 home dashboard — the calm, editorial launchpad a user lands on after
-	// login. It reads "how am I doing?" at a glance: net worth, the wallets, quick
-	// actions, this-month spend (main column) and recent activity (a tall side
-	// rail). At full width it's a dense two-column grid; it collapses to a single
-	// column below 64rem. Read-only: no money moves here, every onward affordance
-	// deep-links or waits as "Soon". Omitted blocks (portfolio / tickers / bills)
-	// wait on F11/V01/P05.
+	// login. It reads "how am I doing?" at a glance: net worth, the wallets, recent
+	// activity, quick actions and this-month spend. The five sections are flat grid
+	// children: at full width (>=64rem) grid-template-areas place the main sections
+	// in a 2fr column with activity in a sticky 1fr right rail; below 64rem they
+	// collapse to a single column where activity rides high (right after balances,
+	// not buried below — ACC-U-01). Read-only: no money moves here, every onward
+	// affordance deep-links or waits as "Soon". Omitted blocks (portfolio / tickers
+	// / bills) wait on F11/V01/P05.
 	import { session } from '$lib/state/session.svelte';
 	import { accounts } from '$lib/state/accounts.svelte';
 	import { formatMoney } from '$lib/format';
@@ -26,55 +28,54 @@
 	</header>
 
 	<div class="dashboard">
-		<div class="main">
-			<section class="net-worth" aria-labelledby="net-worth-heading">
-				<h2 id="net-worth-heading" class="visually-hidden">Net worth</h2>
-				<NetWorthHero />
-			</section>
+		<section class="net-worth" aria-labelledby="net-worth-heading">
+			<h2 id="net-worth-heading" class="visually-hidden">Net worth</h2>
+			<NetWorthHero />
+		</section>
 
-			<section class="wallets" aria-labelledby="wallets-heading">
-				<div class="wallets-head">
-					<div class="wallets-total">
-						<p class="eyebrow gok-eyebrow">Total across wallets</p>
-						<h2 id="wallets-heading" class="wallets-figure gok-tabular-nums">{walletsTotal}</h2>
-					</div>
-					<p class="wallets-more">
-						<gok-link href="/accounts">See all &rarr;</gok-link>
-					</p>
+		<section class="wallets" aria-labelledby="wallets-heading">
+			<div class="wallets-head">
+				<div class="wallets-total">
+					<p class="eyebrow gok-eyebrow">Total across wallets</p>
+					<h2 id="wallets-heading" class="wallets-figure gok-tabular-nums">{walletsTotal}</h2>
 				</div>
+				<p class="wallets-more">
+					<gok-link href="/accounts">See all &rarr;</gok-link>
+				</p>
+			</div>
 
-				<ul class="wallet-grid">
-					{#each accounts.wallets as wallet (wallet.id)}
-						<li class="wallet-cell">
-							<WalletCard {wallet} />
-						</li>
-					{/each}
-				</ul>
-			</section>
+			<ul class="wallet-grid">
+				{#each accounts.wallets as wallet (wallet.id)}
+					<li class="wallet-cell">
+						<WalletCard {wallet} />
+					</li>
+				{/each}
+			</ul>
+		</section>
 
-			<!-- TODO: portfolio snapshot when V01 lands -->
-			<!-- TODO: market tickers when V02 lands -->
-
-			<section class="quick-actions" aria-labelledby="quick-actions-heading">
-				<p class="eyebrow gok-eyebrow">Quick actions</p>
-				<h2 id="quick-actions-heading" class="section-title gok-headline-5">Start something</h2>
-				<QuickActions />
-			</section>
-
-			<section class="spend" aria-labelledby="spend-heading">
-				<p class="eyebrow gok-eyebrow">This month</p>
-				<h2 id="spend-heading" class="section-title gok-headline-5">Spending</h2>
-				<SpendSummary />
-			</section>
-		</div>
-
-		<aside class="rail">
-			<section class="activity" aria-labelledby="activity-heading">
-				<p class="eyebrow gok-eyebrow">Recent</p>
-				<h2 id="activity-heading" class="section-title gok-headline-5">Activity</h2>
-				<RecentActivity />
-			</section>
+		<!-- Recent activity rides high on mobile (single column) — right after balances, not
+		     buried below quick actions + spend (ACC-U-01). On desktop the grid areas below put
+		     it back in the sticky right rail. -->
+		<aside class="activity" aria-labelledby="activity-heading">
+			<p class="eyebrow gok-eyebrow">Recent</p>
+			<h2 id="activity-heading" class="section-title gok-headline-5">Activity</h2>
+			<RecentActivity />
 		</aside>
+
+		<!-- TODO: portfolio snapshot when V01 lands -->
+		<!-- TODO: market tickers when V02 lands -->
+
+		<section class="quick-actions" aria-labelledby="quick-actions-heading">
+			<p class="eyebrow gok-eyebrow">Quick actions</p>
+			<h2 id="quick-actions-heading" class="section-title gok-headline-5">Start something</h2>
+			<QuickActions />
+		</section>
+
+		<section class="spend" aria-labelledby="spend-heading">
+			<p class="eyebrow gok-eyebrow">This month</p>
+			<h2 id="spend-heading" class="section-title gok-headline-5">Spending</h2>
+			<SpendSummary />
+		</section>
 	</div>
 
 	<!-- TODO: upcoming bills when P05 lands -->
@@ -109,14 +110,11 @@
 		gap: var(--gok-space-section);
 	}
 
-	.main {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
-		min-inline-size: 0;
-	}
-
-	.rail {
+	.net-worth,
+	.wallets,
+	.quick-actions,
+	.spend,
+	.activity {
 		min-inline-size: 0;
 	}
 
@@ -190,11 +188,33 @@
 	@media (min-width: 64rem) {
 		.dashboard {
 			grid-template-columns: minmax(0, 2fr) minmax(20rem, 1fr);
+			grid-template-areas:
+				'networth activity'
+				'wallets  activity'
+				'quick    activity'
+				'spend    activity';
 			align-items: start;
 			gap: var(--gok-space-section);
 		}
 
-		.rail {
+		.net-worth {
+			grid-area: networth;
+		}
+
+		.wallets {
+			grid-area: wallets;
+		}
+
+		.quick-actions {
+			grid-area: quick;
+		}
+
+		.spend {
+			grid-area: spend;
+		}
+
+		.activity {
+			grid-area: activity;
 			position: sticky;
 			top: var(--gok-space-section);
 		}

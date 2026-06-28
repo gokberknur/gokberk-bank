@@ -88,8 +88,13 @@ Legend: `[ ]` todo · `[x]` done (committed) · each item → its finding ID(s) 
   INV-U-05 (Place order pinned), INS-U-04 (policy actions pinned), CARD-U-01 (reveal/settings pinned),
   CRY-U-01 (SendPanel CTA sticky on mobile), SVC-U-2 (support header shortcut → form). PAY-U-01/INS-U-05/
   LEND-U-01 ride the sticky wizard footer (5A). Each with a mobile (WebKit) reachability spec
-  (`*.reachability.mobile.spec.ts`, `toBeInViewport`). **Remaining:** ACC-U-01 (/home content order),
-  LEND-U-02 (mortgage sticky result), header-void trim on CRY-U-02 / PAY-U-04 → 5D.
+  (`*.reachability.mobile.spec.ts`, `toBeInViewport`). **Done (5D):** ACC-U-01 — /home dashboard flattened to
+  flat grid children; on mobile (single column) recent activity now rides high (right after balances) while
+  desktop keeps the sticky right rail via `grid-template-areas`; mobile order spec added.
+  **Deferred to council (CPO call):** LEND-U-02 (mortgage-calculator sticky result needs a bespoke compact
+  monthly-payment summary — S3, calculator-specific design) and CRY-U-02 / PAY-U-04 (the broad header-void
+  sweep across every crypto/payments surface — S3, low-value churn; the `PageHeader` trim mechanism is in place
+  for routes that adopt it). → council/design queue.
 - [x] **5C Stepper consistency** (LEND-U-03, INS-U-02) — **CPO reshape:** a full `createWizard` migration of
   the mortgage / credit-line flows was rejected as high-risk/low-value — they're decision-gated state machines
   (amount → soft-check → eligible/referred/declined → offer → sign), not the forward-gated linear model the
