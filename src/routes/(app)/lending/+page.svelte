@@ -8,12 +8,17 @@
 	// footnote closes it. The active-loan card links through to the L02 servicing
 	// surface ("Manage loan").
 	import { lending } from '$lib/state/lending.svelte';
+	import { mortgageServicing } from '$lib/state/mortgage-servicing.svelte';
 	import { LOAN_PURPOSES, personalLoanAprBps } from '$lib/data/lending';
 	import { formatMoney, formatDate } from '$lib/format';
 	import { setProps } from '$lib/wc.svelte';
 
 	const loan = $derived(lending.activeLoan);
 	const status = $derived(lending.activeLoanStatus);
+
+	// The one mortgage I'm servicing — its outstanding balance is the card's hero figure,
+	// linking through to the L04 servicing surface.
+	const mortgage = $derived(mortgageServicing.mortgage);
 
 	const eur = (minor: number) => formatMoney(minor, 'EUR');
 
@@ -109,6 +114,44 @@
 						{status.paidMonths} of {loan.termMonths} months
 					</p>
 				</div>
+			</div>
+		</gok-card>
+	</section>
+
+	<!-- My mortgage — the servicing summary for the one mortgage I hold. -->
+	<section class="block" aria-labelledby="mortgage-heading">
+		<h2 id="mortgage-heading" class="visually-hidden">My mortgage</h2>
+		<gok-card>
+			<div class="loan">
+				<div class="loan-top">
+					<div class="loan-id">
+						<p class="loan-eyebrow gok-eyebrow">My mortgage</p>
+						<p class="loan-purpose gok-headline-6">My home mortgage</p>
+						<p class="loan-original gok-tabular-nums">Borrowed {eur(mortgage.originalPrincipalMinor)}</p>
+					</div>
+					<div class="loan-cta">
+						<!-- L04 servicing — the live mortgage-detail surface. -->
+						<gok-link href="/lending/mortgages/{mortgage.id}">Manage mortgage</gok-link>
+					</div>
+				</div>
+
+				<div class="loan-hero">
+					<p class="loan-eyebrow gok-eyebrow">Outstanding balance</p>
+					<p class="loan-balance gok-tabular-nums">{eur(mortgage.balanceMinor)}</p>
+				</div>
+
+				<dl class="loan-meta">
+					<div class="loan-meta-row">
+						<dt class="loan-meta-label">Rate</dt>
+						<dd class="loan-meta-value gok-tabular-nums">
+							{rate(mortgage.aprBps)} {mortgage.rateType}
+						</dd>
+					</div>
+					<div class="loan-meta-row">
+						<dt class="loan-meta-label">Monthly payment</dt>
+						<dd class="loan-meta-value gok-tabular-nums">{eur(mortgage.monthlyMinor)}</dd>
+					</div>
+				</dl>
 			</div>
 		</gok-card>
 	</section>

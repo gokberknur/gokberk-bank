@@ -67,6 +67,35 @@ export function amortization(principalMinor: number, aprBps: number, termMonths:
 	return rows;
 }
 
+/** The schedule for a balance run at a **fixed** monthly payment (rather than one
+ *  derived from the term). Keeping the level payment is how an overpayment shortens
+ *  the term: the same payment clears a smaller balance in fewer months. The final
+ *  instalment is trued up so the balance lands on 0. */
+export function amortizationAtPayment(
+	balanceMinor: number,
+	aprBps: number,
+	paymentMinor: number
+): AmortRow[] {
+	const r = monthlyRateFromApr(aprBps);
+	const rows: AmortRow[] = [];
+	let balance = balanceMinor;
+	// Guard against a payment that can't cover the interest (won't amortise).
+	const minPayment = Math.round(balance * r) + 1;
+	const payment = Math.max(paymentMinor, minPayment);
+	for (let month = 1; balance > 0 && month <= 1200; month++) {
+		const interest = Math.round(balance * r);
+		let principal = payment - interest;
+		let pay = payment;
+		if (principal >= balance) {
+			principal = balance;
+			pay = balance + interest;
+		}
+		balance -= principal;
+		rows.push({ month, paymentMinor: pay, interestMinor: interest, principalMinor: principal, balanceMinor: Math.max(0, balance) });
+	}
+	return rows;
+}
+
 export interface LoanCost {
 	monthlyMinor: number;
 	totalRepayableMinor: number;
