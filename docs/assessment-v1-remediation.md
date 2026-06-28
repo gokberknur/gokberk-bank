@@ -83,7 +83,12 @@ Legend: `[ ]` todo · `[x]` done (committed) · each item → its finding ID(s) 
   proceeds; mismatch blocks until acknowledged). Duplicate-payee detection remains the one deferred TODO.
 - [x] **SVC-Q-01** reply to a resolved ticket didn't reopen it → `addReply` now flips a `resolved` ticket
   back to `open` on reply, honoring the on-screen "a reply reopens the conversation" promise (gok-bank-servicing). Spec active.
-- [ ] **ACC-Q** / **CARD-Q** / **INS-Q** / **INV-Q** remaining S2s per per-domain files
+- [x] **ACC-Q** / **CARD-Q** / **INS-Q** / **INV-Q** remaining S2s per per-domain files → **reconciled, all
+  closed.** Audited every S2 row across the per-domain `assessmentv1/*/qa-findings.md`: ACC-Q-02 (Batch 3 tail),
+  CARD-Q-01 + INS-Q-01 (Batch 1 ghost→primary), CARD-Q-02 (Batch 2 limit ceiling), INV-Q01 (Batch 1
+  forced-decision) — each fixed with a committed e2e spec. Across the whole assessment all 14 S2s are resolved
+  (the others: MON-Q-02, PAY-Q-02/03/04/05, SVC-Q-01/02, PLT-Q-02/03). No S2 remains hidden behind this
+  catch-all.
 
 ## Batch 4 — Platform polish (S3/S4, cheap, app-wide).
 - [x] **favicon.svg 404** on every route → added `static/favicon.svg` (the forest-green accent tile + wordmark
