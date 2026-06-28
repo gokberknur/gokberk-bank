@@ -28,7 +28,7 @@ test.describe('insurance · regressions', () => {
 	// Escape still closes it (the page wires gok-cancel → close and gok-dialog emits
 	// gok-cancel on Escape even when no-dismiss). A forced-decision dialog must not
 	// be escapable.
-	test.fixme('INS-Q-02: Escape does not dismiss the no-dismiss cancel dialog', async ({ page }) => {
+	test('INS-Q-02: Escape does not dismiss the no-dismiss cancel dialog', async ({ page }) => {
 		await gotoApp(page, '/insurance/policies/pol-device');
 		await page.getByRole('button', { name: 'Cancel policy' }).first().click();
 		const dialog = page.getByRole('dialog', { name: /Cancel my .* policy\?/ });

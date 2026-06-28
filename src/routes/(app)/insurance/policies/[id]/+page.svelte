@@ -366,8 +366,6 @@
 		heading={`Cancel my ${product.name} policy?`}
 		no-dismiss
 		{@attach setProps({ open: cancelOpen })}
-		{@attach on('gok-cancel', () => (cancelOpen = false))}
-		{@attach on('gok-close', () => (cancelOpen = false))}
 	>
 		<p class="cancel-body">
 			Cover ends immediately and this can't be undone. I'll stop paying

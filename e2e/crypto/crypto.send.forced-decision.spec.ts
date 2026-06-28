@@ -36,7 +36,7 @@ test('Back on the network confirm cancels with no side effect', async ({ page })
 });
 
 // CRY-Q-01: the no-dismiss forced-decision dialog must NOT close on Escape.
-test.fixme('CRY-Q-01: Escape must not dismiss the no-dismiss network confirm', async ({ page }) => {
+test('CRY-Q-01: Escape must not dismiss the no-dismiss network confirm', async ({ page }) => {
 	const confirm = await openConfirm(page);
 	await expect(confirm).toBeVisible();
 

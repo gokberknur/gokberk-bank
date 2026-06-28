@@ -216,8 +216,6 @@
 		heading="Withdraw my claim?"
 		no-dismiss
 		{@attach setProps({ open: withdrawOpen })}
-		{@attach on('gok-cancel', closeWithdraw)}
-		{@attach on('gok-close', closeWithdraw)}
 	>
 		<p class="withdraw-body">
 			This closes claim <strong class="gok-tabular-nums">{claim.reference}</strong>. I can't reopen

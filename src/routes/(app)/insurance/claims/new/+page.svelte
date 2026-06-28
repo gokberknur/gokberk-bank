@@ -385,8 +385,6 @@
 	heading="Submit my claim"
 	no-dismiss
 	{@attach setProps({ open: submitOpen })}
-	{@attach on('gok-cancel', closeSubmit)}
-	{@attach on('gok-close', closeSubmit)}
 >
 	<p class="submit-body">
 		I'm submitting my

@@ -383,8 +383,6 @@
 	heading="Confirm payment"
 	no-dismiss
 	{@attach setProps({ open: confirmOpen })}
-	{@attach on('gok-cancel', closeConfirm)}
-	{@attach on('gok-close', closeConfirm)}
 >
 	<p class="confirm-body">
 		Send <strong class="gok-tabular-nums">{amountLabel}</strong> to {payeeName}? This can't be undone

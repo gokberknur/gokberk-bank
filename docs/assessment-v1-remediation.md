@@ -25,12 +25,15 @@ Legend: `[ ]` todo · `[x]` done (committed) · each item → its finding ID(s) 
 - [x] **ghost-button footgun** (dogfooding #18): replaced all 10 invalid `variant="ghost"` with `secondary`
   across 6 files — zero `ghost` left in source. Destructive triggers are now quiet, not the green accent.
   Clears INS-Q-01, CARD-Q-01, ACC-U-03; specs flipped active.
-- [~] **Forced-decision dialog contract** (dogfooding #33): for drawer-hosted confirms, guard the parent
-  `closeDrawer` on `e.target === e.currentTarget`, drop the confirm's `gok-cancel`/`gok-close` close-wiring, and
-  `preventDefault` the drawer's own `gok-cancel` while the confirm is open (DS contract — keeps it open).
-  **Done:** MON-Q-02 (RedeemFlow), INV-Q01 (OrderTicket) — both S2, specs active.
-  **Remaining (S3, standalone dialogs):** PAY-Q-01 (add `no-dismiss` to send/exchange money-out confirms),
-  CRY-Q-01 (crypto network confirm), INS-Q-02 (insurance cancel/buy/withdraw dialogs).
+- [x] **Forced-decision dialog contract** (dogfooding #33). Two shapes, both fixed:
+  - *Drawer-hosted confirms* (MON-Q-02 RedeemFlow, INV-Q01 OrderTicket, S2): guard `closeDrawer` on
+    `e.target === e.currentTarget`, drop the confirm's `gok-cancel`/`gok-close` wiring, and `preventDefault`
+    the drawer's own `gok-cancel` while the confirm is open (DS contract — keeps it open).
+  - *Standalone `no-dismiss` confirms* (PAY-Q-01 send+exchange, CRY-Q-01 crypto, INS-Q-02 insurance
+    cancel/withdraw/submit/buy, S3): drop the dialog's `gok-cancel`/`gok-close`→close wiring so Escape has no
+    listener (the DS already blocks dismissal under `no-dismiss`); the explicit footer button still closes it.
+  All specs active. NOTE: ~15 other `no-dismiss` dialogs across the app share the standalone pattern and
+  should get the same sweep as a follow-up (tracked in dogfooding #33).
 
 ## Batch 2 — Disclose-then-commit / persistence (trust-critical S2).
 - [ ] **CARD-Q-02** over-ceiling limit clamps silently (disclosed ≠ committed) (gok-bank-cards)

@@ -55,7 +55,7 @@ test.fixme('PAY-Q-04: cancelling a direct-debit mandate actually cancels it', as
 
 // PAY-Q-01 — The money-out forced-decision confirm (send + exchange) is dismissible
 // by Escape, but the spec requires `no-dismiss` for these danger-tone confirms.
-test.fixme('PAY-Q-01: send confirm dialog is no-dismiss (Escape must not close it)', async ({
+test('PAY-Q-01: send confirm dialog is no-dismiss (Escape must not close it)', async ({
 	page
 }) => {
 	await gotoApp(page, '/payments/transfer');

@@ -350,8 +350,6 @@
 	heading="Convert {fromLabel}?"
 	no-dismiss
 	{@attach setProps({ open: confirmOpen })}
-	{@attach on('gok-cancel', closeConfirm)}
-	{@attach on('gok-close', closeConfirm)}
 >
 	<p class="confirm-body">
 		Convert <strong class="gok-tabular-nums">{fromLabel}</strong> into

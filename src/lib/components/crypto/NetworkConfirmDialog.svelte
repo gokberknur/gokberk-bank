@@ -52,8 +52,6 @@
 	heading="Confirm send"
 	no-dismiss
 	{@attach setProps({ open })}
-	{@attach on('gok-cancel', onCancel)}
-	{@attach on('gok-close', onCancel)}
 >
 	<div class="body">
 		<p class="lead">
