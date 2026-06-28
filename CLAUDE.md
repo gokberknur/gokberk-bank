@@ -127,7 +127,9 @@ The design system lacks a few things a premium bank needs. Build these **app-loc
 component visuals. DS gaps stay app-local; dogfooding findings → **this repo only**
 (`docs/dogfooding-findings.md`), not the design-system backlog.
 
-- **wizard/stepper** (`gok-tabs activation="manual"` + `gok-progress format="fraction"` + own step-state) ·
+- **wizard/stepper** (purpose-built `<nav><ol>` step rail + `gok-progress format="fraction"` + own step-state
+  — deliberately **not** `gok-tabs`, which models free non-linear nav while a wizard is forward-gated; the
+  shared `WizardProgress` carries the "Step k of N" + `gok-progress` signal for non-composite step machines) ·
   **date / date-range picker** · **money/currency input** · **OTP input** · **file-upload/dropzone** ·
   **combobox/autocomplete** (free-text filter) + **multi-select** (native `gok-select` already does
   type-to-jump typeahead for small single-value sets — only filtering/multi need composites).
