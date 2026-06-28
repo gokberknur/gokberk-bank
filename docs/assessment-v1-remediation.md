@@ -11,8 +11,12 @@ Gate owner: `gok-bank-product-owner`. Order is by what breaks the **primary rela
 Legend: `[ ]` todo · `[x]` done (committed) · each item → its finding ID(s) + owning domain expert.
 
 ## Batch 0 — Ship blockers (S1). Must clear before ship.
-- [ ] **MON-Q-01** redeem double-click double-charges → single-flight latch in `RedeemFlow.svelte` (gok-bank-money)
-- [ ] **ACC-Q-01** transaction detail drawer unreachable → controlled selection on the ledger grid (gok-bank-accounts)
+- [x] **MON-Q-01** redeem double-click double-charges → single-flight latch in `RedeemFlow.svelte` (gok-bank-money) — fixed, spec active
+- [x] **ACC-Q-01** transaction detail drawer "unreachable" → **false positive**: the drawer opens *and*
+  reopens under a real click on the row's select control (the QA agent's synthetic clicks didn't trigger
+  the custom checkbox). No code change — reverted a wrong attempt; the active E2E now proves reachability.
+  Residual DS gap (no full-row click / no keyboard activation) logged in dogfooding #12, not ship-blocking.
+  (gok-bank-accounts)
 - [ ] **PLT-U-01** 9/14 sections unbrowsable on mobile → make the mobile "More" tab a real all-sections sheet (gok-bank-ux)
 
 ## Batch 1 — Systemic single-fixes (cheap, clear many findings at the source).
