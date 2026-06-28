@@ -63,7 +63,7 @@ export const WALLET_BLUEPRINTS: readonly WalletBlueprint[] = [
 
 /** Savings pots — independent EUR sub-balances with optional goals + round-ups. */
 export const POTS: readonly Pot[] = [
-	{ id: 'pot-emergency', name: 'Emergency fund', currency: 'EUR', balanceMinor: 480_000, goalMinor: 600_000, roundUps: false, emoji: '🛟' },
-	{ id: 'pot-laptop', name: 'New laptop', currency: 'EUR', balanceMinor: 92_000, goalMinor: 220_000, roundUps: true, emoji: '💻' },
-	{ id: 'pot-japan', name: 'Japan trip', currency: 'EUR', balanceMinor: 168_000, goalMinor: 400_000, roundUps: true, emoji: '🗾' }
+	{ id: 'pot-emergency', walletId: 'eur-main', name: 'Emergency fund', currency: 'EUR', balanceMinor: 480_000, goalMinor: 600_000, targetDate: null, roundUps: false, autoSave: { amountMinor: 20_000, frequency: 'monthly', paused: false }, emoji: '🛟' },
+	{ id: 'pot-laptop', walletId: 'eur-main', name: 'New laptop', currency: 'EUR', balanceMinor: 92_000, goalMinor: 220_000, targetDate: '2026-12-01', roundUps: true, autoSave: null, emoji: '💻' },
+	{ id: 'pot-japan', walletId: 'eur-main', name: 'Japan trip', currency: 'EUR', balanceMinor: 168_000, goalMinor: 400_000, targetDate: '2026-10-15', roundUps: true, autoSave: { amountMinor: 5_000, frequency: 'weekly', paused: false }, emoji: '🗾' }
 ];

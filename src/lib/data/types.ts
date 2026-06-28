@@ -62,16 +62,31 @@ export interface Wallet {
 	primary: boolean;
 }
 
+export type PotFrequency = 'weekly' | 'monthly';
+
+/** A recurring auto-save into a pot. `paused` keeps the rule but stops it firing. */
+export interface PotAutoSave {
+	amountMinor: number;
+	frequency: PotFrequency;
+	paused: boolean;
+}
+
 export interface Pot {
 	id: string;
+	/** The wallet this pot draws from / returns to (a pot is a sub-balance of one wallet). */
+	walletId: string;
 	name: string;
 	currency: Currency;
 	/** Saved so far (minor units). */
 	balanceMinor: number;
 	/** Goal target (minor units), or null for an open-ended pot. */
 	goalMinor: number | null;
+	/** Optional target date (ISO YYYY-MM-DD) — drives the "on track" note. */
+	targetDate: string | null;
 	/** Whether round-ups feed this pot. */
 	roundUps: boolean;
+	/** Recurring auto-save rule, or null if none set. */
+	autoSave: PotAutoSave | null;
 	emoji: string;
 }
 

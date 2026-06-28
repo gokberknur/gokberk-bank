@@ -6,11 +6,12 @@
 import { Rng } from './prng';
 import { toEur, HOME_CURRENCY } from './money';
 import type { Currency } from './money';
+import { TODAY, isoDate } from './time';
 import { WALLET_BLUEPRINTS, POTS } from './accounts';
 import { generateWalletTxns } from './transactions';
 import { PAYEES } from './payees';
 import { CARDS, deriveCardSpend } from './cards';
-import type { Card, Payee, Pot, Transaction, Wallet } from './types';
+import type { Card, Payee, Pot, PotAutoSave, Transaction, Wallet } from './types';
 
 /** The fixed seed. Change it to regenerate a different (but still stable) life. */
 const SEED = 0x9e3779b9;
@@ -216,5 +217,128 @@ export function cancelCard(id: string): void {
 	};
 }
 
+// ---- Pots (A04) ----------------------------------------------------------
+// A pot is a sub-balance of one wallet. Moving money in/out is an instant,
+// reversible internal transfer: it's recorded on the wallet via appendTransaction
+// (which adjusts the wallet balance for us), and the pot balance is replaced
+// immutably so the $derived pot views re-run. No money is invented — the wallet
+// gives exactly what the pot receives, and vice-versa.
+
+/** Add (deltaToPot > 0) or withdraw (< 0) against a pot, as a wallet transfer.
+ *  Returns false (no-op) if it would overdraw the wallet or the pot. */
+function potTransfer(potId: string, deltaToPot: number): boolean {
+	const pi = pots.findIndex((p) => p.id === potId);
+	if (pi === -1) return false;
+	const pot = pots[pi];
+	const w = wallets.find((x) => x.id === pot.walletId);
+	if (!w) return false;
+	const amount = Math.abs(deltaToPot);
+	if (amount <= 0) return false;
+	if (deltaToPot > 0 && amount > w.availableMinor) return false; // insufficient wallet
+	if (deltaToPot < 0 && amount > pot.balanceMinor) return false; // over-withdraw
+	const walletDelta = -deltaToPot; // adding to a pot is a wallet outflow
+	const txn: Transaction = {
+		id: `pot-${potId}-${allTxns.length}`,
+		walletId: w.id,
+		date: isoDate(TODAY),
+		merchant: deltaToPot > 0 ? `To ${pot.name}` : `From ${pot.name}`,
+		category: 'transfers',
+		type: 'transfer',
+		status: 'settled',
+		amountMinor: walletDelta,
+		currency: w.currency,
+		runningBalanceMinor: w.currentMinor + walletDelta,
+		reference: pot.name
+	};
+	appendTransaction(txn); // adjusts the wallet balance
+	pots[pi] = { ...pot, balanceMinor: pot.balanceMinor + deltaToPot };
+	return true;
+}
+
+/** Move money wallet → pot (instant). False if the wallet can't cover it. */
+export function addToPot(id: string, amountMinor: number): boolean {
+	return potTransfer(id, Math.abs(amountMinor));
+}
+
+/** Move money pot → wallet (instant). False if the pot doesn't hold that much. */
+export function withdrawFromPot(id: string, amountMinor: number): boolean {
+	return potTransfer(id, -Math.abs(amountMinor));
+}
+
+/** Create a new pot (starts empty). Returns the created pot. */
+export function createPot(draft: {
+	walletId: string;
+	name: string;
+	currency: Currency;
+	goalMinor: number | null;
+	targetDate: string | null;
+	roundUps: boolean;
+	emoji: string;
+}): Pot {
+	const pot: Pot = {
+		id: `pot-custom-${pots.length}`,
+		walletId: draft.walletId,
+		name: draft.name,
+		currency: draft.currency,
+		balanceMinor: 0,
+		goalMinor: draft.goalMinor,
+		targetDate: draft.targetDate,
+		roundUps: draft.roundUps,
+		autoSave: null,
+		emoji: draft.emoji
+	};
+	pots.unshift(pot);
+	return pot;
+}
+
+function patchPot(id: string, patch: Partial<Pot>): void {
+	const i = pots.findIndex((p) => p.id === id);
+	if (i === -1) return;
+	pots[i] = { ...pots[i], ...patch };
+}
+
+export function setPotRoundUps(id: string, on: boolean): void {
+	patchPot(id, { roundUps: on });
+}
+
+/** Set or clear the recurring auto-save rule. */
+export function setPotAutoSave(id: string, rule: PotAutoSave | null): void {
+	patchPot(id, { autoSave: rule });
+}
+
+/** Pause/resume an existing auto-save rule (no-op if none set). */
+export function togglePotAutoSavePause(id: string): void {
+	const pot = pots.find((p) => p.id === id);
+	if (!pot?.autoSave) return;
+	patchPot(id, { autoSave: { ...pot.autoSave, paused: !pot.autoSave.paused } });
+}
+
+/** Close a pot. Any balance must be withdrawn first (the UI enforces this). */
+export function deletePot(id: string): void {
+	const i = pots.findIndex((p) => p.id === id);
+	if (i !== -1) pots.splice(i, 1);
+}
+
+/** Round-ups accrued for a pot — the spare change (to the nearest €1) on the
+ *  owning wallet's recent card spend. Deterministic; 0 if round-ups are off. */
+export function potRoundUpAccruedMinor(id: string): number {
+	const pot = pots.find((p) => p.id === id);
+	if (!pot || !pot.roundUps) return 0;
+	return allTxns
+		.filter(
+			(t) =>
+				t.walletId === pot.walletId &&
+				t.type === 'card' &&
+				t.status === 'settled' &&
+				t.amountMinor < 0
+		)
+		.slice(0, 40)
+		.reduce((sum, t) => {
+			const abs = -t.amountMinor;
+			const up = (100 - (abs % 100)) % 100; // change to the next whole unit
+			return sum + up;
+		}, 0);
+}
+
 export { HOME_CURRENCY };
-export type { Wallet, Pot, Transaction, Payee, Card };
+export type { Wallet, Pot, PotAutoSave, Transaction, Payee, Card };
