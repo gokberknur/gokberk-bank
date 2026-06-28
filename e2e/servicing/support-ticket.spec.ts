@@ -39,7 +39,7 @@ test('raise a ticket validates reward-early, opens at "Open", and accepts a repl
 // conversation", but `addReply` never changes status, so the ticket stays "Resolved"
 // after a reply. Recorded as fixme so the green suite stays green; flip to `test` when
 // the reply path reopens a resolved ticket.
-test.fixme('SVC-Q-01: a reply to a resolved ticket reopens it', async ({ page }) => {
+test('SVC-Q-01: a reply to a resolved ticket reopens it', async ({ page }) => {
 	await gotoApp(page, '/support/tickets/tk-1');
 	await expect(page.getByText('Resolved ticket')).toBeVisible();
 

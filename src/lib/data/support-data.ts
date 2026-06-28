@@ -145,7 +145,8 @@ export function addTicket(subject: string, category: HelpCategory, body: string)
 	return ticket;
 }
 
-/** Append a reply to a ticket (immutable replacement). */
+/** Append a reply to a ticket (immutable replacement). A reply to a resolved ticket
+ *  reopens it — the detail view promises "a reply reopens the conversation" (SVC-Q-01). */
 export function addReply(ticketId: string, body: string): void {
 	const today = isoDate(TODAY);
 	tickets = tickets.map((t) =>
@@ -153,6 +154,7 @@ export function addReply(ticketId: string, body: string): void {
 			? {
 					...t,
 					updatedAt: today,
+					status: t.status === 'resolved' ? 'open' : t.status,
 					messages: [...t.messages, { id: `m${t.messages.length + 1}`, from: 'me', dateIso: today, body }]
 				}
 			: t

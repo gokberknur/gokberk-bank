@@ -61,7 +61,8 @@ Legend: `[ ]` todo · `[x]` done (committed) · each item → its finding ID(s) 
   `@playwright/test`). Fixed by nesting each confirm inside its drawer (top layer → clickable) + the #33
   teardown guards; also covers the MandatesManage dispute dialog. Logged as dogfooding #37. Specs active.
 - [ ] **PAY** missing confirmation-of-payee (gok-bank-payments)
-- [ ] **SVC-Q-01** reply to a resolved ticket doesn't reopen it (gok-bank-servicing)
+- [x] **SVC-Q-01** reply to a resolved ticket didn't reopen it → `addReply` now flips a `resolved` ticket
+  back to `open` on reply, honoring the on-screen "a reply reopens the conversation" promise (gok-bank-servicing). Spec active.
 - [ ] **ACC-Q** / **CARD-Q** / **INS-Q** / **INV-Q** remaining S2s per per-domain files
 
 ## Batch 4 — Platform polish (S3/S4, cheap, app-wide).
