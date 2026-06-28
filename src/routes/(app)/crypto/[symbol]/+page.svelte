@@ -17,6 +17,7 @@
 	import { setProps, on } from '$lib/wc.svelte';
 	import { PriceChart } from '$lib/charts';
 	import CryptoTicket from '$lib/components/crypto/CryptoTicket.svelte';
+	import StickyActionBar from '$lib/components/layout/StickyActionBar.svelte';
 
 	type Sign = 'pos' | 'neg' | 'flat';
 	function signOf(n: number): Sign {
@@ -151,12 +152,12 @@
 		</header>
 
 		<!-- Persistent Buy / Sell / Send / Receive. The primary Buy is the one accent. -->
-		<section class="cta-bar" aria-label="Trade {symbol}">
-			<div class="cta-context">
+		<StickyActionBar label="Trade {symbol}">
+			{#snippet context()}
 				<span class="cta-symbol gok-tabular-nums">{symbol}</span>
 				<span class="cta-price gok-tabular-nums">{formatMoney(asset.lastPriceMinor, 'EUR')}</span>
-			</div>
-			<div class="cta-actions">
+			{/snippet}
+			{#snippet actions()}
 				<gok-button variant="primary" {@attach on('click', () => trade('buy'))}>Buy</gok-button>
 				<gok-button variant="secondary" {@attach on('click', () => trade('sell'))}>Sell</gok-button>
 				<gok-button
@@ -171,8 +172,8 @@
 				>
 					Receive
 				</gok-button>
-			</div>
-		</section>
+			{/snippet}
+		</StickyActionBar>
 
 		<!-- Price chart -->
 		<section class="block" aria-labelledby="chart-heading">
@@ -367,31 +368,7 @@
 		color: var(--gok-color-text-muted);
 	}
 
-	/* --- Sticky Buy / Sell bar --- */
-	.cta-bar {
-		position: sticky;
-		inset-block-end: var(--gok-space-300);
-		z-index: var(--gok-z-sticky);
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		justify-content: space-between;
-		gap: var(--gok-space-300);
-		padding-block: var(--gok-space-300);
-		padding-inline: var(--gok-space-400);
-		border: var(--gok-border-width-hairline) solid var(--gok-color-border);
-		border-radius: var(--gok-radius-l);
-		background: var(--gok-color-surface-translucent);
-		backdrop-filter: blur(var(--gok-blur-chrome));
-	}
-
-	.cta-context {
-		display: flex;
-		align-items: baseline;
-		gap: var(--gok-space-200);
-		min-inline-size: 0;
-	}
-
+	/* --- Sticky Buy / Sell bar context spans --- */
 	.cta-symbol {
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-regular-size);
@@ -403,13 +380,6 @@
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
 		color: var(--gok-color-text-muted);
-	}
-
-	.cta-actions {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: var(--gok-space-200);
 	}
 
 	/* --- Content blocks --- */
@@ -501,18 +471,6 @@
 
 		.head-price {
 			align-items: flex-start;
-		}
-
-		.cta-bar {
-			inset-block-end: calc(var(--gok-space-900) + env(safe-area-inset-bottom));
-		}
-
-		.cta-actions {
-			flex: 1 1 auto;
-		}
-
-		.cta-actions :global(gok-button) {
-			flex: 1 1 0;
 		}
 	}
 </style>
