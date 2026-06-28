@@ -24,3 +24,14 @@ vite.config.ts.timestamp-*
 
 # Local-only planning system (specs, backlog, UX flows, ADRs) — never committed
 .planning/
+
+# Local-only QA/UX assessment findings (working notes + screenshots) — never committed.
+# The E2E specs that come out of an assessment ARE committed, under e2e/.
+assessmentv1/
+
+# Playwright artifacts
+/test-results/
+/playwright-report/
+/playwright/.cache/
+# playwright-cli session profiles / browser cache (created when driving the CLI)
+/.playwright-cli/
