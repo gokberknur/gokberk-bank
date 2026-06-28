@@ -58,7 +58,7 @@ test.fixme(
 	}
 );
 
-test.fixme(
+test(
 	'PLT-Q-03: net worth headline includes the investment portfolio',
 	async ({ page }) => {
 		await gotoApp(page, '/invest');

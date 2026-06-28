@@ -11,6 +11,7 @@ import { WALLET_BLUEPRINTS, POTS } from './accounts';
 import { generateWalletTxns } from './transactions';
 import { PAYEES } from './payees';
 import { CARDS, deriveCardSpend } from './cards';
+import { getPortfolioSummary } from './portfolio';
 import type { Card, Payee, Pot, PotAutoSave, Transaction, Wallet } from './types';
 
 /** The fixed seed. Change it to regenerate a different (but still stable) life. */
@@ -89,9 +90,15 @@ export function getPotsTotalEurMinor(): number {
 	return pots.reduce((s, p) => s + toEur(p.balanceMinor, p.currency as Currency), 0);
 }
 
-/** Net worth (cash) = wallets + pots, in EUR minor units. Investments land later. */
+/** EUR value of the brokerage portfolio (market value of all open positions). */
+export function getInvestmentsEurMinor(): number {
+	return getPortfolioSummary().totalValueEurMinor;
+}
+
+/** Net worth = wallets + pots + investments, in EUR minor units (X01: total across all
+ *  wallets + portfolio value). */
 export function getNetWorthEurMinor(): number {
-	return getWalletsTotalEurMinor() + getPotsTotalEurMinor();
+	return getWalletsTotalEurMinor() + getPotsTotalEurMinor() + getInvestmentsEurMinor();
 }
 
 export function getPayees(): Payee[] {

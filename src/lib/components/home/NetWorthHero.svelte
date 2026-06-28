@@ -21,6 +21,7 @@
 
 	let cash = $derived(formatMoney(accounts.walletsTotalEurMinor, 'EUR'));
 	let savings = $derived(formatMoney(accounts.potsTotalEurMinor, 'EUR'));
+	let investments = $derived(formatMoney(accounts.investmentsEurMinor, 'EUR'));
 
 	// The F11 net-worth trend: weekly net worth (EUR) over the last 12 weeks.
 	let trend = $derived(netWorthSeriesEur(12));
@@ -59,6 +60,9 @@
 				<span class="trend-sep" aria-hidden="true">·</span>
 				<span class="trend-term">Savings</span>
 				<span class="trend-figure gok-tabular-nums">{savings}</span>
+				<span class="trend-sep" aria-hidden="true">·</span>
+				<span class="trend-term">Investments</span>
+				<span class="trend-figure gok-tabular-nums">{investments}</span>
 			</p>
 		</div>
 	</div>

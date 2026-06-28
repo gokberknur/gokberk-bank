@@ -14,6 +14,7 @@ import {
 	getNetWorthEurMinor,
 	getWalletsTotalEurMinor,
 	getPotsTotalEurMinor,
+	getInvestmentsEurMinor,
 	addWallet
 } from '$lib/data';
 import type { Wallet, Pot } from '$lib/data';
@@ -56,6 +57,12 @@ class AccountsState {
 	get potsTotalEurMinor(): number {
 		revision.value;
 		return getPotsTotalEurMinor();
+	}
+
+	/** EUR value of the brokerage portfolio (market value of open positions). */
+	get investmentsEurMinor(): number {
+		revision.value;
+		return getInvestmentsEurMinor();
 	}
 
 	/** The primary EUR home wallet (falls back to the first wallet). */

@@ -2,7 +2,7 @@
 // spine so chart snapshots are deterministic. Money stays in integer minor units;
 // the chart wrappers format for display. No chart logic here — just the numbers.
 
-import { getWallets, getTransactions, getPotsTotalEurMinor } from '$lib/data';
+import { getWallets, getTransactions, getPotsTotalEurMinor, getInvestmentsEurMinor } from '$lib/data';
 import { toEur } from '$lib/data/money';
 import { TODAY, isoDate } from '$lib/data/time';
 import { CATEGORY_LABELS } from '$lib/data/categories';
@@ -58,13 +58,17 @@ export function netWorthSeriesEur(weeks = 12): SeriesPoint[] {
 			.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))
 	}));
 	const potsEur = getPotsTotalEurMinor();
+	// Portfolio history isn't modelled per-week, so carry the current portfolio value as
+	// a flat offset on every point — keeps the trend's latest point reconciled with the
+	// net-worth headline (which now includes investments, PLT-Q-03).
+	const investmentsEur = getInvestmentsEurMinor();
 
 	const out: SeriesPoint[] = [];
 	for (let i = weeks - 1; i >= 0; i--) {
 		const d = new Date(TODAY);
 		d.setDate(d.getDate() - i * 7);
 		const dateIso = isoDate(d);
-		let sum = potsEur;
+		let sum = potsEur + investmentsEur;
 		for (const { currency, points } of perWallet) {
 			let bal = points.length ? points[0].bal : 0;
 			for (const p of points) {
