@@ -348,11 +348,13 @@
 			</div>
 			<div class="action-row">
 				<gok-button variant="primary" {@attach on('click', placeOrder)}>Place order</gok-button>
-				<!-- Orders (V04) is live — the blotter. Watchlists (V05) is still deferred. -->
+				<!-- Orders (V04) and watchlists (V05) are both live. -->
 				<gok-button variant="secondary" {@attach on('click', () => goto('/invest/orders'))}>
 					My orders
 				</gok-button>
-				<gok-button variant="secondary" disabled>Watchlists · soon</gok-button>
+				<gok-button variant="secondary" {@attach on('click', () => goto('/invest/watchlists'))}>
+					Watchlists
+				</gok-button>
 			</div>
 		</section>
 	{/if}
@@ -402,7 +404,7 @@
 
 	.delta-label {
 		font-family: var(--gok-font-family-mono);
-		font-size: var(--gok-font-size-50);
+		font-size: var(--gok-type-footnote-size);
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
 		color: var(--gok-color-text-muted);
@@ -585,7 +587,7 @@
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
 		font-family: var(--gok-font-family-mono);
-		font-size: var(--gok-font-size-50);
+		font-size: var(--gok-type-footnote-size);
 		cursor: pointer;
 	}
 
@@ -596,7 +598,7 @@
 	.sort-btn:focus-visible {
 		outline: var(--gok-border-width-thin, 2px) solid var(--gok-color-focus, var(--gok-color-primary));
 		outline-offset: 2px;
-		border-radius: var(--gok-radius-100);
+		border-radius: var(--gok-radius-s);
 	}
 
 	.sort-mark {
@@ -631,7 +633,7 @@
 	.sym-link:focus-visible {
 		outline: var(--gok-border-width-thin, 2px) solid var(--gok-color-focus, var(--gok-color-primary));
 		outline-offset: 2px;
-		border-radius: var(--gok-radius-100);
+		border-radius: var(--gok-radius-s);
 	}
 
 	.sym {
@@ -641,7 +643,7 @@
 	}
 
 	.sym-name {
-		font-size: var(--gok-font-size-50);
+		font-size: var(--gok-type-footnote-size);
 		color: var(--gok-color-text-muted);
 		overflow: hidden;
 		text-overflow: ellipsis;
