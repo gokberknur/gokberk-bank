@@ -25,11 +25,11 @@
 		{ label: 'Send money', desc: 'Pay a person or business', href: '/payments/transfer', icon: 'arrow-right' },
 		{ label: 'Top up', desc: 'Add money to a wallet', href: '/payments/topup', icon: 'plus' },
 		{ label: 'Exchange', desc: 'Convert between my wallets', href: '/payments/exchange', icon: 'settings' },
-		{ label: 'Payees', desc: 'Manage who I pay', href: '/payments/payees', icon: 'square-check' }
+		{ label: 'Payees', desc: 'Manage who I pay', href: '/payments/payees', icon: 'square-check' },
+		{ label: 'Request', desc: 'Ask someone to pay me', href: '/payments/request', icon: 'circle-dot' }
 	];
 
 	const soon: Action[] = [
-		{ label: 'Request', desc: 'Ask someone to pay me', href: '', icon: 'plus' },
 		{ label: 'Split a bill', desc: 'Share a cost across people', href: '', icon: 'dash' },
 		{ label: 'Scheduled', desc: 'Standing orders and future-dated', href: '', icon: 'circle-dot' },
 		{ label: 'Direct debits', desc: 'Mandates I’ve set up', href: '', icon: 'neutral' }
