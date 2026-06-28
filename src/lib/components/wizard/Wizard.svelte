@@ -287,5 +287,21 @@
 		.rail {
 			display: none;
 		}
+
+		/* Pin the action row above the fixed bottom tab bar so the primary stays
+		   reachable on long steps; content scrolls under the translucent bar. */
+		.actions {
+			position: sticky;
+			inset-block-end: calc(var(--gok-space-900) + env(safe-area-inset-bottom));
+			z-index: var(--gok-z-sticky);
+			padding-block: var(--gok-space-300);
+			background: var(--gok-color-surface-translucent);
+			backdrop-filter: blur(var(--gok-blur-chrome));
+		}
+
+		/* Let the primary grow to a comfortable tap target; Back stays auto-width. */
+		.actions :global(gok-button:not(.back)) {
+			flex: 1 1 0;
+		}
 	}
 </style>
