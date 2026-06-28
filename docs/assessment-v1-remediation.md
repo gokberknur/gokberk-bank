@@ -95,10 +95,12 @@ Legend: `[ ]` todo · `[x]` done (committed) · each item → its finding ID(s) 
   initial). Clears ACC-Q-05, LEND-Q-03, MON-Q-03, CRY, PLT-Q-06.
 - [x] **/settings 404** bare unstyled page → added a settings root that redirects to `/settings/preferences`
   (mirrors the `/security` pattern; the shared SettingsHeader nav takes over). Clears IDN-Q-02, PLT-Q-05.
-- [ ] native `<input type=date>` → the F06 date picker on the flows that regressed (ACC-Q-03, IDN-U-02, insurance
-  claim). **Reclassified (CPO): NOT cheap polish — the F06 date/date-range picker composite doesn't exist yet**
-  (CLAUDE.md lists it as a gap-composite still to build). Building the composite + wiring 5 flows is feature
-  work; route through the normal council, not this remediation sweep. → deferred.
+- [→] native `<input type=date>` → the F06 date picker on the flows that regressed (ACC-Q-03, IDN-U-02, insurance
+  claim). **MOVED to the feature backlog (CPO).** This is not a defect-fix: the native date inputs work and are
+  tokened to rhyme with `gok-input`; the finding wants a richer, consistent picker. But the F06 date/date-range
+  picker composite **doesn't exist yet** (CLAUDE.md lists it as a gap-composite still to build), so this is
+  net-new capability — build the composite (single + range, token-themed, with a labelled read-out), then wire
+  the ~5 native-date flows. Belongs in the normal product/council pipeline, not this remediation sweep.
 - [~] dead "Soon" stubs that point at live routes → wire or hide. **Done (PLT-Q-01 / ACC-U-02):** home's
   "See budgets" and "See all activity" were disabled "Soon" though `/budgets` and `/activity` are live (and in
   the sidenav + command registry) → both now navigate (the recorded `home-launchpad` fixme is active). While
@@ -144,9 +146,13 @@ Legend: `[ ]` todo · `[x]` done (committed) · each item → its finding ID(s) 
   steps to four (recipient → schedule → projection → review), with the end rule shown inline only when the order
   recurs. All validation/handlers preserved (the end-rule checks now gate on `frequency !== 'once'` inside the
   merged step's `validate`). New happy-path spec asserts the 4-step flow + the three controls coexisting.
-  **Deferred to council** (documented, not done here): **LEND-U-04** (loans signs inline vs mortgage/credit-line
-  routing to `/documents/[id]/sign` — rerouting a working compliant flow is risk without clear value). → council
-  queue.
+  **LEND-U-04 → CUT (CPO veto, won't fix).** The loan e-sign is an inline forced-decision dialog; credit-line
+  and mortgage route to the full `/documents/[id]/sign` page. Unifying them means either adding a scroll-gated
+  full-page read to the *working* loan flow (more friction) or downgrading credit-line to the lighter inline
+  ritual (less rigor) — both have real downside on a **regulated signing** step. Crucially, all three already
+  share the same trust contract the user feels: forced-decision dialog + consent + passkey step-up + the 14-day
+  right. The inconsistency is in *presentation*, not *protection*. Rerouting a compliant flow for an S3
+  presentational nit is risk without proportionate value. Documented as an accepted, deliberate inconsistency.
 
 ## Deferred / backlog (not ship-blocking).
 - Pure S4 cosmetics (tabular-numeral lapses, minor alignment), the funds fact-sheet/Buy build-out (INV-U-01
@@ -156,3 +162,21 @@ Legend: `[ ]` todo · `[x]` done (committed) · each item → its finding ID(s) 
 ## Ship condition
 Batches **0 + 1 + 2** clear → shippable. Batch 3 strongly recommended pre-ship. Batches 4–5 are
 post-ship polish that can ship incrementally.
+
+## Terminal state (CPO close-out)
+Assessment-v1 remediation is **complete** — no open `[ ]` items remain.
+- **All 3 S1 ship-blockers** and **all 14 S2s** are fixed, each with a committed e2e spec (the S2 set was
+  reconciled against the per-domain `assessmentv1/*/qa-findings.md` — nothing hidden).
+- **Batch 4 platform polish** shipped: favicon, `/settings` root, dead "Soon" nav stubs (+ the `gok-button`
+  `href` footgun, dogfooding #40).
+- **Batch 5 UX program** shipped: `StickyActionBar` + `PageHeader` + sticky wizard footer, the per-surface
+  reachability fixes, `WizardProgress`, the `/home` reorder (ACC-U-01), the mortgage-calculator sticky readout
+  (LEND-U-02), the schedule-wizard step collapse (PAY-U-03), and the crypto/payments header-void trim
+  (CRY-U-02 / PAY-U-04).
+- **One feature built in-sweep:** confirmation of payee (PAY-Q-05).
+- **Deliberately not done (CPO):** **LEND-U-04** cut (rerouting a compliant e-sign for S3 consistency = risk
+  without value); **F06 date-picker composite** moved to the feature backlog (net-new capability); INV-U-01 /
+  MON-U-02 / S4 cosmetics remain normal feature/council work.
+
+Anything further is net-new product work, not remediation. Suite green on both desktop (Chromium) and mobile
+(WebKit).
