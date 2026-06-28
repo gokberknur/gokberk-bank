@@ -20,7 +20,7 @@ import {
 	instrumentOf
 } from '$lib/data/portfolio';
 import type { Position, PortfolioSummary } from '$lib/data/portfolio';
-import { isMarketOpen } from '$lib/data/market';
+import { isMarketOpen, isOrderTerminal } from '$lib/data/market';
 import type {
 	Instrument,
 	Order,
@@ -32,7 +32,8 @@ import type {
 } from '$lib/data/market';
 import { accounts } from '$lib/state/accounts.svelte';
 import { toEur, midRateEur } from '$lib/data/money';
-import { TODAY, isoDate } from '$lib/data/time';
+import { TODAY, isoDate, daysBeforeToday } from '$lib/data/time';
+import { toast } from '$lib/state/toasts.svelte';
 
 /** Whether the amount is entered as a share count or a cash (notional) figure. */
 export type OrderMode = 'shares' | 'notional';
@@ -103,6 +104,32 @@ export function orderFee(notionalEurMinor: number): number {
 
 /** How far a limit/stop may sit from the last price before we flag it (20%). */
 const FAR_FROM_MARKET_BPS = 0.2;
+
+/**
+ * A deterministic spread of seeded orders so the blotter (V04) opens populated —
+ * one of every state the lifecycle can reach: a working limit buy resting below
+ * market, a working limit sell resting above it, a filled market buy, a queued
+ * market order, a cancelled order, and a rejected one. Real `INSTRUMENTS` symbols;
+ * dates off the fixed TODAY anchor (never `Date.now()`); ids namespaced
+ * (`ord-seed-*`) so a freshly placed `ord-<n>` can never collide. Ordered
+ * oldest-first so `recentOrders` (a reverse of `orders`) reads newest-first.
+ */
+function seedOrders(): Order[] {
+	return [
+		// Rejected — a limit buy the exchange bounced; terminal, nothing traded.
+		{ id: 'ord-seed-1', symbol: 'SIE', side: 'buy', kind: 'limit', quantity: 12, priceMinor: 17500, tif: 'gtc', status: 'rejected', totalEurMinor: 210000, placedAt: isoDate(daysBeforeToday(14)) },
+		// Cancelled — a resting limit buy I pulled before it filled.
+		{ id: 'ord-seed-2', symbol: 'ASML', side: 'buy', kind: 'limit', quantity: 1, priceMinor: 85000, tif: 'gtc', status: 'cancelled', totalEurMinor: 85000, placedAt: isoDate(daysBeforeToday(11)) },
+		// Filled — a market buy that executed against the open market.
+		{ id: 'ord-seed-3', symbol: 'SAP', side: 'buy', kind: 'market', quantity: 14, priceMinor: null, tif: 'day', status: 'filled', totalEurMinor: 343420, placedAt: isoDate(daysBeforeToday(8)) },
+		// Working — a limit SELL resting above the last price.
+		{ id: 'ord-seed-4', symbol: 'SAP', side: 'sell', kind: 'limit', quantity: 10, priceMinor: 26000, tif: 'gtc', status: 'working', totalEurMinor: 260000, placedAt: isoDate(daysBeforeToday(4)) },
+		// Working — a limit BUY resting below the last price.
+		{ id: 'ord-seed-5', symbol: 'ASML', side: 'buy', kind: 'limit', quantity: 2, priceMinor: 88000, tif: 'gtc', status: 'working', totalEurMinor: 176000, placedAt: isoDate(daysBeforeToday(2)) },
+		// Queued — a market order placed while the market was shut; runs at the next open.
+		{ id: 'ord-seed-6', symbol: 'IWDA', side: 'buy', kind: 'market', quantity: 20, priceMinor: null, tif: 'day', status: 'queued', totalEurMinor: 196840, placedAt: isoDate(daysBeforeToday(1)) }
+	];
+}
 
 class InvestState {
 	// ── Portfolio reads (deterministic from the seed; orders don't mutate them) ──
@@ -276,8 +303,9 @@ class InvestState {
 
 	// ── Order ticket: placement ──
 
-	// Placed orders, in memory only this phase (V04 lists them); never persisted.
-	orders = $state<Order[]>([]);
+	// Placed orders, in memory only this phase (V04 lists + manages them); never
+	// persisted. Seeded with a deterministic mix so the blotter opens populated.
+	orders = $state<Order[]>(seedOrders());
 
 	/** The placed orders, newest first. */
 	get recentOrders(): Order[] {
@@ -314,6 +342,56 @@ class InvestState {
 		};
 		this.orders.push(order);
 		return order;
+	}
+
+	// ── Order management (V04 blotter) ──
+
+	/**
+	 * Cancel a non-terminal order (a working limit/stop, or a queued market order).
+	 * Immutably swaps its status to `cancelled` — the whole array is replaced so the
+	 * `$state` reacts and the blotter re-flows live. Terminal or unknown ids no-op.
+	 * Returns whether anything changed.
+	 */
+	cancelOrder(id: string): boolean {
+		const order = this.orders.find((o) => o.id === id);
+		if (!order || isOrderTerminal(order.status)) return false;
+		this.orders = this.orders.map((o) => (o.id === id ? { ...o, status: 'cancelled' } : o));
+		toast('Order cancelled', { status: 'success' });
+		return true;
+	}
+
+	/**
+	 * Amend a **working** order's quantity and/or limit/stop price. Validates a
+	 * positive quantity and (for a limit/stop) a positive price, then recomputes the
+	 * EUR total best-effort: a priced order is `price × quantity` (at parity for EUR
+	 * names); a market order keeps its per-unit ratio. The whole array is replaced so
+	 * the `$state` reacts. Non-working / invalid / unknown ids no-op. Returns whether
+	 * anything changed.
+	 */
+	modifyOrder(id: string, patch: { priceMinor?: number; quantity?: number }): boolean {
+		const order = this.orders.find((o) => o.id === id);
+		if (!order || order.status !== 'working') return false;
+
+		const nextQuantity = patch.quantity ?? order.quantity;
+		const nextPriceMinor = patch.priceMinor ?? order.priceMinor;
+		if (nextQuantity <= 0) return false;
+		if ((order.kind === 'limit' || order.kind === 'stop') && (nextPriceMinor === null || nextPriceMinor <= 0))
+			return false;
+
+		const nextTotalEurMinor =
+			nextPriceMinor !== null
+				? Math.round(nextPriceMinor * nextQuantity)
+				: order.quantity > 0
+					? Math.round(order.totalEurMinor * (nextQuantity / order.quantity))
+					: order.totalEurMinor;
+
+		this.orders = this.orders.map((o) =>
+			o.id === id
+				? { ...o, quantity: nextQuantity, priceMinor: nextPriceMinor, totalEurMinor: nextTotalEurMinor }
+				: o
+		);
+		toast('Order updated', { status: 'success' });
+		return true;
 	}
 }
 

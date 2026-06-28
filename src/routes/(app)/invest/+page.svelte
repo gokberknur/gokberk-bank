@@ -348,8 +348,10 @@
 			</div>
 			<div class="action-row">
 				<gok-button variant="primary" {@attach on('click', placeOrder)}>Place order</gok-button>
-				<!-- Orders (V04) and watchlists (V05) are deferred — disabled "Soon". -->
-				<gok-button variant="secondary" disabled>Orders · soon</gok-button>
+				<!-- Orders (V04) is live — the blotter. Watchlists (V05) is still deferred. -->
+				<gok-button variant="secondary" {@attach on('click', () => goto('/invest/orders'))}>
+					My orders
+				</gok-button>
 				<gok-button variant="secondary" disabled>Watchlists · soon</gok-button>
 			</div>
 		</section>

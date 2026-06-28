@@ -49,7 +49,28 @@ export interface Holding {
 export type OrderSide = 'buy' | 'sell';
 export type OrderKind = 'market' | 'limit' | 'stop';
 export type OrderTif = 'day' | 'gtc';
-export type OrderStatus = 'filled' | 'working' | 'queued';
+// `working` = a resting limit/stop; `queued` = a market order placed while the
+// market is shut; `cancelled`/`rejected` are terminal management/exchange outcomes.
+export type OrderStatus = 'filled' | 'working' | 'queued' | 'cancelled' | 'rejected';
+
+export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
+	filled: 'Filled',
+	working: 'Working',
+	queued: 'Queued',
+	cancelled: 'Cancelled',
+	rejected: 'Rejected'
+};
+
+export const ORDER_KIND_LABELS: Record<OrderKind, string> = {
+	market: 'Market',
+	limit: 'Limit',
+	stop: 'Stop'
+};
+
+/** A working order can be managed (cancelled / modified); the rest are terminal. */
+export function isOrderTerminal(status: OrderStatus): boolean {
+	return status !== 'working' && status !== 'queued';
+}
 
 export interface Order {
 	id: string;

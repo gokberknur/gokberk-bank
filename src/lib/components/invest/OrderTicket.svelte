@@ -186,12 +186,16 @@
 	const STATUS_LABEL: Record<OrderStatus, string> = {
 		filled: 'Filled',
 		working: 'Working',
-		queued: 'Queued'
+		queued: 'Queued',
+		cancelled: 'Cancelled',
+		rejected: 'Rejected'
 	};
 	const STATUS_NOTE: Record<OrderStatus, string> = {
 		filled: 'Executed against the market.',
 		working: 'Resting until it triggers or I cancel it.',
-		queued: 'The market is closed — this runs at the next open.'
+		queued: 'The market is closed — this runs at the next open.',
+		cancelled: 'Cancelled — nothing was bought or sold.',
+		rejected: 'Rejected — nothing was bought or sold.'
 	};
 </script>
 
