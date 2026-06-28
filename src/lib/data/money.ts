@@ -2,7 +2,7 @@
 // float. All arithmetic here is integer; FX uses a scaled-integer rate, not
 // `amount * rate` in floating point. Human formatting lives only in format.ts.
 
-export type Currency = 'EUR' | 'USD' | 'GBP' | 'SEK' | 'CHF';
+export type Currency = 'EUR' | 'USD' | 'GBP' | 'SEK' | 'CHF' | 'NOK' | 'DKK';
 
 /** The home currency every total rolls up to. */
 export const HOME_CURRENCY: Currency = 'EUR';
@@ -13,7 +13,9 @@ export const DECIMALS: Record<Currency, number> = {
 	USD: 2,
 	GBP: 2,
 	SEK: 2,
-	CHF: 2
+	CHF: 2,
+	NOK: 2,
+	DKK: 2
 };
 
 /**
@@ -28,7 +30,9 @@ const EUR_PER_UNIT_SCALED: Record<Currency, number> = {
 	USD: 920_000, // 1 USD ≈ 0.92 EUR
 	GBP: 1_172_000, // 1 GBP ≈ 1.172 EUR
 	SEK: 88_000, // 1 SEK ≈ 0.088 EUR
-	CHF: 1_048_000 // 1 CHF ≈ 1.048 EUR
+	CHF: 1_048_000, // 1 CHF ≈ 1.048 EUR
+	NOK: 86_000, // 1 NOK ≈ 0.086 EUR
+	DKK: 134_000 // 1 DKK ≈ 0.134 EUR
 };
 
 /** Integer add of two minor-unit amounts (same currency assumed). */

@@ -217,6 +217,31 @@ export function cancelCard(id: string): void {
 	};
 }
 
+// ---- Open a wallet (A03) -------------------------------------------------
+/** Open a new currency wallet — no money, just a freshly issued (mock) account.
+ *  Starts at a zero balance; the caller supplies the deterministic IBAN/BIC. */
+export function addWallet(draft: {
+	currency: Currency;
+	name: string;
+	iban: string;
+	bic: string;
+}): Wallet {
+	const w: Wallet = {
+		id: `wallet-${draft.currency.toLowerCase()}-${wallets.length}`,
+		currency: draft.currency,
+		name: draft.name,
+		currentMinor: 0,
+		availableMinor: 0,
+		holdMinor: 0,
+		iban: draft.iban,
+		bic: draft.bic,
+		openedAt: isoDate(TODAY),
+		primary: false
+	};
+	wallets.push(w);
+	return w;
+}
+
 // ---- Pots (A04) ----------------------------------------------------------
 // A pot is a sub-balance of one wallet. Moving money in/out is an instant,
 // reversible internal transfer: it's recorded on the wallet via appendTransaction

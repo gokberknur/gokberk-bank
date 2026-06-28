@@ -2,8 +2,8 @@
 	// The /accounts overview (A01): a calm home-currency total across wallets, a
 	// responsive grid of wallet cards, and a read-only savings-pots summary. The
 	// forest-green accent stays unspent on balances here — money is ink. Manage pots
-	// (A04) now links into the pots surface; open a wallet (A03) isn't built yet, so
-	// it renders as a disabled affordance with a "Soon" tag rather than linking to a 404.
+	// (A04) links into the pots surface; open a wallet (A03) opens the deep-linkable
+	// `/accounts/open` dialog (a new currency wallet — no money moves).
 	import { accounts } from '$lib/state/accounts.svelte';
 	import { formatMoney, formatNumber } from '$lib/format';
 	import WalletCard from '$lib/components/accounts/WalletCard.svelte';
@@ -55,8 +55,9 @@
 		</ul>
 
 		<div class="open-wallet">
-			<gok-button variant="secondary" disabled>Open a wallet</gok-button>
-			<gok-tag size="s">Soon</gok-tag>
+			<gok-link href="/accounts/open">
+				<gok-button variant="secondary">Open a wallet</gok-button>
+			</gok-link>
 		</div>
 	</section>
 

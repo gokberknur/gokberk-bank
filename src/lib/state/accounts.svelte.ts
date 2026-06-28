@@ -13,10 +13,19 @@ import {
 	getPrimaryWallet,
 	getNetWorthEurMinor,
 	getWalletsTotalEurMinor,
-	getPotsTotalEurMinor
+	getPotsTotalEurMinor,
+	addWallet
 } from '$lib/data';
 import type { Wallet, Pot } from '$lib/data';
+import type { Currency } from '$lib/data/money';
+import {
+	openableCurrencies as openablePure,
+	makeIban,
+	makeBic
+} from '$lib/accounts/open-wallet';
+import type { SupportedCurrency } from '$lib/accounts/open-wallet';
 import { revision } from './revision.svelte';
+import { toast } from './toasts.svelte';
 
 class AccountsState {
 	/** All wallets, read fresh so runtime balance changes reflect. */
@@ -59,6 +68,31 @@ class AccountsState {
 	wallet(id: string): Wallet | undefined {
 		revision.value;
 		return getWallet(id);
+	}
+
+	/** Currencies I already hold (deduped). */
+	get heldCurrencies(): Currency[] {
+		revision.value;
+		return [...new Set(getWallets().map((w) => w.currency))];
+	}
+
+	/** Currencies I can still open (supported minus held) — for the A03 picker. */
+	openableCurrencies(): SupportedCurrency[] {
+		return openablePure(this.heldCurrencies);
+	}
+
+	/** Open a new wallet in `code`, issuing a deterministic mock IBAN/BIC. */
+	openWallet(code: Currency): Wallet {
+		const seq = getWallets().length;
+		const w = addWallet({
+			currency: code,
+			name: code,
+			iban: makeIban(code, seq),
+			bic: makeBic(code)
+		});
+		revision.bump();
+		toast(`${code} wallet opened`, { status: 'success' });
+		return w;
 	}
 }
 

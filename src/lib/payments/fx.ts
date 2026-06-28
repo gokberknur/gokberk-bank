@@ -16,7 +16,9 @@ const EUR_PER_UNIT_SCALED: Record<Currency, number> = {
 	USD: 920_000,
 	GBP: 1_172_000,
 	SEK: 88_000,
-	CHF: 1_048_000
+	CHF: 1_048_000,
+	NOK: 86_000,
+	DKK: 134_000
 };
 
 export type Tier = 'Standard' | 'Plus' | 'Metal';
