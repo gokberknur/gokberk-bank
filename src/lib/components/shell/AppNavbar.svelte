@@ -22,10 +22,10 @@
 		const value = (event as CustomEvent<{ value?: string }>).detail?.value;
 		switch (value) {
 			case 'account':
-				// TODO: /profile
+				goto('/profile');
 				break;
 			case 'settings':
-				// TODO: /settings
+				goto('/settings/preferences');
 				break;
 			case 'density':
 				density.toggle();
