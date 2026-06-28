@@ -147,7 +147,7 @@
 		isWeekend(wizard.data.startIso) ? businessDayShift(wizard.data.startIso) : null
 	);
 
-	// ── Projection (step 5) — computed live, never stored stale. ─────────────────────
+	// ── Projection (step 3) — computed live, never stored stale. ─────────────────────
 	const projectionRuns = $derived(
 		schedule.project(
 			wizard.data.walletId,
