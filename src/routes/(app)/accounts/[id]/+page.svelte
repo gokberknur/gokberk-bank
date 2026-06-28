@@ -4,10 +4,10 @@
 	// filter/search view; the grid renders the (large) ledger via gok-table's own
 	// pagination. The forest-green accent is spent once — on the table's selected
 	// row rule — so balances and amounts stay ink. The balance-history chart (F11)
-	// is deferred; Statements (A06) links out to its own surface, while the remaining
-	// money moves (P02/P04, A05) render as disabled "Soon" affordances rather than
-	// linking to a 404.
+	// is deferred; Statements (A06) links out to its own surface, and the Send and
+	// Exchange affordances navigate straight to their live payments flows.
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
 	import { accounts } from '$lib/state/accounts.svelte';
 	import { transactions } from '$lib/state/transactions.svelte';
 	import { formatMoney } from '$lib/format';
@@ -106,9 +106,12 @@
 				<gok-link class="statements-link" href={`/accounts/${wallet.id}/statements`}>
 					<gok-button variant="secondary">Statements</gok-button>
 				</gok-link>
-				<gok-button variant="secondary" disabled>Send</gok-button>
-				<gok-button variant="secondary" disabled>Exchange</gok-button>
-				<gok-tag size="s">Soon</gok-tag>
+				<gok-button variant="secondary" {@attach on('click', () => goto('/payments/transfer'))}>
+					Send
+				</gok-button>
+				<gok-button variant="secondary" {@attach on('click', () => goto('/payments/exchange'))}>
+					Exchange
+				</gok-button>
 			</div>
 		</header>
 
