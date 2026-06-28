@@ -25,31 +25,37 @@ test('PAY-Q-02: SEPA Instant payment must not offer a cancel action', async ({ p
 
 // PAY-Q-03 — Cancelling a scheduled standing order via the forced-decision dialog
 // has no effect: the row stays "Scheduled" and the active-count is unchanged.
-test.fixme('PAY-Q-03: cancelling a scheduled payment actually cancels it', async ({ page }) => {
+test('PAY-Q-03: cancelling a scheduled payment actually cancels it', async ({ page }) => {
 	await gotoApp(page, '/payments/scheduled');
+	await expect(page.getByText('4 payments active')).toBeVisible();
 	const firstRow = page.getByRole('row').filter({ hasText: 'Hausverwaltung Berlin' }).first();
-	await firstRow.getByText('Select row').click();
-	await page.getByRole('button', { name: 'Cancel payment' }).click();
-	await page
-		.getByRole('dialog', { name: /Cancel this payment/ })
-		.getByRole('button', { name: 'Cancel payment' })
-		.click();
-	// After cancel the mandate should read Cancelled, not Scheduled.
-	await expect(firstRow.getByText('Cancelled')).toBeVisible();
+	// Open the row drawer via its select control (the host checkbox, not the vh label —
+	// dogfooding #12). This opens the "Scheduled payment" drawer.
+	await firstRow.locator('gok-checkbox').click();
+	// Drawer footer trigger opens the forced-decision confirm.
+	await page.getByRole('button', { name: 'Cancel payment' }).first().click();
+	// The confirm's commit is the danger button nested inside the drawer's top layer.
+	await page.locator('button.danger-confirm').click();
+	// After cancel the item drops out of the active list (count 4 → 3, row gone).
+	await expect(page.getByText('3 payments active')).toBeVisible();
+	await expect(page.getByRole('row').filter({ hasText: 'Hausverwaltung Berlin' })).toHaveCount(0);
 });
 
 // PAY-Q-04 — Cancelling a SEPA Direct Debit mandate via the forced-decision dialog
 // has no effect: the mandate stays "Active" on reopen.
-test.fixme('PAY-Q-04: cancelling a direct-debit mandate actually cancels it', async ({ page }) => {
+test('PAY-Q-04: cancelling a direct-debit mandate actually cancels it', async ({ page }) => {
 	await gotoApp(page, '/payments/direct-debits');
+	await expect(page.getByText('5 companies can debit me')).toBeVisible();
 	const row = page.getByRole('row').filter({ hasText: 'Folksam' }).first();
-	await row.getByText('Select row').click();
-	await page.getByRole('button', { name: 'Cancel mandate' }).click();
-	await page
-		.getByRole('dialog', { name: /Cancel the Folksam mandate/ })
-		.getByRole('button', { name: 'Cancel mandate' })
-		.click();
-	await expect(row.getByText('Cancelled')).toBeVisible();
+	// Open the mandate drawer via its select control (the host checkbox).
+	await row.locator('gok-checkbox').click();
+	// Drawer footer trigger opens the forced-decision confirm (nested in the drawer).
+	await page.getByRole('button', { name: 'Cancel mandate' }).first().click();
+	// The confirm's commit — scoped by text since the dispute confirm shares the class.
+	await page.locator('button.danger-confirm', { hasText: 'Cancel mandate' }).click();
+	// After cancel the mandate drops out of the active list (count 5 → 4, row gone).
+	await expect(page.getByText('4 companies can debit me')).toBeVisible();
+	await expect(page.getByRole('row').filter({ hasText: 'Folksam' })).toHaveCount(0);
 });
 
 // PAY-Q-01 — The money-out forced-decision confirm (send + exchange) is dismissible

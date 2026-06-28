@@ -158,6 +158,10 @@
 	// from a child (the cancel dialog), only act on the drawer's own dismissal.
 	function closeDrawer(e?: Event) {
 		if (e && e.target !== e.currentTarget) return;
+		if (confirmOpen) {
+			e?.preventDefault();
+			return;
+		}
 		drawerOpen = false;
 		selectedIds = [];
 	}
@@ -308,28 +312,27 @@
 			<gok-button variant="secondary" {@attach on('click', askCancel)}>Cancel payment</gok-button>
 		{/if}
 	</div>
+
+	<!-- Cancel confirm · final, so it's a forced decision: danger tone, no scrim dismiss.
+	     Nested inside the drawer so it shares the drawer's top layer and stays clickable. -->
+	<gok-dialog
+		tone="danger"
+		size="s"
+		heading="Cancel this payment?"
+		no-dismiss
+		{@attach setProps({ open: confirmOpen })}
+	>
+		<p class="confirm-body">
+			Cancel the {selected ? FREQUENCY_LABEL[selected.frequency].toLowerCase() : ''} payment to
+			<strong>{selected?.payeeName ?? ''}</strong>? It won’t run again.
+		</p>
+
+		<div slot="footer" class="confirm-actions">
+			<gok-button variant="secondary" {@attach on('click', dismissCancel)}>Keep it</gok-button>
+			<button type="button" class="danger-confirm" onclick={confirmCancel}>Cancel payment</button>
+		</div>
+	</gok-dialog>
 </gok-drawer>
-
-<!-- Cancel confirm · final, so it's a forced decision: danger tone, no scrim dismiss. -->
-<gok-dialog
-	tone="danger"
-	size="s"
-	heading="Cancel this payment?"
-	no-dismiss
-	{@attach setProps({ open: confirmOpen })}
-	{@attach on('gok-cancel', dismissCancel)}
-	{@attach on('gok-close', dismissCancel)}
->
-	<p class="confirm-body">
-		Cancel the {selected ? FREQUENCY_LABEL[selected.frequency].toLowerCase() : ''} payment to
-		<strong>{selected?.payeeName ?? ''}</strong>? It won’t run again.
-	</p>
-
-	<div slot="footer" class="confirm-actions">
-		<gok-button variant="secondary" {@attach on('click', dismissCancel)}>Keep it</gok-button>
-		<button type="button" class="danger-confirm" onclick={confirmCancel}>Cancel payment</button>
-	</div>
-</gok-dialog>
 
 <style>
 	.page {

@@ -54,7 +54,12 @@ Legend: `[ ]` todo · `[x]` done (committed) · each item → its finding ID(s) 
   copy is honest within the session. (gok-bank-payments + gok-bank-product-owner)
 
 ## Batch 3 — Remaining functional S2s.
-- [ ] **PAY-Q-03 / PAY-Q-04** silent no-op cancels on standing orders / mandates (gok-bank-payments)
+- [x] **PAY-Q-03 / PAY-Q-04** "silent no-op cancels" on standing orders / mandates → **mis-diagnosed.** The
+  cancel/pause handlers work (proven: a direct JS click cancels correctly). The real bug: the forced-decision
+  confirm `gok-dialog` was authored as a *sibling after* `</gok-drawer>`, so it was occluded by the open
+  drawer's top-layer backdrop and **physically unclickable** (every click hit `<main>`; reproduced in real
+  `@playwright/test`). Fixed by nesting each confirm inside its drawer (top layer → clickable) + the #33
+  teardown guards; also covers the MandatesManage dispute dialog. Logged as dogfooding #37. Specs active.
 - [ ] **PAY** missing confirmation-of-payee (gok-bank-payments)
 - [ ] **SVC-Q-01** reply to a resolved ticket doesn't reopen it (gok-bank-servicing)
 - [ ] **ACC-Q** / **CARD-Q** / **INS-Q** / **INV-Q** remaining S2s per per-domain files

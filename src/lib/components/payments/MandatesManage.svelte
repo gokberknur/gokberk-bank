@@ -161,6 +161,10 @@
 	// from a child dialog, only act on the drawer's own dismissal.
 	function closeDrawer(e?: Event) {
 		if (e && e.target !== e.currentTarget) return;
+		if (cancelOpen || disputeOpen) {
+			e?.preventDefault();
+			return;
+		}
 		drawerOpen = false;
 		selectedIds = [];
 		resetDispute();
@@ -460,62 +464,60 @@
 			<gok-button variant="secondary" {@attach on('click', askCancel)}>Cancel mandate</gok-button>
 		{/if}
 	</div>
+
+	<!-- Cancel confirm · destructive, so a forced decision: danger tone, no scrim dismiss.
+	     Nested inside the drawer so it shares the drawer's top layer and stays clickable. -->
+	<gok-dialog
+		tone="danger"
+		size="s"
+		heading="Cancel the {selected?.creditorName ?? ''} mandate?"
+		no-dismiss
+		{@attach setProps({ open: cancelOpen })}
+	>
+		<p class="confirm-body">
+			This stops future collections. <strong>{selected?.creditorName ?? 'The company'}</strong> may
+			contact me to arrange another way to pay.
+		</p>
+
+		<div slot="footer" class="confirm-actions">
+			<gok-button variant="secondary" {@attach on('click', () => dismissCancel())}>Keep it</gok-button>
+			<button type="button" class="danger-confirm" onclick={confirmCancel}>Cancel mandate</button>
+		</div>
+	</gok-dialog>
+
+	<!-- Dispute confirm · destructive, same forced-decision danger dialog; states the window.
+	     Nested inside the drawer so it shares the drawer's top layer and stays clickable. -->
+	<gok-dialog
+		tone="danger"
+		size="s"
+		heading="Dispute this collection?"
+		no-dismiss
+		{@attach setProps({ open: disputeOpen })}
+	>
+		<p class="confirm-body">
+			I'm raising the
+			{#if disputeTarget && selected}<strong
+					>{formatMoney(disputeTarget.amountMinor, selected.currency)}</strong
+				>
+				pull from {formatDate(disputeTarget.dateIso)}{/if}
+			{#if disputeReasonLabel}— {disputeReasonLabel.toLowerCase()}{/if}. A SEPA collection is
+			refundable within 8 weeks.
+		</p>
+		<p class="confirm-window">
+			{#if disputeRefundable}
+				This one is still inside the 8-week window, so it qualifies for a refund.
+			{:else}
+				This one falls outside the 8-week window, so a refund isn't guaranteed — the bank will still
+				look into it.
+			{/if}
+		</p>
+
+		<div slot="footer" class="confirm-actions">
+			<gok-button variant="secondary" {@attach on('click', () => dismissDispute())}>Back</gok-button>
+			<button type="button" class="danger-confirm" onclick={confirmDispute}>Dispute collection</button>
+		</div>
+	</gok-dialog>
 </gok-drawer>
-
-<!-- Cancel confirm · destructive, so a forced decision: danger tone, no scrim dismiss. -->
-<gok-dialog
-	tone="danger"
-	size="s"
-	heading="Cancel the {selected?.creditorName ?? ''} mandate?"
-	no-dismiss
-	{@attach setProps({ open: cancelOpen })}
-	{@attach on('gok-cancel', dismissCancel)}
-	{@attach on('gok-close', dismissCancel)}
->
-	<p class="confirm-body">
-		This stops future collections. <strong>{selected?.creditorName ?? 'The company'}</strong> may
-		contact me to arrange another way to pay.
-	</p>
-
-	<div slot="footer" class="confirm-actions">
-		<gok-button variant="secondary" {@attach on('click', () => dismissCancel())}>Keep it</gok-button>
-		<button type="button" class="danger-confirm" onclick={confirmCancel}>Cancel mandate</button>
-	</div>
-</gok-dialog>
-
-<!-- Dispute confirm · destructive, same forced-decision danger dialog; states the window. -->
-<gok-dialog
-	tone="danger"
-	size="s"
-	heading="Dispute this collection?"
-	no-dismiss
-	{@attach setProps({ open: disputeOpen })}
-	{@attach on('gok-cancel', dismissDispute)}
-	{@attach on('gok-close', dismissDispute)}
->
-	<p class="confirm-body">
-		I'm raising the
-		{#if disputeTarget && selected}<strong
-				>{formatMoney(disputeTarget.amountMinor, selected.currency)}</strong
-			>
-			pull from {formatDate(disputeTarget.dateIso)}{/if}
-		{#if disputeReasonLabel}— {disputeReasonLabel.toLowerCase()}{/if}. A SEPA collection is
-		refundable within 8 weeks.
-	</p>
-	<p class="confirm-window">
-		{#if disputeRefundable}
-			This one is still inside the 8-week window, so it qualifies for a refund.
-		{:else}
-			This one falls outside the 8-week window, so a refund isn't guaranteed — the bank will still
-			look into it.
-		{/if}
-	</p>
-
-	<div slot="footer" class="confirm-actions">
-		<gok-button variant="secondary" {@attach on('click', () => dismissDispute())}>Back</gok-button>
-		<button type="button" class="danger-confirm" onclick={confirmDispute}>Dispute collection</button>
-	</div>
-</gok-dialog>
 
 <style>
 	.page {
