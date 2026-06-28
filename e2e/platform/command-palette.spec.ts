@@ -54,7 +54,7 @@ test('Escape closes the palette', async ({ page }) => {
 	await expect(box).toHaveCount(0);
 });
 
-test.fixme(
+test(
 	'PLT-Q-02: an exact-prefix match is the default (Enter) result, not a weak fuzzy match',
 	async ({ page }) => {
 		await gotoApp(page, '/home');

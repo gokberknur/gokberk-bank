@@ -190,15 +190,26 @@ export function search(query: string, perGroup = 6): SearchGroupResult[] {
 		.sort((a, b) => b.score - a.score || a.item.label.localeCompare(b.item.label));
 
 	const byGroup = new Map<SearchGroup, SearchItem[]>();
-	for (const { item } of scored) {
+	const bestScore = new Map<SearchGroup, number>();
+	for (const { item, score } of scored) {
 		const list = byGroup.get(item.group) ?? [];
 		if (list.length < perGroup) list.push(item);
 		byGroup.set(item.group, list);
+		// `scored` is sorted by score desc, so the first time we see a group, that's its
+		// best member's score.
+		if (!bestScore.has(item.group)) bestScore.set(item.group, score);
 	}
-	return GROUP_ORDER.filter((g) => byGroup.has(g)).map((group) => ({
-		group,
-		items: byGroup.get(group)!
-	}));
+	// Order groups by their best member's score (deterministic: exact prefix > fuzzy),
+	// tie-broken by the canonical GROUP_ORDER. Keeps the eyebrow grouping for scanability
+	// while ensuring the globally top-scored hit is the first row — so the default Enter
+	// target follows the score, not a fixed group order (PLT-Q-02).
+	return [...byGroup.keys()]
+		.sort(
+			(a, b) =>
+				bestScore.get(b)! - bestScore.get(a)! ||
+				GROUP_ORDER.indexOf(a) - GROUP_ORDER.indexOf(b)
+		)
+		.map((group) => ({ group, items: byGroup.get(group)! }));
 }
 
 /** Default suggestions for the empty-query state. */

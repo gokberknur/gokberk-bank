@@ -60,7 +60,15 @@ Legend: `[ ]` todo · `[x]` done (committed) · each item → its finding ID(s) 
   drawer's top-layer backdrop and **physically unclickable** (every click hit `<main>`; reproduced in real
   `@playwright/test`). Fixed by nesting each confirm inside its drawer (top layer → clickable) + the #33
   teardown guards; also covers the MandatesManage dispute dialog. Logged as dogfooding #37. Specs active.
-- [ ] **PAY** missing confirmation-of-payee (gok-bank-payments)
+- [x] **PLT-Q-03** Home "Net worth" headline excluded the investment portfolio (understated ~60%) →
+  `getNetWorthEurMinor` now adds the portfolio value; the trend series carries it as a flat offset so the
+  chart endpoint reconciles; the hero caption gains an "Investments" term (gok-bank-ux / accounts / wealth). Spec active.
+- [x] **PLT-Q-02** command-palette Enter ignored match score (fixed group order) → `search()` now orders
+  groups by their best member's score (exact prefix > fuzzy), so the top hit is the first row + Enter target,
+  keeping the eyebrow grouping (gok-bank-ux). Spec active.
+- [ ] **ACC-Q-02** running-balance column incoherent in date-desc ledger view (gok-bank-accounts)
+- [ ] **PAY-Q-05** missing confirmation-of-payee — **feature build** (new Verify step: name-match + mismatch
+  proceed-anyway gate); route through the council (gok-bank-payments + gok-bank-ux + CPO), not a quick fix.
 - [x] **SVC-Q-01** reply to a resolved ticket didn't reopen it → `addReply` now flips a `resolved` ticket
   back to `open` on reply, honoring the on-screen "a reply reopens the conversation" promise (gok-bank-servicing). Spec active.
 - [ ] **ACC-Q** / **CARD-Q** / **INS-Q** / **INV-Q** remaining S2s per per-domain files
