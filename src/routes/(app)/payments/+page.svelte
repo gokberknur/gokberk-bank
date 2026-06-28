@@ -1,9 +1,8 @@
 <script lang="ts">
 	// The payments landing (P10 hub). A full-width board: the things I can do with
-	// money, then a quick-send strip of the people I pay most. Only two surfaces are
-	// live this phase — Send money and Payees — so the rest render as muted "Soon"
-	// tiles (the same progressive-enablement idiom the nav uses) rather than linking
-	// to a 404. The forest-green accent stays unspent here; the tiles are ink on
+	// money, then a quick-send strip of the people I pay most. Every surface here is
+	// live now — Direct debits was the last one to land — so they all link straight
+	// through. The forest-green accent stays unspent here; the tiles are ink on
 	// paper, and a quick-send tile seeds the send draft before handing to the flow.
 	import { goto } from '$app/navigation';
 	import { payments } from '$lib/state/payments.svelte';
@@ -16,8 +15,7 @@
 		| 'plus'
 		| 'dash'
 		| 'settings'
-		| 'circle-dot'
-		| 'neutral';
+		| 'circle-dot';
 
 	type Action = { label: string; desc: string; href: string; icon: IconName };
 
@@ -28,11 +26,8 @@
 		{ label: 'Payees', desc: 'Manage who I pay', href: '/payments/payees', icon: 'square-check' },
 		{ label: 'Request', desc: 'Ask someone to pay me', href: '/payments/request', icon: 'circle-dot' },
 		{ label: 'Split a bill', desc: 'Share a cost across people', href: '/payments/split', icon: 'dash' },
-		{ label: 'Scheduled', desc: 'Standing orders and future-dated', href: '/payments/scheduled', icon: 'circle-dot' }
-	];
-
-	const soon: Action[] = [
-		{ label: 'Direct debits', desc: 'Mandates I’ve set up', href: '', icon: 'neutral' }
+		{ label: 'Scheduled', desc: 'Standing orders and future-dated', href: '/payments/scheduled', icon: 'circle-dot' },
+		{ label: 'Direct debits', desc: 'Mandates I’ve set up', href: '/payments/direct-debits', icon: 'square-check' }
 	];
 
 	// The four most-recently-paid payees, never-paid last. A spread keeps the shared
@@ -78,21 +73,6 @@
 						<div class="tile">
 							<gok-icon name={action.icon} size="m" class="tile-icon"></gok-icon>
 							<h2 class="tile-label gok-headline-6">{action.label}</h2>
-							<p class="tile-desc">{action.desc}</p>
-						</div>
-					</gok-card>
-				</li>
-			{/each}
-
-			{#each soon as action (action.label)}
-				<li class="action-cell">
-					<gok-card class="tile-card is-soon">
-						<div class="tile">
-							<gok-icon name={action.icon} size="m" class="tile-icon"></gok-icon>
-							<div class="tile-head">
-								<h2 class="tile-label gok-headline-6">{action.label}</h2>
-								<gok-tag size="s">Soon</gok-tag>
-							</div>
 							<p class="tile-desc">{action.desc}</p>
 						</div>
 					</gok-card>
@@ -205,12 +185,6 @@
 		color: var(--gok-color-text);
 	}
 
-	.tile-head {
-		display: flex;
-		align-items: center;
-		gap: var(--gok-space-200);
-	}
-
 	.tile-label {
 		margin: 0;
 		color: var(--gok-color-text);
@@ -222,15 +196,6 @@
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
 		line-height: var(--gok-type-body-small-line);
-		color: var(--gok-color-text-muted);
-	}
-
-	/* "Soon" tiles read as unavailable: muted ink, no pointer affordance. */
-	.is-soon .tile-label {
-		color: var(--gok-color-text-muted);
-	}
-
-	.is-soon .tile-icon {
 		color: var(--gok-color-text-muted);
 	}
 
