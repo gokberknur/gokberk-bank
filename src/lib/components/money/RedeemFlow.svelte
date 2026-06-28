@@ -37,6 +37,7 @@
 	// ── Phase machine: the form (with a confirm dialog over it) → done ──
 	let phase = $state<'form' | 'done'>('form');
 	let confirmOpen = $state(false);
+	let committing = $state(false);
 	let amountValue = $state(0);
 	let receipt = $state<{ amount: string; destination: string; refId: string } | null>(null);
 
@@ -51,6 +52,7 @@
 				rewards.openRedeem();
 				phase = 'form';
 				confirmOpen = false;
+				committing = false;
 				amountValue = 0;
 				receipt = null;
 			}
@@ -80,8 +82,13 @@
 
 	/** The deliberate commit: redeem, capture the receipt, advance to success. */
 	function redeemNow() {
+		if (committing) return; // single-flight: a double-click must not commit twice
+		committing = true;
 		const entry = rewards.redeem();
-		if (!entry) return; // The amount slipped out of bounds — stay on review.
+		if (!entry) {
+			committing = false; // amount slipped out of bounds — stay on review, allow retry
+			return;
+		}
 		receipt = {
 			amount: formatMoney(entry.amountMinor ?? 0, 'EUR'),
 			destination: preview.destinationLabel,
@@ -231,7 +238,7 @@
 				<gok-button variant="secondary" {@attach on('click', closeConfirm)}>Back</gok-button>
 				<gok-button
 					variant="primary"
-					{@attach setProps({ disabled: preview.insufficient })}
+					{@attach setProps({ disabled: preview.insufficient || committing })}
 					{@attach on('click', redeemNow)}
 				>
 					Redeem {amountLabel}

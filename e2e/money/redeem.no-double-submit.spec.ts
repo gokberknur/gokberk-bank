@@ -10,11 +10,11 @@ import { test, expect, gotoApp } from '../support/fixtures';
  * redemption (proven in the browser: €42.18 → €32.18 on a double-click vs €37.18
  * on a single click; two "Cashback to Main · Redeemed €5.00" history rows).
  *
- * Locked as `test.fixme` so the regression is recorded without failing the green
- * suite. Flip to `test` once the commit is guarded (disable on first click / a
- * single-flight latch in `redeemNow`).
+ * Fixed: a single-flight latch in `redeemNow()` (the `committing` flag) plus
+ * disabling the confirm button after the first click. This spec is now active and
+ * guards the no-double-submit contract.
  */
-test.fixme(
+test(
 	'MON-Q-01: double-clicking the redeem confirm redeems exactly once',
 	async ({ page }) => {
 		await gotoApp(page, '/rewards');
