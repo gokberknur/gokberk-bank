@@ -1,14 +1,15 @@
 <script lang="ts">
-	// L-series lending hub — the calm front door to borrowing. It opens on the one
-	// loan I'm already servicing (its outstanding balance is the hero figure), then
-	// lays out what I can borrow next as a small grid of product cards. Two products
-	// are live (the personal-loan application and the public mortgage calculator);
-	// the credit line waits as a muted "Soon" (L05). The forest-green accent stays
-	// unspent here — ink on paper — so the numbers carry the page. A quiet compliance
-	// footnote closes it. The active-loan card links through to the L02 servicing
-	// surface ("Manage loan").
+	// L-series lending hub — the calm front door to borrowing. It opens on what I'm
+	// already servicing — a personal loan, a mortgage, and a revolving credit line
+	// (each with its outstanding/current balance as the hero figure) — then lays out
+	// what I can borrow next as a small grid of product cards (the personal-loan and
+	// credit-line applications, and the public mortgage calculator). The forest-green
+	// accent stays unspent here — ink on paper — so the numbers carry the page. A quiet
+	// compliance footnote closes it. Each servicing card links through to its detail
+	// surface ("Manage loan" → L02, "Manage mortgage" → L04, "Manage credit line" → L05).
 	import { lending } from '$lib/state/lending.svelte';
 	import { mortgageServicing } from '$lib/state/mortgage-servicing.svelte';
+	import { creditLine } from '$lib/state/credit-line.svelte';
 	import { LOAN_PURPOSES, personalLoanAprBps } from '$lib/data/lending';
 	import { formatMoney, formatDate } from '$lib/format';
 	import { setProps } from '$lib/wc.svelte';
@@ -19,6 +20,11 @@
 	// The one mortgage I'm servicing — its outstanding balance is the card's hero figure,
 	// linking through to the L04 servicing surface.
 	const mortgage = $derived(mortgageServicing.mortgage);
+
+	// My revolving credit line — its current balance is the card's hero figure, with the
+	// available credit and limit beneath, linking to the L05 management surface.
+	const credit = $derived(creditLine.facility);
+	const creditAvailableMinor = $derived(creditLine.availableMinor);
 
 	const eur = (minor: number) => formatMoney(minor, 'EUR');
 
@@ -56,8 +62,13 @@
 			href: '/lending/mortgages/calculator',
 			ready: true
 		},
-		// L05 — a flexible draw-down limit; not built yet.
-		{ label: 'Credit line', desc: 'A flexible limit to draw on', href: '', ready: false }
+		// L05 — a flexible draw-down limit, now live.
+		{
+			label: 'Credit line',
+			desc: 'A flexible limit to draw on',
+			href: '/lending/credit-line/apply',
+			ready: true
+		}
 	];
 </script>
 
@@ -156,6 +167,42 @@
 		</gok-card>
 	</section>
 
+	<!-- My credit line — the management summary for the one revolving line I hold. -->
+	<section class="block" aria-labelledby="credit-heading">
+		<h2 id="credit-heading" class="visually-hidden">My credit line</h2>
+		<gok-card>
+			<div class="loan">
+				<div class="loan-top">
+					<div class="loan-id">
+						<p class="loan-eyebrow gok-eyebrow">My credit line</p>
+						<p class="loan-purpose gok-headline-6">{credit.name}</p>
+						<p class="loan-original gok-tabular-nums">Limit {eur(credit.limitMinor)}</p>
+					</div>
+					<div class="loan-cta">
+						<!-- L05 management — the live credit-line surface. -->
+						<gok-link href="/lending/credit-line/{credit.id}">Manage credit line</gok-link>
+					</div>
+				</div>
+
+				<div class="loan-hero">
+					<p class="loan-eyebrow gok-eyebrow">Current balance</p>
+					<p class="loan-balance gok-tabular-nums">{eur(credit.balanceMinor)}</p>
+				</div>
+
+				<dl class="loan-meta">
+					<div class="loan-meta-row">
+						<dt class="loan-meta-label">Available credit</dt>
+						<dd class="loan-meta-value gok-tabular-nums">{eur(creditAvailableMinor)}</dd>
+					</div>
+					<div class="loan-meta-row">
+						<dt class="loan-meta-label">Credit limit</dt>
+						<dd class="loan-meta-value gok-tabular-nums">{eur(credit.limitMinor)}</dd>
+					</div>
+				</dl>
+			</div>
+		</gok-card>
+	</section>
+
 	<!-- Products — what I can borrow next. -->
 	<section class="block" aria-labelledby="products-heading">
 		<div class="block-titles">
@@ -190,7 +237,8 @@
 		</ul>
 
 		<p class="apply-link">
-			Already modelled it? <gok-link href="/lending/mortgages/apply">Apply for a mortgage</gok-link>.
+			Already modelled it? <gok-link href="/lending/mortgages/apply">Apply for a mortgage</gok-link>,
+			or <gok-link href="/lending/credit-line/apply">apply for a credit line</gok-link>.
 		</p>
 	</section>
 
