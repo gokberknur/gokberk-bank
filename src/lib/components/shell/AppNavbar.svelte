@@ -8,11 +8,12 @@
 	import { session } from '$lib/state/session.svelte';
 	import { density } from '$lib/state/density.svelte';
 	import { auth } from '$lib/state/auth.svelte';
+	import { command } from '$lib/state/command.svelte';
 	import { setProps, on } from '$lib/wc.svelte';
 	import NavIcon from './NavIcon.svelte';
 
 	function openSearch() {
-		// TODO: open ?cmd command palette (F14)
+		command.openPalette();
 	}
 
 	function openNotifications() {
