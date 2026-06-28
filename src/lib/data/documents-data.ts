@@ -22,6 +22,10 @@ export interface BankDocument {
 	signed: boolean;
 	/** A short human summary shown in the in-app viewer. */
 	summary: string;
+	/** ISO date the document was e-signed (D02), when `signed`. */
+	signedAtIso?: string;
+	/** The mock e-signature reference minted at signing (D02). */
+	signatureRef?: string;
 }
 
 export const DOC_CATEGORY_LABELS: Record<DocCategory, string> = {
@@ -132,4 +136,18 @@ export function getDocuments(): BankDocument[] {
 
 export function getDocument(id: string): BankDocument | undefined {
 	return DOCUMENTS.find((d) => d.id === id);
+}
+
+/** Add a document to the vault (newest first) — e.g. a freshly signed copy (D02). */
+export function addDocument(doc: BankDocument): BankDocument {
+	DOCUMENTS.unshift(doc);
+	return doc;
+}
+
+/** Stamp a vault document as e-signed (D02) — flips `signed` and records the
+ *  timestamp + signature reference in place. */
+export function markDocumentSigned(id: string, signedAtIso: string, signatureRef: string): void {
+	const i = DOCUMENTS.findIndex((d) => d.id === id);
+	if (i === -1) return;
+	DOCUMENTS[i] = { ...DOCUMENTS[i], signed: true, signedAtIso, signatureRef };
 }

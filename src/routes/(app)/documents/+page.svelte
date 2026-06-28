@@ -14,12 +14,18 @@
 	import { DOC_CATEGORY_LABELS, type BankDocument } from '$lib/data/documents-data';
 	import { setProps, on } from '$lib/wc.svelte';
 	import { formatDate } from '$lib/format';
+	import { isSignable } from '$lib/documents/esign';
 	import DocumentViewer from '$lib/components/documents/DocumentViewer.svelte';
 
 	const rows = $derived(documents.filtered);
 	const categories = $derived(documents.categories);
 	const counts = $derived(documents.counts);
 	const activeCategory = $derived(documents.category);
+
+	// Documents awaiting my signature — a quiet, separate affordance (the table cells
+	// are strings only, so the Sign link can't live inside a cell). Each links to the
+	// D02 signing flow. Never the accent: signing is earned inside the flow, not here.
+	const toSign = $derived(rows.filter((d) => isSignable(d)));
 
 	type Column = {
 		key: string;
@@ -132,6 +138,20 @@
 		</div>
 	</section>
 
+	{#if toSign.length > 0}
+		<section class="to-sign" aria-label="Documents awaiting my signature">
+			<p class="to-sign-eyebrow gok-eyebrow">Awaiting my signature</p>
+			<ul class="to-sign-list">
+				{#each toSign as d (d.id)}
+					<li class="to-sign-row">
+						<span class="to-sign-title">{d.title}</span>
+						<gok-link href={`/documents/${d.id}/sign`}>Sign</gok-link>
+					</li>
+				{/each}
+			</ul>
+		</section>
+	{/if}
+
 	<gok-table
 		selection-mode="single"
 		accessible-label="My documents"
@@ -201,6 +221,51 @@
 	   legible on both the muted secondary and the green active (primary) chip. */
 	.chip-count {
 		font-variant-numeric: tabular-nums;
+	}
+
+	/* Awaiting-signature affordance — quiet, hairline, never the accent. */
+	.to-sign {
+		display: flex;
+		flex-direction: column;
+		gap: var(--gok-space-200);
+		padding: var(--gok-space-400);
+		border: var(--gok-border-width-hairline) solid var(--gok-color-border);
+		border-radius: var(--gok-radius-m);
+		background: var(--gok-color-surface);
+	}
+
+	.to-sign-eyebrow {
+		margin: 0;
+		color: var(--gok-color-text-muted);
+	}
+
+	.to-sign-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.to-sign-row {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--gok-space-400);
+		padding-block: var(--gok-space-300);
+		border-block-start: var(--gok-border-width-hairline) solid var(--gok-color-border);
+	}
+
+	.to-sign-row:first-child {
+		border-block-start: none;
+	}
+
+	.to-sign-title {
+		font-family: var(--gok-font-family-text);
+		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
+		color: var(--gok-color-text);
 	}
 
 	.empty {
