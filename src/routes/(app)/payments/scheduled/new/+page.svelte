@@ -1,7 +1,7 @@
 <script lang="ts">
 	// P05 · Schedule a payment — the create wizard for a standing order / one-off
-	// future payment. Six steps on the F05 wizard model (recipient+amount → frequency
-	// → start → end → projected balance → review), then a forced-decision confirm and
+	// future payment. Four steps on the F05 wizard model (recipient+amount → how & when
+	// [frequency/start/end] → projected balance → review), then a forced-decision confirm and
 	// a calm success view. Scheduling a future commitment IS deliberate, so the final
 	// confirm is a forced-decision gok-dialog (tone="danger", no-dismiss); a recurring
 	// standing order over a threshold (≥ €1,000 or an until-cancelled mandate) is gated
@@ -67,7 +67,7 @@
 		};
 	}
 
-	// ── The six-step flow. canEnter skips the end step for a one-off (no recurrence). ──
+	// ── The four-step flow. The schedule step folds frequency, start and the end rule together. ──
 	const steps: StepDef<ScheduleDraftData>[] = [
 		{
 			id: 'recipient',
@@ -79,19 +79,17 @@
 				return true;
 			}
 		},
-		{ id: 'frequency', title: 'How often' },
 		{
-			id: 'start',
-			title: 'Start date',
-			validate: (data) => (data.startIso ? true : 'Pick the date the first payment goes out.')
-		},
-		{
-			id: 'end',
-			title: 'When it ends',
-			canEnter: (data) => data.frequency !== 'once',
+			id: 'schedule',
+			title: 'How & when',
+			// PAY-U-03 — frequency, start date and (for a recurring order) the end rule, all on one
+			// step. The end-rule checks only apply when it actually recurs.
 			validate: (data) => {
-				if (data.endKind === 'on-date' && !data.endDateIso) return 'Pick the date it stops on.';
-				if (data.endKind === 'after-count' && data.endCount < 1) return 'Enter at least one payment.';
+				if (!data.startIso) return 'Pick the date the first payment goes out.';
+				if (data.frequency !== 'once') {
+					if (data.endKind === 'on-date' && !data.endDateIso) return 'Pick the date it stops on.';
+					if (data.endKind === 'after-count' && data.endCount < 1) return 'Enter at least one payment.';
+				}
 				return true;
 			}
 		},
@@ -389,9 +387,10 @@
 						{@attach on('change', onReferenceInput)}
 					></gok-input>
 				</section>
-			{:else if wizard.current.id === 'frequency'}
-				<!-- Step 2 · frequency. A one-off makes the end step trivial (it's skipped). -->
-				<section class="step-fields" aria-label="How often it runs">
+			{:else if wizard.current.id === 'schedule'}
+				<!-- Step 2 · how often, when it starts, and (recurring only) when it ends — three
+				     single-control steps collapsed into one (PAY-U-03). -->
+				<section class="step-fields" aria-label="How often and when">
 					<gok-segmented
 						label="How often should it run?"
 						{@attach setProps({ value: wizard.data.frequency })}
@@ -402,17 +401,6 @@
 						<gok-segmented-item value="monthly">Monthly</gok-segmented-item>
 					</gok-segmented>
 
-					<p class="quiet">
-						{#if wizard.data.frequency === 'once'}
-							A single payment on the date I pick — there's no recurrence to set.
-						{:else}
-							A {frequencyLabel} payment, starting on the date I pick. I'll set when it ends next.
-						{/if}
-					</p>
-				</section>
-			{:else if wizard.current.id === 'start'}
-				<!-- Step 3 · start date — native date input, tokened to rhyme with gok-input. -->
-				<section class="step-fields" aria-label="Start date">
 					<div class="date-field">
 						<label class="date-label" for="schedule-start">When does the first payment go out?</label>
 						<input
@@ -433,53 +421,54 @@
 							{/if}
 						</p>
 					</div>
-				</section>
-			{:else if wizard.current.id === 'end'}
-				<!-- Step 4 · end rule (recurring only). Exactly one of three is active. -->
-				<section class="step-fields" aria-label="When it ends">
-					<gok-radio-group
-						label="When should it stop?"
-						orientation="vertical"
-						{@attach setProps({ value: wizard.data.endKind })}
-						{@attach on('change', onEndKindChange)}
-					>
-						<gok-radio value="until-cancelled">Until I cancel</gok-radio>
-						<gok-radio value="on-date">On a date</gok-radio>
-						<gok-radio value="after-count">After a number of payments</gok-radio>
-					</gok-radio-group>
 
-					{#if wizard.data.endKind === 'on-date'}
-						<div class="date-field indent">
-							<label class="date-label" for="schedule-end-date">Stop on</label>
-							<input
-								id="schedule-end-date"
-								class="date-input"
-								type="date"
-								value={wizard.data.endDateIso}
-								min={wizard.data.startIso}
-								aria-describedby="schedule-end-date-message"
-								oninput={onEndDateInput}
-							/>
-							<p id="schedule-end-date-message" class="date-message">
-								The last payment runs on or before this date.
-							</p>
-						</div>
-					{:else if wizard.data.endKind === 'after-count'}
-						<div class="indent">
-							<gok-input
-								type="number"
-								label="Number of payments"
-								min="1"
-								inputmode="numeric"
-								{@attach setProps({ value: String(wizard.data.endCount) })}
-								{@attach on('input', onEndCountInput)}
-								{@attach on('change', onEndCountInput)}
-							></gok-input>
-						</div>
+					{#if wizard.data.frequency !== 'once'}
+						<gok-radio-group
+							label="When should it stop?"
+							orientation="vertical"
+							{@attach setProps({ value: wizard.data.endKind })}
+							{@attach on('change', onEndKindChange)}
+						>
+							<gok-radio value="until-cancelled">Until I cancel</gok-radio>
+							<gok-radio value="on-date">On a date</gok-radio>
+							<gok-radio value="after-count">After a number of payments</gok-radio>
+						</gok-radio-group>
+
+						{#if wizard.data.endKind === 'on-date'}
+							<div class="date-field indent">
+								<label class="date-label" for="schedule-end-date">Stop on</label>
+								<input
+									id="schedule-end-date"
+									class="date-input"
+									type="date"
+									value={wizard.data.endDateIso}
+									min={wizard.data.startIso}
+									aria-describedby="schedule-end-date-message"
+									oninput={onEndDateInput}
+								/>
+								<p id="schedule-end-date-message" class="date-message">
+									The last payment runs on or before this date.
+								</p>
+							</div>
+						{:else if wizard.data.endKind === 'after-count'}
+							<div class="indent">
+								<gok-input
+									type="number"
+									label="Number of payments"
+									min="1"
+									inputmode="numeric"
+									{@attach setProps({ value: String(wizard.data.endCount) })}
+									{@attach on('input', onEndCountInput)}
+									{@attach on('change', onEndCountInput)}
+								></gok-input>
+							</div>
+						{/if}
+					{:else}
+						<p class="quiet">A single payment on the date I pick — there's no recurrence to set.</p>
 					{/if}
 				</section>
 			{:else if wizard.current.id === 'projection'}
-				<!-- Step 5 · projected balance. Readable as text; overdraw is loud, not a block. -->
+				<!-- Step 3 · projected balance. Readable as text; overdraw is loud, not a block. -->
 				<section class="step-fields wide" aria-label="Projected balance">
 					{#if projectionOverdraws && firstOverdraw}
 						<gok-alert status="warning">
@@ -528,7 +517,7 @@
 					</gok-card>
 				</section>
 			{:else}
-				<!-- Step 6 · review — a read-only ledger + the computed next run. -->
+				<!-- Step 4 · review — a read-only ledger + the computed next run. -->
 				<section class="step-fields" aria-label="Review">
 					<dl class="ledger">
 						<div class="row">
@@ -727,7 +716,7 @@
 		color: var(--gok-color-text-muted);
 	}
 
-	/* --- Step 5 · projection runs --- */
+	/* --- Projection runs (step 3) --- */
 	.card-eyebrow {
 		margin: 0;
 		color: var(--gok-color-text-muted);

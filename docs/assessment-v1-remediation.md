@@ -132,10 +132,14 @@ Legend: `[ ]` todo · `[x]` done (committed) · each item → its finding ID(s) 
   extracted the composite's progress signal into a shared `WizardProgress` ("Step k of N" + `gok-progress`
   fraction) and dropped it into credit-line, mortgage, and the insurance quote (which had *no* indicator at
   all). Every multi-step flow now shows the same progress signal without rewriting compliant disclosure logic.
-  Consistency spec added. **Deferred to council** (documented, not done here): **LEND-U-04** (loans signs inline
-  vs mortgage/credit-line routing to `/documents/[id]/sign` — rerouting a working compliant flow is risk without
-  clear value) and **PAY-U-03** (collapse scheduled frequency/start/end into one step — S3 effort, moderate-risk
-  refactor of a working wizard). → moved to the council/design queue.
+  Consistency spec added. **Done (PAY-U-03):** the schedule-a-payment wizard's three consecutive single-control
+  steps (frequency / start date / end rule) were collapsed into one "How & when" step — the flow goes from six
+  steps to four (recipient → schedule → projection → review), with the end rule shown inline only when the order
+  recurs. All validation/handlers preserved (the end-rule checks now gate on `frequency !== 'once'` inside the
+  merged step's `validate`). New happy-path spec asserts the 4-step flow + the three controls coexisting.
+  **Deferred to council** (documented, not done here): **LEND-U-04** (loans signs inline vs mortgage/credit-line
+  routing to `/documents/[id]/sign` — rerouting a working compliant flow is risk without clear value). → council
+  queue.
 
 ## Deferred / backlog (not ship-blocking).
 - Pure S4 cosmetics (tabular-numeral lapses, minor alignment), the funds fact-sheet/Buy build-out (INV-U-01
