@@ -340,5 +340,36 @@ export function potRoundUpAccruedMinor(id: string): number {
 		}, 0);
 }
 
+// ---- Top-up (P09) --------------------------------------------------------
+// Add money to a wallet. An instant (card) top-up settles immediately and raises
+// the balance via the normal transaction path. A pending (bank / open-banking)
+// top-up is recorded as a pending inflow but deliberately does NOT touch the
+// settled or available balance — the money is "processing", shown in activity,
+// and would only land when it settles. We never fake the instant.
+export function topUp(walletId: string, amountMinor: number, instant: boolean): string | null {
+	const w = wallets.find((x) => x.id === walletId);
+	if (!w || amountMinor <= 0) return null;
+	const id = `topup-${walletId}-${allTxns.length}`;
+	const txn: Transaction = {
+		id,
+		walletId,
+		date: isoDate(TODAY),
+		merchant: 'Top-up',
+		category: 'income',
+		type: 'topup',
+		status: instant ? 'settled' : 'pending',
+		amountMinor,
+		currency: w.currency,
+		runningBalanceMinor: instant ? w.currentMinor + amountMinor : w.currentMinor,
+		reference: 'Top-up'
+	};
+	if (instant) {
+		appendTransaction(txn); // settled inflow → balance rises now
+	} else {
+		allTxns.unshift(txn); // pending inflow → visible as processing, balance untouched
+	}
+	return id;
+}
+
 export { HOME_CURRENCY };
 export type { Wallet, Pot, PotAutoSave, Transaction, Payee, Card };
