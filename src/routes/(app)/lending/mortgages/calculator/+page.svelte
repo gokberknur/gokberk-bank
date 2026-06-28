@@ -10,7 +10,7 @@
 	// the seeded mortgage math, no session.
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
-	import { replaceState } from '$app/navigation';
+	import { replaceState, goto } from '$app/navigation';
 	import { lending } from '$lib/state/lending.svelte';
 	import { MORTGAGE_BOUNDS } from '$lib/data/lending';
 	import { formatMoney } from '$lib/format';
@@ -116,6 +116,16 @@
 		} catch {
 			toast("Couldn't copy, but the address bar now holds my figures.", { status: 'warning' });
 		}
+	}
+
+	// ── Apply ──
+	// Carry the current figures into the full L04 application (Flow A). Term is held in
+	// years here, but the application works in months — so it's scaled on the way over.
+	function applyNow() {
+		const termMonths = m.termYears * 12;
+		goto(
+			`/lending/mortgages/apply?value=${m.propertyMinor}&deposit=${m.depositMinor}&term=${termMonths}`
+		);
 	}
 </script>
 
@@ -243,7 +253,7 @@
 			{/if}
 
 			<div class="share">
-				<gok-button variant="primary" {@attach on('click', copyLink)}>Copy link</gok-button>
+				<gok-button variant="secondary" {@attach on('click', copyLink)}>Copy link</gok-button>
 				<p class="share-note">My figures travel in the link — share or bookmark it.</p>
 			</div>
 		</section>
@@ -278,11 +288,27 @@
 		</section>
 	{/if}
 
-	<!-- Next step — the full application (L04) isn't built yet. -->
-	<div class="next">
-		<span class="next-text">Ready to apply? Start a mortgage application</span>
-		<gok-tag size="s">Soon</gok-tag>
-	</div>
+	<!-- Next step — carry these figures into the full L04 application. The earned accent
+	     on this page: the forward action that turns a model into an application. -->
+	<section class="next" aria-labelledby="apply-heading">
+		<div class="next-copy">
+			<h2 id="apply-heading" class="next-title gok-headline-6">Ready to apply?</h2>
+			<p class="next-text">
+				I'll carry these figures into a full application — a decision in principle, then the offer in
+				full with every fee and the total cost.
+			</p>
+		</div>
+		<gok-button
+			variant="primary"
+			{@attach setProps({ disabled: !valid })}
+			{@attach on('click', applyNow)}
+		>
+			Apply for this mortgage
+		</gok-button>
+		{#if !valid}
+			<p class="next-note">I'll sort the deposit first — then I can apply.</p>
+		{/if}
+	</section>
 </div>
 
 <style>
@@ -532,14 +558,38 @@
 
 	/* ── Next step ── */
 	.next {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--gok-space-200);
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--gok-space-300);
+		max-inline-size: 46rem;
+		padding-block-start: var(--gok-space-400);
+		border-block-start: var(--gok-border-width-hairline) solid var(--gok-color-border);
+	}
+
+	.next-copy {
+		display: flex;
+		flex-direction: column;
+		gap: var(--gok-space-100);
+	}
+
+	.next-title {
+		margin: 0;
+		color: var(--gok-color-text);
 	}
 
 	.next-text {
+		margin: 0;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
+		color: var(--gok-color-text-muted);
+	}
+
+	.next-note {
+		margin: 0;
+		font-family: var(--gok-font-family-text);
+		font-size: var(--gok-type-body-small-size);
 		color: var(--gok-color-text-muted);
 	}
 

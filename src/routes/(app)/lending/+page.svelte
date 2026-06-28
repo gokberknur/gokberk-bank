@@ -47,7 +47,7 @@
 		},
 		{
 			label: 'Mortgage calculator',
-			desc: 'See your monthly payment',
+			desc: 'Model it, then apply',
 			href: '/lending/mortgages/calculator',
 			ready: true
 		},
@@ -145,6 +145,10 @@
 				</li>
 			{/each}
 		</ul>
+
+		<p class="apply-link">
+			Already modelled it? <gok-link href="/lending/mortgages/apply">Apply for a mortgage</gok-link>.
+		</p>
 	</section>
 
 	<p class="footnote">
@@ -370,6 +374,14 @@
 	.stretched:focus-visible {
 		outline: var(--gok-border-width-strong) solid var(--gok-color-primary);
 		outline-offset: calc(-1 * var(--gok-border-width-strong));
+	}
+
+	.apply-link {
+		margin: 0;
+		font-family: var(--gok-font-family-text);
+		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
+		color: var(--gok-color-text-muted);
 	}
 
 	/* ── Footnote ── */
