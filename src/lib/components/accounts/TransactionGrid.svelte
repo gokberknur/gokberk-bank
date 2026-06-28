@@ -72,8 +72,15 @@
 			width: '8.5rem',
 			format: (v) => formatMoney(v as number, currency, { signDisplay: true })
 		},
-		{ key: 'runningBalanceMinor', label: 'Balance', numeric: true, width: '8.5rem', format: (v) => formatMoney(v as number, currency) }
+		{ key: 'runningBalanceMinor', label: 'Balance', numeric: true, width: '8.5rem', format: (v) => (Number.isNaN(v as number) ? '—' : formatMoney(v as number, currency)) }
 	]);
+
+	// A running balance is a settled-ledger concept. Pending rows haven't posted (the seed
+	// stamps them with the current settled balance), so blank their Balance cell — NaN is the
+	// sentinel the Balance column's format renders as an em dash (ACC-Q-02).
+	const displayRows = $derived(
+		rows.map((r) => (r.status === 'settled' ? r : { ...r, runningBalanceMinor: Number.NaN }))
+	);
 
 	const getRowId = (r: Transaction) => r.id;
 
@@ -90,7 +97,7 @@
 	paginated
 	page-size={25}
 	accessible-label="Transactions"
-	{@attach setProps({ columns, rows, getRowId, selection: selectedId ? [selectedId] : [] })}
+	{@attach setProps({ columns, rows: displayRows, getRowId, selection: selectedId ? [selectedId] : [] })}
 	{@attach on('gok-selection-change', handleSelection)}
 >
 	<div slot="caption" class="caption">

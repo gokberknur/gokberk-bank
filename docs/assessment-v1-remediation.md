@@ -66,7 +66,14 @@ Legend: `[ ]` todo · `[x]` done (committed) · each item → its finding ID(s) 
 - [x] **PLT-Q-02** command-palette Enter ignored match score (fixed group order) → `search()` now orders
   groups by their best member's score (exact prefix > fuzzy), so the top hit is the first row + Enter target,
   keeping the eyebrow grouping (gok-bank-ux). Spec active.
-- [ ] **ACC-Q-02** running-balance column incoherent in date-desc ledger view (gok-bank-accounts)
+- [x] **ACC-Q-02** running-balance column incoherent in date-desc ledger → **CPO call** (resolved the hide-vs-fix
+  fork in favour of *correct, not hidden*). Root cause: the seed assigns `runningBalanceMinor` in ascending
+  (date, id) settlement order, but `applyView`'s id tiebreak was direction-independent, so the date-desc view
+  scrambled same-day rows; pending rows were stamped with the current balance. Fix: (1) `txn-filter.ts` tiebreak
+  now follows the sort direction → date-desc is strict reverse-settlement order; (2) `TransactionGrid` +
+  `TransactionDrawer` blank the balance for non-settled rows. The fixme spec was rewritten to the *true*
+  invariant — settled rows reconcile row-to-row (newer.balance − older.balance == newer.amount), not a flawed
+  monotonic assumption — and is now active (gok-bank-accounts). Spec active.
 - [ ] **PAY-Q-05** missing confirmation-of-payee — **feature build** (new Verify step: name-match + mismatch
   proceed-anyway gate); route through the council (gok-bank-payments + gok-bank-ux + CPO), not a quick fix.
 - [x] **SVC-Q-01** reply to a resolved ticket didn't reopen it → `addReply` now flips a `resolved` ticket

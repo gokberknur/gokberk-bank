@@ -37,7 +37,7 @@
 	};
 
 	const amount = $derived(txn ? formatMoney(txn.amountMinor, currency, { signDisplay: true }) : '');
-	const balance = $derived(txn ? formatMoney(txn.runningBalanceMinor, currency) : '');
+	const balance = $derived(txn && txn.status === 'settled' ? formatMoney(txn.runningBalanceMinor, currency) : '');
 	const statusLabel = $derived(txn?.status === 'pending' ? 'Pending' : 'Settled');
 
 	// Disputes (S02) — a card outflow can be disputed; if one already exists for this
@@ -90,8 +90,10 @@
 					</div>
 				{/if}
 				<div class="row">
-					<dt>Running balance</dt>
-					<dd class="gok-tabular-nums">{balance}</dd>
+					{#if balance}
+						<dt>Running balance</dt>
+						<dd class="gok-tabular-nums">{balance}</dd>
+					{/if}
 				</div>
 				{#if txn.notes}
 					<div class="row">

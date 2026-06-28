@@ -93,19 +93,54 @@ test('ACC-Q-01: activating a transaction row opens (and reopens) the detail draw
 	await expect(page.getByText(/REF-/)).toBeVisible();
 });
 
-// ACC-Q-02 (S2) — in the default date-desc ledger the running balance must read coherently:
-// an older settled outflow row cannot show a HIGHER balance than the newer row above it with no
-// credit between. Today Basic-Fit (17 Jun, €3,705.88) sits above Five Guys (16 Jun, €3,877.97).
-test.fixme('ACC-Q-02: running balance is non-decreasing down the default ledger', async ({
+// ACC-Q-02 (S2) — the default date-desc ledger's running-balance column must be COHERENT:
+// reading settled rows top (newest) to bottom (oldest), each adjacent pair reconciles —
+// newer.balance − older.balance equals the newer row's amount. That's the true invariant; the
+// column is NOT monotonic (a salary inflow legitimately lifts the balance). Pending rows show no
+// running balance. Holds once same-day rows are tiebroken by settlement order (txn-filter) and
+// pending rows are blanked in the column (TransactionGrid).
+function parseSignedMinor(text: string): number | null {
+	if (!/\d/.test(text)) return null;
+	const sign = /[-−–]/.test(text) ? -1 : 1;
+	// Two decimal places, so concatenating every digit yields minor units directly.
+	return sign * Number(text.replace(/\D/g, ''));
+}
+
+test('ACC-Q-02: the settled running balance reconciles row-to-row in the default ledger', async ({
 	page
 }) => {
 	await gotoApp(page, '/accounts/eur-main');
-	const balances = await page.getByRole('gridcell', { name: /^€[\d,]+\.\d{2}$/ }).allTextContents();
-	const minor = balances.map(toMinorUnits).filter((v): v is number => v !== null);
-	// Reading the settled ledger top (newest) to bottom (oldest), each balance should be >= the
-	// next one (older), since the rows below are earlier outflows. (Holds once same-day rows are
-	// tiebroken by settlement order and pending rows are excluded from the column.)
-	for (let i = 1; i < minor.length; i++) {
-		expect(minor[i]).toBeLessThanOrEqual(minor[i - 1]);
+
+	const rows = page.getByRole('row');
+	const rowCount = await rows.count();
+	const data: { status: string; amountMinor: number | null; balanceMinor: number | null }[] = [];
+	for (let i = 0; i < rowCount; i++) {
+		const cells = rows.nth(i).getByRole('gridcell');
+		const n = await cells.count();
+		if (n < 7) continue; // header / non-data rows
+		// Balance is the last column, Amount second-last, Status third-last — robust to any
+		// leading selection-control cell the grid renders.
+		const status = ((await cells.nth(n - 3).textContent()) ?? '').trim();
+		const amountText = ((await cells.nth(n - 2).textContent()) ?? '').trim();
+		const balanceText = ((await cells.nth(n - 1).textContent()) ?? '').trim();
+		data.push({
+			status,
+			amountMinor: parseSignedMinor(amountText),
+			balanceMinor: balanceText.includes('€') ? parseSignedMinor(balanceText) : null
+		});
+	}
+
+	// A pending row hasn't posted — it must show no running balance.
+	for (const r of data) {
+		if (r.status === 'Pending') expect(r.balanceMinor).toBeNull();
+	}
+
+	// Among settled rows in display order (newest → oldest), each adjacent pair reconciles.
+	const settled = data.filter((r) => r.status === 'Settled' && r.balanceMinor !== null);
+	expect(settled.length).toBeGreaterThan(1);
+	for (let i = 1; i < settled.length; i++) {
+		const newer = settled[i - 1];
+		const older = settled[i];
+		expect(newer.balanceMinor! - older.balanceMinor!).toBe(newer.amountMinor!);
 	}
 });

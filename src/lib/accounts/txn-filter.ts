@@ -79,8 +79,13 @@ export function applyView(txns: readonly Transaction[], view: TxnView): Transact
 	const dir = view.sortDir === 'asc' ? 1 : -1;
 	filtered.sort((a, b) => {
 		const primary = compare(a, b, view.sortKey) * dir;
-		// Stable tiebreak on id so equal keys keep a deterministic order.
-		return primary !== 0 ? primary : a.id < b.id ? -1 : 1;
+		if (primary !== 0) return primary;
+		// Tiebreak on id FOLLOWING the sort direction. The seed assigns runningBalanceMinor
+		// in ascending (date, id) settlement order, so a date-sorted ledger only reads as a
+		// coherent running balance when same-day rows stay in strict settlement sequence (asc)
+		// or its exact reverse (desc); a direction-independent tiebreak scrambled the column
+		// at same-day boundaries (ACC-Q-02).
+		return (a.id < b.id ? -1 : 1) * dir;
 	});
 	return filtered;
 }
