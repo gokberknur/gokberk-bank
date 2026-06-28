@@ -5,11 +5,20 @@
 	// of a selected hero; the colour budget is otherwise spent inside the card-art.
 	import { cards } from '$lib/state/cards.svelte';
 	import { accounts } from '$lib/state/accounts.svelte';
+	import { cardOrder } from '$lib/cards/order.svelte';
+	import { goto } from '$app/navigation';
+	import { on } from '$lib/wc.svelte';
 	import { formatNumber } from '$lib/format';
 	import CardStrip from '$lib/components/cards/CardStrip.svelte';
 
 	const all = $derived(cards.all);
 	const count = $derived(all.length);
+
+	// Open a fresh order flow, then hand off to the C02 wizard route.
+	function addCard() {
+		cardOrder.startOrder();
+		goto('/cards/order');
+	}
 
 	// The wallet these cards fund (all on the EUR Main wallet in the seed).
 	const walletName = $derived(
@@ -39,8 +48,9 @@
 			<gok-empty-state>
 				<p class="empty-title gok-headline-5">No cards yet</p>
 				<p class="empty-body">When I add a card, it shows up here in my wallet.</p>
-				<!-- Order wizard (C02) is deferred — no live CTA yet. -->
-				<gok-button slot="actions" variant="secondary" disabled>Add a card</gok-button>
+				<gok-button slot="actions" variant="secondary" {@attach on('click', addCard)}>
+					Add a card
+				</gok-button>
 			</gok-empty-state>
 		</section>
 	{:else}

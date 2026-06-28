@@ -2,15 +2,27 @@
 	// The wallet strip — a horizontal scroll-snap rail of card-art heroes, each a
 	// link into its detail. Keyboard: a roving tabindex over the card links, with
 	// ArrowLeft/Right (and Home/End) moving focus; Enter activates the focused link
-	// (native anchor behaviour). A trailing "+ Add a card" tile is disabled until
-	// the order wizard (C02) ships.
+	// (native anchor behaviour). A trailing "+ Add a card" tile opens the C02 order
+	// flow. A cancelled card (the lost/replaced one) reads muted, by rule + a tag.
 	import type { Attachment } from 'svelte/attachments';
 	import type { Card } from '$lib/data/types';
+	import { cards as cardsState } from '$lib/state/cards.svelte';
+	import { cardOrder } from '$lib/cards/order.svelte';
+	import { goto } from '$app/navigation';
 	import CardArt from './CardArt.svelte';
 
 	let { cards }: { cards: Card[] } = $props();
 
-	// Roving focus index across the card links (the disabled add-tile is excluded).
+	// A cancelled card is the lost/replaced one — shown, but never as usable.
+	const isCancelled = (card: Card) => cardsState.displayStatus(card) === 'Cancelled';
+
+	// Open a fresh order flow, then hand off to the C02 wizard route.
+	function addCard() {
+		cardOrder.startOrder();
+		goto('/cards/order');
+	}
+
+	// Roving focus index across the card links (the trailing add-tile is excluded).
 	let focused = $state(0);
 
 	// One ref to the scroll container; `moveTo` queries the card anchors from it to
@@ -57,16 +69,20 @@
 			onkeydown={(e) => onKeydown(e, i)}
 			onfocus={() => (focused = i)}
 		>
-			<CardArt {card} size="strip" />
+			<span class="art" class:dim={isCancelled(card)}>
+				<CardArt {card} size="strip" />
+			</span>
+			{#if isCancelled(card)}
+				<gok-tag class="status-tag" size="s">Cancelled</gok-tag>
+			{/if}
 		</a>
 	{/each}
 
-	<!-- Add a card — deferred to the order wizard (C02). -->
-	<div class="item add" aria-disabled="true">
+	<!-- Add a card — opens the C02 order flow. -->
+	<button type="button" class="item add" onclick={addCard}>
 		<span class="add-plus" aria-hidden="true">+</span>
 		<span class="add-label">Add a card</span>
-		<gok-tag size="s">Soon</gok-tag>
-	</div>
+	</button>
 </div>
 
 <style>
@@ -89,6 +105,7 @@
 	}
 
 	a.item {
+		position: relative;
 		display: block;
 		text-decoration: none;
 		transition: transform var(--gok-motion-duration-fast) var(--gok-motion-ease-standard);
@@ -105,6 +122,23 @@
 		}
 	}
 
+	.art {
+		display: block;
+	}
+
+	/* A cancelled card reads quiet — dim + desaturate the art, mark it by tag. */
+	.art.dim {
+		opacity: 0.5;
+		filter: saturate(0.35);
+	}
+
+	.status-tag {
+		position: absolute;
+		inset-block-start: var(--gok-space-200);
+		inset-inline-start: var(--gok-space-200);
+		z-index: 1;
+	}
+
 	.add {
 		display: flex;
 		flex-direction: column;
@@ -117,6 +151,24 @@
 		border: var(--gok-border-width-hairline) dashed var(--gok-color-border-strong);
 		background: var(--gok-color-surface);
 		color: var(--gok-color-text-muted);
+	}
+
+	button.add {
+		cursor: pointer;
+		font: inherit;
+		transition:
+			border-color var(--gok-motion-duration-fast) var(--gok-motion-ease-standard),
+			color var(--gok-motion-duration-fast) var(--gok-motion-ease-standard);
+	}
+
+	button.add:hover {
+		border-color: var(--gok-color-primary);
+		color: var(--gok-color-text);
+	}
+
+	button.add:focus-visible {
+		outline: var(--gok-border-width-strong) solid var(--gok-color-primary);
+		outline-offset: var(--gok-space-100);
 	}
 
 	.add-plus {

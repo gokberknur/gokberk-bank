@@ -76,7 +76,7 @@ export interface Pot {
 }
 
 export type CardType = 'physical' | 'virtual' | 'disposable';
-export type CardStatus = 'active' | 'expired';
+export type CardStatus = 'active' | 'expired' | 'cancelled';
 export type CardNetwork = 'visa' | 'mastercard';
 /** Art treatment — the one place colour lives richly (still brand-anchored). */
 export type CardDesign = 'ink' | 'mist' | 'forest';

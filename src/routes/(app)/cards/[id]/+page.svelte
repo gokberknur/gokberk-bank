@@ -6,8 +6,10 @@
 	// through the step-up RevealDialog — never shown inline. The one earned accent
 	// is the primary "Show card number" action; everything else stays ink.
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
 	import { cards } from '$lib/state/cards.svelte';
 	import { accounts } from '$lib/state/accounts.svelte';
+	import { cardOrder } from '$lib/cards/order.svelte';
 	import { toast } from '$lib/state/toasts.svelte';
 	import { setProps, on } from '$lib/wc.svelte';
 	import { DonutChart, categoryBreakdown } from '$lib/charts';
@@ -20,6 +22,7 @@
 
 	const card = $derived(page.params.id ? cards.card(page.params.id) : undefined);
 	const status = $derived(card ? cards.displayStatus(card) : 'Active');
+	const cancelled = $derived(status === 'Cancelled');
 	const frozen = $derived(card?.controls.frozen ?? false);
 	const currency = $derived<Currency>(
 		card ? (accounts.wallet(card.walletId)?.currency ?? 'EUR') : 'EUR'
@@ -81,6 +84,14 @@
 
 	// --- Reveal: gated behind the step-up dialog. ---
 	let revealOpen = $state(false);
+
+	// --- Replace: seed a like-for-like replace flow, then hand off to C02. The
+	// old card is cancelled at the commit, so this is the lost/stolen path too.
+	function replaceCard() {
+		if (!card) return;
+		cardOrder.startReplace(card.id);
+		goto('/cards/order');
+	}
 </script>
 
 <svelte:head>
@@ -160,6 +171,19 @@
 				<gok-button variant="secondary" disabled>Add to wallet</gok-button>
 				<gok-tag size="s">Soon</gok-tag>
 			</div>
+		</section>
+
+		<section class="replace" aria-label="Replace or report this card">
+			{#if cancelled}
+				<p class="replace-note">This card was cancelled.</p>
+			{:else}
+				<gok-button variant="secondary" {@attach on('click', replaceCard)}>
+					Replace card
+				</gok-button>
+				<p class="replace-note">
+					Lost or stolen? I’ll cancel this card and ship a replacement.
+				</p>
+			{/if}
 		</section>
 
 		<section class="reveal" aria-label="Card number">
@@ -323,6 +347,22 @@
 		flex-wrap: wrap;
 		align-items: center;
 		gap: var(--gok-space-200);
+	}
+
+	/* --- Replace / report — the quiet, lost-or-stolen path. --- */
+	.replace {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--gok-space-200);
+	}
+
+	.replace-note {
+		margin: 0;
+		font-family: var(--gok-font-family-text);
+		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
+		color: var(--gok-color-text-muted);
 	}
 
 	/* --- Masked reveal panel --- */

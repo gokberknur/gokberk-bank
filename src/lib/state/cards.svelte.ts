@@ -41,7 +41,8 @@ class CardsState {
 	}
 
 	/** The live status shown on the hero + tag — frozen overrides the lifecycle. */
-	displayStatus(card: Card): 'Active' | 'Frozen' | 'Expired' {
+	displayStatus(card: Card): 'Active' | 'Frozen' | 'Expired' | 'Cancelled' {
+		if (card.status === 'cancelled') return 'Cancelled';
 		return card.controls.frozen ? 'Frozen' : card.status === 'expired' ? 'Expired' : 'Active';
 	}
 

@@ -197,5 +197,24 @@ export function updateCardControls(id: string, patch: Partial<Card['controls']>)
 	cards[i] = { ...cards[i], controls: { ...cards[i].controls, ...patch } };
 }
 
+/** Add a freshly-issued card to the wallet (newest first). The card factory in
+ *  `$lib/cards/issuing` builds the object; this just admits it to the spine. */
+export function addCard(card: Card): void {
+	cards.unshift(card);
+}
+
+/** Cancel a card (the lost/stolen + replace path) — it stops working immediately.
+ *  Immutable replacement so the `$derived` card view re-runs; frozen so every
+ *  channel reads as off too. */
+export function cancelCard(id: string): void {
+	const i = cards.findIndex((c) => c.id === id);
+	if (i === -1) return;
+	cards[i] = {
+		...cards[i],
+		status: 'cancelled',
+		controls: { ...cards[i].controls, frozen: true }
+	};
+}
+
 export { HOME_CURRENCY };
 export type { Wallet, Pot, Transaction, Payee, Card };
