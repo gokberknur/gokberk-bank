@@ -1,0 +1,23 @@
+{
+  "skill_name": "gok-bank-ux-audit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "On the home dashboard, does the Send button get lost? Audit how reachable the main actions are.",
+      "expected_output": "Invokes the usability auditor (not the in-house designer); names the job (start a payment from home); walks the built /home in playwright-cli at a desktop height (e.g. 1280x800) and a phone viewport (390x844), screenshots both into assessmentv1/accounts/screenshots/, and grades primary-action reachability (visible at rest vs scroll-hunted vs out of thumb zone); checks whether the QuickActions cluster is above the fold and in the mobile thumb zone, and whether there is one obvious primary vs several equally-weighted CTAs; files a reachability finding with severity by experience impact into assessmentv1/accounts/ux-findings.md routed to gok-bank-ux (redesign) + gok-bank-product-owner; hands any broken-button bug to gok-bank-qa and leaves the visual treatment (sticky bar vs bigger button) to gokberk-design.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "How hard is it to pay someone I've never paid before? Is it too many steps?",
+      "expected_output": "Invokes the usability auditor; defines the core job (pay a brand-new payee), walks the built new-payee path through /payments/transfer and /payments/payees/new counting steps/clicks/fields/decisions/scrolls, compares the count to intent (.planning/ux/ux-flows.md) and a named neobank benchmark (e.g. Wise), locates the specific friction (separate payee-creation route, standalone speed step, amount not remembered) rather than just totalling, and files an effort finding with the numbers attached into assessmentv1/payments/ux-findings.md routed to gok-bank-ux (journey redesign) + gok-bank-product-owner; distinguishes justified friction (step-up on a large/new-payee send buys trust) from wasted steps; does not redesign the flow itself or report it as a functional bug.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Ergonomics review of the cards screen on mobile.",
+      "expected_output": "Invokes the usability auditor; loads /cards authenticated at a phone viewport, names the core jobs (find a card, freeze it, see its details), runs the ergonomics checklist (primary-action reachability and thumb zone, scroll burden of the card strip, friction calibration on the destructive freeze/cancel action being guarded, cross-domain consistency of the action placement, information scent), captures mobile + desktop screenshots, and files severity-tagged findings into assessmentv1/cards/ux-findings.md routed to gok-bank-cards (task-inherent) or gok-bank-ux (design choice) + gok-bank-product-owner; hands anything broken to gok-bank-qa and leaves brand visuals to gokberk-design.",
+      "files": []
+    }
+  ]
+}

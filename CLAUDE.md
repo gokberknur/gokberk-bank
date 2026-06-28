@@ -72,6 +72,18 @@ refs for the lens; read the playbook that matches the surface you're building.
 - **`gok-bank-product-owner`** — the Chief Product Owner: the value/competitive **gate** with veto rights.
   Bring it in for any new feature, scope change, "should we build X", prioritization, or definition-of-done.
 
+**External assessment consultants** (independent reviewers of the *built* app — they assess, never build;
+findings land in git-ignored `assessmentv1/<domain>/` routed to the owning domain expert + `gok-bank-product-owner`):
+- **`gok-bank-qa`** — the external QA / SDET lead. Tests UI **and** functionality inside-out: regressions,
+  functional / UI-visual / state-coverage / console / navigation / data-integrity (minor-units) defects.
+  Proves every finding in a real browser (drives `playwright-cli` + chrome-devtools MCP) and owns the
+  **committed `e2e/` suite**. Finds & proves defects — it does **not** design, judge ergonomics, or decide ship.
+- **`gok-bank-ux-audit`** — the external usability auditor (Nielsen-Norman style). Grades the *ergonomics*
+  of the built result: primary-action reachability (visible vs scroll-hunted vs thumb-zone), task effort
+  (steps/clicks to complete the job), scroll burden, consistency, guarded destructive actions. Distinct
+  from `gok-bank-ux` — it audits the built journey and hands redesigns *to* it; it does **not** design,
+  find functional bugs (that's `gok-bank-qa`), or pick visuals.
+
 **Collaboration order (the council)** — for any feature work:
 1. **Domain expert** sets requirements + guardrails (what must ship, what not, regulatory/edge cases) from
    the feature's `.planning` spec.

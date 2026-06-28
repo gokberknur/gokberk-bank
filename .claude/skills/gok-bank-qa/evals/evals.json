@@ -1,0 +1,23 @@
+{
+  "skill_name": "gok-bank-qa",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "QA the send-money flow end to end — I want to know if it's safe to ship.",
+      "expected_output": "Invokes the QA consultant; reads the payments spec (.planning/features/payments + gok-bank-payments) for expected behaviour first; tests the money spine (gather → review → forced-decision confirm → success) with disclosed-equals-committed-to-the-cent as the headline check; forces unhappy paths (double-submit → one transaction, injected commit failure → no double-charge/half-state, early validation of bad IBAN/insufficient funds/over-limit); opens every state (empty/loading/inline-error/page-error/pending); drives playwright-cli to reproduce and screenshot into assessmentv1/payments/screenshots/, files severity-tagged findings into assessmentv1/payments/qa-findings.md routed to gok-bank-payments + gok-bank-product-owner, and locks the happy path + any S1/S2 with a committed e2e/payments/ spec. Defers rail/regulatory truth to gok-bank-payments, ergonomics to gok-bank-ux-audit, and visual fixes to gokberk-design.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "The statements list seems to show two solid green buttons. Is that a bug?",
+      "expected_output": "Invokes the QA consultant; recognizes the known footgun from docs/dogfooding-findings.md (#18 — an invalid gok-button variant like 'ghost' silently falls back to 'primary', so a quiet action renders as a second accent button, not caught by npm run check); reproduces it in the browser with playwright-cli and a screenshot; classifies it as ui-visual, S2 because hierarchy is broken on an action surface; files it to assessmentv1/<domain>/qa-findings.md routed to the domain owner + gok-bank-product-owner with a suggested fix area (use a secondary variant) while leaving the visual/brand decision to gokberk-design; adds an e2e assertion that exactly one primary button renders in that context.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Find regressions on the accounts ledger — clicking a row to open the detail seems flaky.",
+      "expected_output": "Invokes the QA consultant; runs the regression checklist on the gok-table ledger; identifies the controlled-selection reopen gotcha (dogfooding #12 — after the detail drawer closes the table still holds the row in its selection set, so clicking the same row again emits no event and the drawer won't reopen unless selection is driven as a controlled prop and cleared on close); reproduces 'open → close → click same row → nothing' with playwright-cli + screenshots; files it as functional, S2, routed to gok-bank-accounts + gok-bank-product-owner with the suggested fix area (controlled selection prop cleared on drawer close); also checks console cleanliness, sort/paginate/filter, and filtered-empty copy; writes an e2e/accounts/ spec that opens, closes, and reopens the same row.",
+      "files": []
+    }
+  ]
+}
