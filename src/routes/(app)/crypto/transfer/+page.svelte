@@ -138,6 +138,8 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-100);
+		/* Trim the sparse header→content gap to the standard ~32px (CRY-U-02). */
+		margin-block-end: calc(var(--gok-space-600) - var(--gok-space-section));
 	}
 
 	.head-eyebrow {

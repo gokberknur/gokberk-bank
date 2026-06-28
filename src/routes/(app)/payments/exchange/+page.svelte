@@ -409,6 +409,8 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-200);
+		/* Trim the sparse header→content gap to the standard ~32px (PAY-U-04). */
+		margin-block-end: calc(var(--gok-space-600) - var(--gok-space-section));
 	}
 
 	.eyebrow {

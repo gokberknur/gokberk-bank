@@ -122,9 +122,16 @@ Legend: `[ ]` todo · `[x]` done (committed) · each item → its finding ID(s) 
   **Done (LEND-U-02):** the mortgage calculator now pins a compact, mobile-only sticky monthly-payment readout
   at the top (hidden on desktop, where the results column already sits beside the inputs); mobile reachability
   spec added.
-  **Deferred to council (CPO call):** CRY-U-02 / PAY-U-04 (the broad header-void
-  sweep across every crypto/payments surface — S3, low-value churn; the `PageHeader` trim mechanism is in place
-  for routes that adopt it). → council/design queue.
+  **Done (CRY-U-02 / PAY-U-04):** the header-void trim, applied directly to the sparse `.head` of the flagged
+  surfaces — 3 crypto (`/crypto`, `/crypto/[symbol]`, `/crypto/transfer`) + 5 payments (`/payments/transfer`,
+  `exchange`, `scheduled/new`, `split`, `payees`). Each `.head` gains
+  `margin-block-end: calc(var(--gok-space-600) - var(--gok-space-section))`, netting the header→content gap from
+  a full section (~64px) to ~32px — the same trim the Batch 5 `PageHeader` bakes in. On the mobile fold this
+  reclaims roughly half a screen of whitespace before the first action/chart (verified on iPhone/WebKit: the
+  crypto Buy/Send/Receive row and the first balance card now sit above the fold at rest). **CPO note:** I'd
+  earlier parked these as "low-value churn"; seeing the live mobile void (~45% of the crypto fold) reversed
+  that — it's a real reachability cost on the two highest-traffic money domains, and the fix is the proven,
+  low-risk Batch 5 mechanism.
 - [x] **5C Stepper consistency** (LEND-U-03, INS-U-02) — **CPO reshape:** a full `createWizard` migration of
   the mortgage / credit-line flows was rejected as high-risk/low-value — they're decision-gated state machines
   (amount → soft-check → eligible/referred/declined → offer → sign), not the forward-gated linear model the
