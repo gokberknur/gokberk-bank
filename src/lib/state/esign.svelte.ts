@@ -54,10 +54,20 @@ class EsignState {
 		return s.scrolledToEnd && s.consented && s.stepUpVerified;
 	}
 
+	/** The persisted signature (ref + date) for a document whose e-sign session is
+	 *  complete — the durable record that outlives the re-seeded in-memory vault. Returns
+	 *  null if the document hasn't been signed in a persisted session. */
+	sessionSignature(docId: string): { signedAtIso: string; signatureRef: string } | null {
+		const s = this.sessions[docId];
+		return s?.signatureRef && s?.signedAtIso
+			? { signedAtIso: s.signedAtIso, signatureRef: s.signatureRef }
+			: null;
+	}
+
 	/** Is this document already signed (in the vault)? */
 	isSigned(docId: string): boolean {
 		revision.value;
-		return !!getDocument(docId)?.signed;
+		return !!getDocument(docId)?.signed || this.sessionSignature(docId) !== null;
 	}
 
 	/** The signed document (with signedAtIso + signatureRef) for the signed panel. */

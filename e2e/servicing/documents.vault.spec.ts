@@ -47,10 +47,12 @@ test('a document opens in the viewer and re-opens after close (reopen contract)'
 // SVC-Q-02 (S2 data-integrity/state): after signing doc-terms, the e-sign session is
 // persisted but the vault's signed flag is not, so on a reload /documents still lists the
 // doc as "Awaiting my signature" (status "—") while the sign page shows it as signed.
-test.fixme('SVC-Q-02: a signed document persists as signed in the vault across reload', async ({
+test('SVC-Q-02: a signed document persists as signed in the vault across reload', async ({
 	page
 }) => {
-	await page.addInitScript(() => window.localStorage.removeItem('gok-bank-esign-sessions'));
+	// Each test gets a fresh browser context (empty localStorage), so the e-sign
+	// session starts clean — no need to clear it, and clearing via addInitScript would
+	// wipe the just-signed session on the final reload too.
 
 	// Sign doc-terms.
 	await gotoApp(page, '/documents/doc-terms/sign');

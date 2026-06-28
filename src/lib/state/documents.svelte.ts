@@ -7,6 +7,7 @@
 
 import { getDocuments, getDocument, DOC_CATEGORY_LABELS } from '$lib/data/documents-data';
 import type { BankDocument, DocCategory } from '$lib/data/documents-data';
+import { esign } from './esign.svelte';
 
 // Re-expose the data surface so screens import everything documents-related from
 // the state layer, never reaching into the data layer directly.
@@ -31,12 +32,19 @@ class DocumentsState {
 
 	/** The whole vault, newest-first (the data layer already sorts it). */
 	get all(): BankDocument[] {
-		return getDocuments();
+		return getDocuments().map((d) => {
+			if (d.signed) return d;
+			const sig = esign.sessionSignature(d.id);
+			return sig ? { ...d, signed: true, signedAtIso: sig.signedAtIso, signatureRef: sig.signatureRef } : d;
+		});
 	}
 
 	/** Find one document by id. */
 	document(id: string): BankDocument | undefined {
-		return getDocument(id);
+		const d = getDocument(id);
+		if (!d || d.signed) return d;
+		const sig = esign.sessionSignature(id);
+		return sig ? { ...d, signed: true, signedAtIso: sig.signedAtIso, signatureRef: sig.signatureRef } : d;
 	}
 
 	/** Switch the active category chip (drives `filtered`). */
