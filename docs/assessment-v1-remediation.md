@@ -36,11 +36,22 @@ Legend: `[ ]` todo · `[x]` done (committed) · each item → its finding ID(s) 
   should get the same sweep as a follow-up (tracked in dogfooding #33).
 
 ## Batch 2 — Disclose-then-commit / persistence (trust-critical S2).
-- [ ] **CARD-Q-02** over-ceiling limit clamps silently (disclosed ≠ committed) (gok-bank-cards)
-- [ ] **CRY-Q-02** disclosed network fee never debited (gok-bank-wealth)
-- [ ] **PAY-Q-06** completed FX conversion doesn't persist across navigation (gok-bank-payments)
-- [ ] **SVC-Q-02** e-signed document's signed status doesn't persist to the vault (gok-bank-servicing)
-- [ ] **PAY-Q-02** SEPA Instant presented as cancellable + fully reverses (gok-bank-payments)
+- [x] **CARD-Q-02** over-ceiling limit clamped silently → `onLimitChange` now rejects over-ceiling with a
+  no-blame error and doesn't apply it; toast reflects the stored value (gok-bank-cards). Spec active.
+- [x] **PAY-Q-02** SEPA Instant presented as cancellable + fully reversed → Instant is final/Settled, the
+  cancel/reverse affordance removed; cancel-until-cut-off reserved for the standard rail (gok-bank-payments).
+- [x] **SVC-Q-02** e-signed status didn't persist to the vault across reload → documents store overlays the
+  signed-state from the persisted e-sign session (reactive, reload-safe) (gok-bank-servicing). Spec active.
+- [x] **CRY-Q-02** disclosed network fee never debited → `recordSend`/`placeSend` now charge the fee in crypto
+  units on top of the send, so held balance drops by units + fee (gok-bank-wealth).
+- [~] **PAY-Q-06** "completed FX conversion doesn't persist across navigation" → **by-design, not a defect.**
+  Investigation: the data layer's `appendTransaction`→`applyToWallet` *already* mutates `currentMinor`/
+  `availableMinor` for the settled FX legs, and `convert()` bumps `revision`, so both balances update in-session
+  everywhere (the finding's own "New exchange shows the deduction" confirms it). The only divergence is across a
+  **full reload**, which regenerates the seed — the documented app-wide demo behavior ("Nothing is persisted — a
+  reload regenerates the seed"), identical for every money movement. An initial per-surface balance mutation was
+  written then reverted (it double-counted against `applyToWallet`). CPO call: no per-surface fix; the receipt
+  copy is honest within the session. (gok-bank-payments + gok-bank-product-owner)
 
 ## Batch 3 — Remaining functional S2s.
 - [ ] **PAY-Q-03 / PAY-Q-04** silent no-op cancels on standing orders / mandates (gok-bank-payments)

@@ -393,7 +393,9 @@ class CryptoState {
 		const p = this.sendPreview();
 		if (!this.sendAddressCheck.ok || p.units <= 0 || p.insufficient) return null;
 
-		const tx = recordSend(d.symbol, p.units, p.valueMinor, d.network);
+		const priceMinor = getCryptoAsset(d.symbol)?.lastPriceMinor ?? 0;
+		const feeUnits = priceMinor > 0 ? p.feeMinor / priceMinor : 0;
+		const tx = recordSend(d.symbol, p.units, p.valueMinor, d.network, feeUnits);
 		revision.bump();
 		toast('Send submitted — confirming on-chain', { status: 'info' });
 		return tx;

@@ -156,9 +156,18 @@ export function recordSell(symbol: CryptoSymbol, units: number, valueMinor: numb
 	return append({ id, type: 'sell', symbol, units, valueMinor, status: 'confirmed', hash: txHash(id), confirmations: 6, at: new Date(TODAY).toISOString() });
 }
 
-/** Send crypto on-chain — lands as Confirming (Pending→Confirming, never instant). */
-export function recordSend(symbol: CryptoSymbol, units: number, valueMinor: number, network: Network): CryptoTx {
-	balances = { ...balances, [symbol]: Math.max(0, (balances[symbol] ?? 0) - units) };
+/** Send crypto on-chain — lands as Confirming (Pending→Confirming, never instant).
+ *  The recipient receives `units`; the disclosed network fee (`feeUnits`, the same
+ *  fee converted to crypto) leaves the wallet on top, so the held balance drops by
+ *  the full units + fee and the disclosed fee is actually paid (CRY-Q-02). */
+export function recordSend(
+	symbol: CryptoSymbol,
+	units: number,
+	valueMinor: number,
+	network: Network,
+	feeUnits = 0
+): CryptoTx {
+	balances = { ...balances, [symbol]: Math.max(0, (balances[symbol] ?? 0) - units - feeUnits) };
 	const id = nextId();
 	return append({ id, type: 'send', symbol, units, valueMinor, network, status: 'confirming', hash: txHash(id), confirmations: 1, at: new Date(TODAY).toISOString() });
 }
