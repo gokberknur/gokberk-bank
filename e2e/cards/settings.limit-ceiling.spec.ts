@@ -15,7 +15,7 @@ import { toMinorUnits } from '../support/money';
  *  - an over-ceiling entry shows a reward-early "€5,000.00 or less" style error, and
  *  - the success toast, if any, reflects the clamped value — never the raw input.
  */
-test.fixme(
+test(
 	'CARD-Q-02: over-ceiling daily limit is rejected reward-early, not confirmed at the typed amount',
 	async ({ page }) => {
 		await gotoApp(page, '/cards/card-physical/settings');
@@ -24,8 +24,10 @@ test.fixme(
 		const field = page.getByRole('textbox', { name: /Daily spend limit/ });
 		await field.fill('10000'); // €10,000 — double the ceiling
 
-		// A reward-early ceiling error must surface (the spec's requirement).
-		await expect(page.getByText(/5,000\.00.*or less|above this card/i)).toBeVisible();
+		// A reward-early ceiling error must surface (the spec's requirement). Two valid
+		// messages match — the page-level field-message and the MoneyInput's own DS
+		// maxMinor error — so assert at least one is visible.
+		await expect(page.getByText(/5,000\.00.*or less|above this card/i).first()).toBeVisible();
 
 		// And the success toast must never claim the un-applied, over-ceiling amount.
 		await expect(page.getByText(/Daily limit set to €10,000\.00/)).toHaveCount(0);

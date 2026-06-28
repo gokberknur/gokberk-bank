@@ -93,6 +93,13 @@
 		}
 		if (minor < spentToday) {
 			limitError = `That's below what I've already spent today (${formatMoney(spentToday, 'EUR')}).`;
+			clearTimeout(limitToastTimer);
+			return;
+		}
+		const ceiling = card.controls.ceilingMinor;
+		if (minor > ceiling) {
+			limitError = `That's above this card's ceiling. Enter ${formatMoney(ceiling, 'EUR')} or less.`;
+			clearTimeout(limitToastTimer);
 			return;
 		}
 		limitError = '';
