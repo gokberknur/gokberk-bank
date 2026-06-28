@@ -9,10 +9,11 @@ import { test, expect, gotoApp } from '../support/fixtures';
  * confirm AND the whole drawer (OrderTicket.closeDrawer lacks the
  * `e.target === e.currentTarget` guard, and the confirm doesn't trap Escape).
  *
- * Marked fixme so the committed suite stays GREEN while the bug is open; remove
- * `.fixme` once OrderTicket guards its drawer close + traps the confirm's Escape.
+ * Fixed: OrderTicket.closeDrawer now guards on `e.target === e.currentTarget`
+ * (dogfooding #33) and the no-dismiss confirm no longer wires gok-cancel/gok-close to
+ * close, so Escape can't dismiss it or tear down the drawer. Spec is now active.
  */
-test.fixme(
+test(
 	'INV-Q01: Escape on the forced-decision confirm must not close the order ticket',
 	async ({ page }) => {
 		await gotoApp(page, '/invest');

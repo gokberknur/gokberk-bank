@@ -22,11 +22,15 @@ Legend: `[ ]` todo · `[x]` done (committed) · each item → its finding ID(s) 
   on the iPhone/WebKit project (gok-bank-ux)
 
 ## Batch 1 — Systemic single-fixes (cheap, clear many findings at the source).
-- [ ] **Forced-decision dialog contract** (dogfooding #33): guard parent drawer `gok-cancel`/`gok-close` on
-  `e.target === e.currentTarget` + trap Escape on `no-dismiss` confirms; add missing `no-dismiss` to money-out
-  confirms. Clears MON-Q-02, INV-Q01, CRY-Q-01, INS-Q-02, PAY-Q-01 (gok-bank-ux + touched domains)
-- [ ] **ghost-button footgun** (dogfooding #18): replace invalid `variant="ghost"` so destructive actions
-  aren't painted as the green accent. Clears INS-Q-01, CARD-Q-01, ACC-U-03 (gokberk-design boundary: use `secondary`)
+- [x] **ghost-button footgun** (dogfooding #18): replaced all 10 invalid `variant="ghost"` with `secondary`
+  across 6 files — zero `ghost` left in source. Destructive triggers are now quiet, not the green accent.
+  Clears INS-Q-01, CARD-Q-01, ACC-U-03; specs flipped active.
+- [~] **Forced-decision dialog contract** (dogfooding #33): for drawer-hosted confirms, guard the parent
+  `closeDrawer` on `e.target === e.currentTarget`, drop the confirm's `gok-cancel`/`gok-close` close-wiring, and
+  `preventDefault` the drawer's own `gok-cancel` while the confirm is open (DS contract — keeps it open).
+  **Done:** MON-Q-02 (RedeemFlow), INV-Q01 (OrderTicket) — both S2, specs active.
+  **Remaining (S3, standalone dialogs):** PAY-Q-01 (add `no-dismiss` to send/exchange money-out confirms),
+  CRY-Q-01 (crypto network confirm), INS-Q-02 (insurance cancel/buy/withdraw dialogs).
 
 ## Batch 2 — Disclose-then-commit / persistence (trust-critical S2).
 - [ ] **CARD-Q-02** over-ceiling limit clamps silently (disclosed ≠ committed) (gok-bank-cards)

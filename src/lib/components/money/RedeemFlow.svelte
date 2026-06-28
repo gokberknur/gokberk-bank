@@ -99,7 +99,18 @@
 	}
 
 	// ── Drawer dismissal ──
-	function closeDrawer() {
+	function closeDrawer(e?: Event) {
+		// A nested forced-decision dialog emits composed gok-close/gok-cancel that
+		// bubble here; event retargeting makes target the inner dialog, so only act
+		// on the drawer's OWN dismissal (dogfooding #33).
+		if (e && e.target !== e.currentTarget) return;
+		// While the forced-decision confirm is open, the drawer must not be dismissed
+		// by its own Escape/scrim — gok-cancel is cancelable, so preventDefault keeps it
+		// open (DS contract). The confirm owns the decision.
+		if (confirmOpen) {
+			e?.preventDefault();
+			return;
+		}
 		open = false;
 	}
 
@@ -226,8 +237,6 @@
 			heading="Confirm redemption"
 			no-dismiss
 			{@attach setProps({ open: confirmOpen })}
-			{@attach on('gok-cancel', closeConfirm)}
-			{@attach on('gok-close', closeConfirm)}
 		>
 			<p class="confirm-body">
 				Redeem <strong class="gok-tabular-nums">{amountLabel}</strong> cashback to my
