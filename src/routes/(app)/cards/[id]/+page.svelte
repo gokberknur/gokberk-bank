@@ -10,6 +10,7 @@
 	import { cards } from '$lib/state/cards.svelte';
 	import { accounts } from '$lib/state/accounts.svelte';
 	import { cardOrder } from '$lib/cards/order.svelte';
+	import { cardSecurity, MOBILE_WALLET_LABELS } from '$lib/cards/security.svelte';
 	import { toast } from '$lib/state/toasts.svelte';
 	import { setProps, on } from '$lib/wc.svelte';
 	import { DonutChart, categoryBreakdown } from '$lib/charts';
@@ -19,6 +20,8 @@
 	import type { Transaction } from '$lib/data/types';
 	import CardArt from '$lib/components/cards/CardArt.svelte';
 	import RevealDialog from '$lib/components/cards/RevealDialog.svelte';
+	import PinDialog from '$lib/components/cards/PinDialog.svelte';
+	import AddToWalletDialog from '$lib/components/cards/AddToWalletDialog.svelte';
 
 	const card = $derived(page.params.id ? cards.card(page.params.id) : undefined);
 	const status = $derived(card ? cards.displayStatus(card) : 'Active');
@@ -84,6 +87,16 @@
 
 	// --- Reveal: gated behind the step-up dialog. ---
 	let revealOpen = $state(false);
+
+	// --- PIN view/change (C04) + add-to-wallet (C05), each its own dialog. ---
+	let pinOpen = $state(false);
+	let walletOpen = $state(false);
+
+	// Wallets this card is already in (reactive). When it's in one, the action
+	// manages rather than adds, and a tag names where it lives.
+	const wallets = $derived(card ? cardSecurity.walletsFor(card.id) : []);
+	const inWallet = $derived(wallets.length > 0);
+	const walletLabel = $derived(wallets.length > 0 ? MOBILE_WALLET_LABELS[wallets[0]] : '');
 
 	// --- Replace: seed a like-for-like replace flow, then hand off to C02. The
 	// old card is cancelled at the commit, so this is the lost/stolen path too.
@@ -167,9 +180,19 @@
 				</gok-button>
 				<!-- Card settings (controls / limits / regions) — C03. -->
 				<gok-link href={`/cards/${card.id}/settings`}>Settings</gok-link>
-				<!-- Add to wallet (Apple / Google Pay) — C05, deferred. -->
-				<gok-button variant="secondary" disabled>Add to wallet</gok-button>
-				<gok-tag size="s">Soon</gok-tag>
+				{#if !cancelled}
+					<!-- PIN view / change (C04) — quiet, gated behind the step-up. -->
+					<gok-button variant="secondary" {@attach on('click', () => (pinOpen = true))}>
+						PIN
+					</gok-button>
+					<!-- Add to / manage wallet (Apple / Google Pay) — C05. -->
+					<gok-button variant="secondary" {@attach on('click', () => (walletOpen = true))}>
+						{inWallet ? 'Manage wallet' : 'Add to wallet'}
+					</gok-button>
+					{#if inWallet}
+						<gok-tag size="s">In {walletLabel}</gok-tag>
+					{/if}
+				{/if}
 			</div>
 		</section>
 
@@ -253,6 +276,8 @@
 	</div>
 
 	<RevealDialog {card} open={revealOpen} onClose={() => (revealOpen = false)} />
+	<PinDialog {card} open={pinOpen} onClose={() => (pinOpen = false)} />
+	<AddToWalletDialog {card} open={walletOpen} onClose={() => (walletOpen = false)} />
 {/if}
 
 <style>
