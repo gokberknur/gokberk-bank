@@ -4,8 +4,9 @@
 	// filter/search view; the grid renders the (large) ledger via gok-table's own
 	// pagination. The forest-green accent is spent once — on the table's selected
 	// row rule — so balances and amounts stay ink. The balance-history chart (F11)
-	// is deferred; later money surfaces (P02/P04/A06, A05) render as disabled
-	// "Soon" affordances rather than linking to a 404.
+	// is deferred; Statements (A06) links out to its own surface, while the remaining
+	// money moves (P02/P04, A05) render as disabled "Soon" affordances rather than
+	// linking to a 404.
 	import { page } from '$app/state';
 	import { accounts } from '$lib/state/accounts.svelte';
 	import { transactions } from '$lib/state/transactions.svelte';
@@ -102,9 +103,11 @@
 			</p>
 
 			<div class="head-actions">
+				<gok-link class="statements-link" href={`/accounts/${wallet.id}/statements`}>
+					<gok-button variant="secondary">Statements</gok-button>
+				</gok-link>
 				<gok-button variant="secondary" disabled>Send</gok-button>
 				<gok-button variant="secondary" disabled>Exchange</gok-button>
-				<gok-button variant="secondary" disabled>Statements</gok-button>
 				<gok-tag size="s">Soon</gok-tag>
 			</div>
 		</header>
@@ -245,5 +248,12 @@
 		align-items: center;
 		gap: var(--gok-space-200);
 		margin-block-start: var(--gok-space-300);
+	}
+
+	/* The Statements affordance is a real link wrapping a button — keep it inline and
+	   undecorated so it sits flush with the (disabled) action buttons beside it. */
+	.statements-link {
+		display: inline-flex;
+		text-decoration: none;
 	}
 </style>
