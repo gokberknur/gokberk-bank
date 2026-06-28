@@ -2,7 +2,7 @@
 	// P02 (EUR-only cut) — the flagship send-money flow: pay a saved euro payee
 	// from the primary wallet over SEPA Instant. It rides the money spine end to
 	// end — gather (recipient → amount) → review → forced-decision confirm →
-	// success with reversibility — composing the F05 wizard, the F07 money input,
+	// settled success — composing the F05 wizard, the F07 money input,
 	// gok-* components, and `--gok-*` tokens only.
 	//
 	// SCOPE (this cut): same-currency EUR · primary wallet → saved payee.
@@ -120,11 +120,10 @@
 		isFirstPayment || payments.draft.amountMinor >= STEP_UP_MIN_MINOR
 	);
 
-	// --- Confirm dialog + send + success/cancelled state machine. ---
+	// --- Confirm dialog + send + success state machine. ---
 	let confirmOpen = $state(false);
 	let stepUpVerified = $state(false);
 	let sent = $state(false);
-	let cancelled = $state(false);
 	// The receipt is captured at send time because the draft is cleared on success.
 	let receipt = $state<{
 		amount: string;
@@ -169,13 +168,6 @@
 		payments.resetDraft();
 	}
 
-	/** Reversibility within the window: undo the pending row, restore the hold. */
-	function cancelPayment() {
-		if (!receipt) return;
-		payments.cancelSend(receipt.txnId);
-		cancelled = true;
-	}
-
 	/** Move focus to the success heading when the success view mounts. */
 	function focusHeading(node: HTMLElement) {
 		node.focus();
@@ -191,31 +183,8 @@
 </svelte:head>
 
 <div class="page">
-	{#if cancelled}
-		<!-- Reversed: the pending payment was cancelled and the hold restored. -->
-		<section class="outcome">
-			<gok-empty-state>
-				<span slot="media" class="mark mark-cancel" aria-hidden="true">
-					<svg viewBox="0 0 24 24" width="28" height="28" fill="none">
-						<path
-							d="M7 12h10"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-						/>
-					</svg>
-				</span>
-				<h1 class="outcome-title gok-headline-3" tabindex="-1" {@attach focusHeading}>
-					Payment cancelled
-				</h1>
-				<p class="outcome-body">
-					I cancelled the payment to {receipt?.payeeName}. The hold is back in my available balance.
-				</p>
-				<gok-link slot="actions" href="/payments">Back to payments</gok-link>
-			</gok-empty-state>
-		</section>
-	{:else if sent}
-		<!-- Success: receipt + status + a real reversibility affordance. -->
+	{#if sent}
+		<!-- Success: receipt + settled status for the irrevocable SEPA Instant send. -->
 		<section class="outcome">
 			<gok-empty-state>
 				<span slot="media" class="mark mark-sent" aria-hidden="true">
@@ -234,7 +203,7 @@
 					<span class="gok-tabular-nums">{receipt?.amount}</span> sent to {receipt?.payeeName}
 				</h1>
 
-				<gok-tag size="m" dot>Sent · arriving in seconds</gok-tag>
+				<gok-tag size="m" dot>Settled</gok-tag>
 
 				<dl class="ledger receipt">
 					<div class="row">
@@ -254,9 +223,6 @@
 				<div slot="actions" class="outcome-actions">
 					<gok-button variant="primary" {@attach on('click', () => goToPayments())}>
 						Done
-					</gok-button>
-					<gok-button variant="secondary" {@attach on('click', cancelPayment)}>
-						Cancel this payment
 					</gok-button>
 				</div>
 			</gok-empty-state>
@@ -644,7 +610,7 @@
 		gap: var(--gok-space-200);
 	}
 
-	/* --- Success / cancelled outcome --- */
+	/* --- Success outcome --- */
 	.outcome {
 		padding-block: var(--gok-space-700);
 	}
@@ -663,21 +629,9 @@
 		color: var(--gok-color-primary);
 	}
 
-	.mark-cancel {
-		color: var(--gok-color-text-muted);
-	}
-
 	.outcome-title {
 		margin: 0;
 		color: var(--gok-color-text);
-	}
-
-	.outcome-body {
-		margin: 0;
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-regular-line);
-		color: var(--gok-color-text-muted);
 	}
 
 	.receipt {

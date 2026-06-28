@@ -8,17 +8,16 @@ import { test, expect, gotoApp } from '../support/fixtures';
 
 // PAY-Q-02 — A SEPA *Instant* payment is final per spec ("This can't be undone"),
 // yet the success screen offers "Cancel this payment" and it fully reverses.
-test.fixme('PAY-Q-02: SEPA Instant payment must not offer a cancel action', async ({ page }) => {
+test('PAY-Q-02: SEPA Instant payment must not offer a cancel action', async ({ page }) => {
 	await gotoApp(page, '/payments/transfer');
 	await page.getByRole('radio', { name: /Marco Rossi/ }).click();
 	await page.getByRole('button', { name: 'Continue' }).click();
 	await page.getByRole('textbox', { name: 'Amount (EUR)' }).fill('100.50');
 	await page.getByRole('button', { name: 'Continue' }).click();
 	await page.getByRole('button', { name: 'Confirm & send' }).click();
-	await page
-		.getByRole('dialog', { name: 'Confirm payment' })
-		.getByRole('button', { name: 'Send €100.50' })
-		.click();
+	await expect(page.getByRole('dialog', { name: 'Confirm payment' })).toBeVisible();
+	// The Send button is the dialog's commit; it's the only "Send €100.50" on the page.
+	await page.getByRole('button', { name: 'Send €100.50' }).click();
 	await expect(page.getByRole('heading', { name: /sent to Marco Rossi/ })).toBeVisible();
 	// Instant settles immediately and is final — there must be NO cancel affordance.
 	await expect(page.getByRole('button', { name: 'Cancel this payment' })).toHaveCount(0);
