@@ -7,6 +7,7 @@
 	import { goto } from '$app/navigation';
 	import { session } from '$lib/state/session.svelte';
 	import { density } from '$lib/state/density.svelte';
+	import { auth } from '$lib/state/auth.svelte';
 	import { setProps, on } from '$lib/wc.svelte';
 	import NavIcon from './NavIcon.svelte';
 
@@ -37,7 +38,8 @@
 				goto('/onboarding');
 				break;
 			case 'signout':
-				// TODO: sign out → /
+				auth.signOut();
+				goto('/login');
 				break;
 		}
 	}

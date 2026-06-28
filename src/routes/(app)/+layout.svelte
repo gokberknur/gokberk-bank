@@ -6,13 +6,22 @@
 	// The persistent chrome (rail + navbar) is pinned out of the page crossfade via
 	// its own view-transition-name, so only <main> animates between routes.
 	import { MediaQuery } from 'svelte/reactivity';
+	import { goto } from '$app/navigation';
 	import AppSidenav from '$lib/components/shell/AppSidenav.svelte';
 	import AppNavbar from '$lib/components/shell/AppNavbar.svelte';
 	import BottomTabBar from '$lib/components/shell/BottomTabBar.svelte';
 	import { toasts } from '$lib/state/toasts.svelte';
+	import { auth } from '$lib/state/auth.svelte';
 	import { on } from '$lib/wc.svelte';
 
 	let { children } = $props();
+
+	// Soft client-side guard. This app is a pure SPA (ssr=false), so there's no
+	// server gate: if I'm not signed in, bounce to /login. An effect (not render
+	// logic) keeps it a redirect, never a flash of a half-built shell.
+	$effect(() => {
+		if (!auth.signedIn) goto('/login');
+	});
 
 	// Tablet band (40–64rem) → the rail collapses to an icon rail. Below 40rem the
 	// rail is hidden entirely (the bottom bar takes over); at/above 64rem it is the
