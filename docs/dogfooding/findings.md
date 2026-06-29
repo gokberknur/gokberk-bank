@@ -65,6 +65,15 @@ and ADR-004). Building each is a vote for a future DS primitive.
 |---|---------|------------|--------|
 | 10 | Cloudflare Pages build image defaults to **Node 22**, but the app requires `>=24` (engine-strict) → `npm ci` failed `EBADENGINE`. | Pin Node 24 via `.nvmrc` (Pages reads it). | resolved |
 
+## Round 2 — surfaced while adopting `@gokberknur/design-system` 0.4.4
+
+The 0.4.4 release resolved findings #1–#40. Adopting it back into the bank surfaced the next round of friction —
+cases where the shipped primitive doesn't yet fit a real use-case. These are **new** feedback for a future DS round.
+
+| # | component | finding | resolution | status |
+|---|-----------|---------|------------|--------|
+| 41 | `gok-slider` | **The shipped slider (0.4.4, answering #30/P5) can't express a rich, formatted slider.** Its `show-value` read-out prints the **raw numeric value**, so a money slider over integer minor units shows `1000000`, not `€10,000` — there is no value **format/renderer** hook. It also has no **min/max bound-rail labels**, and `label` always renders **visibly** with no external-label escape (`aria-labelledby` / accessible-label-only), so a slider whose design is *label + formatted value on one row, track, then a min–max rail* cannot adopt it without either regressing the read-out to a raw number or duplicating the label. Hit migrating the loan amount/term and mortgage-term sliders (Phase 2 of the 0.4.4 adoption). | Kept the app-local tokened `<input type="range">` (formatted `<output>`, min/max rail, `--fill` gradient, `aria-valuetext`) for these three controls — `gok-slider` adoption deferred. A `format` callback (or value-renderer slot), optional min/max bound labels, and a label-less/`aria-labelledby` mode would let rich money/term sliders adopt it. | open |
+
 ---
 
 _Add a row when you hit new friction. These findings are curated into the **design-system handoff spec** that
