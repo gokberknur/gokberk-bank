@@ -80,10 +80,8 @@
 
 <style>
 	.offer {
-		/* Establish the containing block so the stretched overlay <a> is bounded to
-		   THIS card — without it the absolute overlay escapes to the page and the
-		   last card swallows clicks everywhere. */
-		position: relative;
+		/* The DS gok-card host now owns the containing block (`:host([interactive])`),
+		   so the stretched overlay <a> is bounded to THIS card. */
 		display: block;
 		block-size: 100%;
 	}

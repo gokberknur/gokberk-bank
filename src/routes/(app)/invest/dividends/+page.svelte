@@ -14,7 +14,7 @@
 
 	// ── Toggle: Upcoming / History (a radiogroup via gok-segmented) ──
 	function onView(e: Event) {
-		const value = (e.target as HTMLElement & { value: string }).value;
+		const value = (e as CustomEvent<{ value: string }>).detail.value;
 		dividends.view = value === 'history' ? 'history' : 'upcoming';
 	}
 

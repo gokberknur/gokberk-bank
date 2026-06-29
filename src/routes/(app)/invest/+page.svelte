@@ -40,7 +40,7 @@
 	);
 
 	function onRange(e: Event) {
-		const value = (e.target as HTMLElement & { value: string }).value;
+		const value = (e as CustomEvent<{ value: string }>).detail.value;
 		invest.setRange(value as Range);
 	}
 

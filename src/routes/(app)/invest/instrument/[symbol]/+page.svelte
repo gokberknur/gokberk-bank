@@ -70,11 +70,11 @@
 	const marketOpen = isMarketOpen();
 
 	function onKind(e: Event) {
-		const v = (e.target as HTMLElement & { value: string }).value;
+		const v = (e as CustomEvent<{ value: string }>).detail.value;
 		chartKind = v === 'line' ? 'line' : 'candlestick';
 	}
 	function onRange(e: Event) {
-		range = (e.target as HTMLElement & { value: string }).value as Range;
+		range = (e as CustomEvent<{ value: string }>).detail.value as Range;
 	}
 
 	// ── Today's session range (low/high), independent of the chart range ──

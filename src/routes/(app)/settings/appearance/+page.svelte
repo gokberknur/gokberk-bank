@@ -9,7 +9,7 @@
 	import SettingsHeader from '$lib/components/profile/SettingsHeader.svelte';
 
 	function onDensity(e: Event) {
-		const value = (e.target as HTMLElement & { value: string }).value;
+		const value = (e as CustomEvent<{ value: string }>).detail.value;
 		if (value === 'comfortable' || value === 'compact') density.set(value);
 	}
 </script>

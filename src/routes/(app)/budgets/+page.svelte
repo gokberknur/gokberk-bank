@@ -23,7 +23,7 @@
 	];
 
 	function onPeriod(e: Event) {
-		const value = (e.target as HTMLElement & { value: string }).value;
+		const value = (e as CustomEvent<{ value: string }>).detail.value;
 		budgets.setMonth(value);
 	}
 

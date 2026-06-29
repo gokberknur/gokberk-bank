@@ -16,7 +16,7 @@
 	let label = $derived(`${wallet.currency} wallet, available ${available}`);
 </script>
 
-<gok-card interactive style="position: relative">
+<gok-card interactive>
 	<a class="stretched" href={`/accounts/${wallet.id}`} aria-label={label}></a>
 
 	<div class="body">

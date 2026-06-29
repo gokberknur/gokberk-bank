@@ -69,7 +69,7 @@
 	const formatScale = (v: number) => formatMoney(Math.round(v * MINOR_PER_MAJOR), 'EUR');
 
 	function onRange(e: Event) {
-		range = (e.target as HTMLElement & { value: string }).value as Range;
+		range = (e as CustomEvent<{ value: string }>).detail.value as Range;
 	}
 
 	// 52-week range, from the (chart) history extremes — a deterministic read.

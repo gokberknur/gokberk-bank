@@ -300,7 +300,7 @@
 				{@attach on('change', onSourceChange)}
 			>
 				{#each topup.sources() as s (s.id)}
-					<gok-radio class="method" class:is-selected={s.id === topup.sourceId} value={s.id}>
+					<gok-radio class="method" card value={s.id}>
 						<span class="method-label">
 							<span class="method-top">
 								<span class="method-name">{s.label}</span>
@@ -476,23 +476,8 @@
 		color: var(--gok-color-status-error);
 	}
 
-	/* --- Method radios as composed cards (we never restyle the radio itself) --- */
-	.method {
-		display: block;
-		padding: var(--gok-space-300);
-		border: var(--gok-border-width-hairline) solid var(--gok-color-border);
-		border-radius: var(--gok-radius-m);
-		transition: border-color var(--gok-motion-duration-fast) var(--gok-motion-ease-standard);
-	}
-
-	.method:hover {
-		border-color: var(--gok-color-border-strong);
-	}
-
-	.method.is-selected {
-		border-color: var(--gok-color-text);
-	}
-
+	/* --- Method radios: the DS `card` boolean owns the tile border + selected state
+	     (styled from `checked`); we only lay out the inner content. --- */
 	.method-label {
 		display: flex;
 		flex-direction: column;

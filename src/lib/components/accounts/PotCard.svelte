@@ -37,7 +37,7 @@
 	);
 </script>
 
-<gok-card interactive style="position: relative">
+<gok-card interactive>
 	<a class="stretched" href={`/accounts/pots/${pot.id}`} aria-label={`${pot.name} — ${note}`}></a>
 
 	<div class="card">

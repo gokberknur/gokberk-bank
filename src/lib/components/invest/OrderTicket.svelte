@@ -100,7 +100,7 @@
 
 	// ── Field handlers — every one patches the single draft ──
 	function onSide(e: Event) {
-		const value = (e.target as HTMLElement & { value: string }).value;
+		const value = (e as CustomEvent<{ value: string }>).detail.value;
 		invest.setDraft({ side: value as 'buy' | 'sell' });
 	}
 
@@ -110,7 +110,7 @@
 	}
 
 	function onMode(e: Event) {
-		const value = (e.target as HTMLElement & { value: string }).value;
+		const value = (e as CustomEvent<{ value: string }>).detail.value;
 		invest.setDraft({ mode: value as 'shares' | 'notional' });
 	}
 
@@ -130,7 +130,7 @@
 	}
 
 	function onTif(e: Event) {
-		const value = (e.target as HTMLElement & { value: string }).value;
+		const value = (e as CustomEvent<{ value: string }>).detail.value;
 		invest.setDraft({ tif: value as 'day' | 'gtc' });
 	}
 

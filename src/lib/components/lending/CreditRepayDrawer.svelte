@@ -197,19 +197,19 @@
 				{@attach setProps({ value: choice })}
 				{@attach on('change', onChoiceChange)}
 			>
-				<gok-radio class="option" class:is-selected={choice === 'minimum'} value="minimum">
+				<gok-radio class="option" card value="minimum">
 					<span class="option-label">
 						<span class="option-name">Minimum payment</span>
 						<span class="option-meta gok-tabular-nums">{eur(minimumMinor)}</span>
 					</span>
 				</gok-radio>
-				<gok-radio class="option" class:is-selected={choice === 'statement'} value="statement">
+				<gok-radio class="option" card value="statement">
 					<span class="option-label">
 						<span class="option-name">Statement balance</span>
 						<span class="option-meta gok-tabular-nums">{eur(statementMinor)}</span>
 					</span>
 				</gok-radio>
-				<gok-radio class="option" class:is-selected={choice === 'custom'} value="custom">
+				<gok-radio class="option" card value="custom">
 					<span class="option-label">
 						<span class="option-name">Custom amount</span>
 						<span class="option-meta">I choose</span>

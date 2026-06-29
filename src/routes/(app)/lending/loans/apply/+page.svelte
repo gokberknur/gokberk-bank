@@ -13,7 +13,7 @@
 	// reload (resume). Web-component interop is strictly `setProps`/`on` — never
 	// `bind:` on a gok-* element (MoneyInput is a Svelte composite, so its bind is
 	// fine). Tokens/semantic roles only; one earned accent per screen.
-	import { untrack, onDestroy } from 'svelte';
+	import { onDestroy } from 'svelte';
 	import { setProps, on } from '$lib/wc.svelte';
 	import { formatMoney, formatDate } from '$lib/format';
 	import { lending } from '$lib/state/lending.svelte';
@@ -103,10 +103,9 @@
 		patchDraft({ purpose: (event.target as HTMLSelectElement).value as LoanPurpose });
 	}
 
-	/** Seed a field's value once, untracked, so typing never re-runs it. */
-	function initNote(node: Element) {
-		(node as HTMLInputElement).value = untrack(() => lending.loanDraft.note);
-	}
+	// The optional note seeds the gok-input once on mount via the DS `default-value`
+	// reset baseline — a non-reactive read of the resumed draft, so typing never re-seeds it.
+	const initialNote = lending.loanDraft.note;
 	function onNoteInput(event: Event) {
 		patchDraft({ note: (event.target as HTMLInputElement).value });
 	}
@@ -315,7 +314,7 @@
 								autocomplete="off"
 								reserve-message
 								helper="Just for my records — it won't change the decision."
-								{@attach initNote}
+								default-value={initialNote}
 								{@attach on('input', onNoteInput)}
 							></gok-input>
 						</div>

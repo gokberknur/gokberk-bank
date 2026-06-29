@@ -65,7 +65,7 @@
 	let filter = $state<StatusFilter>('all');
 
 	function onFilter(e: Event) {
-		filter = (e.target as HTMLElement & { value: string }).value as StatusFilter;
+		filter = (e as CustomEvent<{ value: string }>).detail.value as StatusFilter;
 	}
 
 	const allOrders = $derived(invest.recentOrders);

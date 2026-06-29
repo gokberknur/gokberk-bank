@@ -29,7 +29,7 @@
 	const otpComplete = $derived(otp.replace(/\D/g, '').length === 6);
 
 	function onMethod(e: Event) {
-		method = (e.target as HTMLElement & { value: string }).value as TwoFaMethod;
+		method = (e as CustomEvent<{ value: string }>).detail.value as TwoFaMethod;
 	}
 
 	// One step-up gate for the page; `pending` runs on confirm.

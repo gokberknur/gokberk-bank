@@ -169,6 +169,8 @@
 				accessible-label="My amortization schedule"
 				{@attach setProps({
 					columns,
+					// gok-table compares `rows` by reference, so a fresh array is required after
+					// any in-place mutation (its dev-warning is a no-op in the published prod build).
 					rows: [...ms.schedule],
 					getRowId,
 					virtualized: true,

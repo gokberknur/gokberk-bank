@@ -85,12 +85,12 @@
 
 	// ── Field handlers — every one patches the single draft ──
 	function onSide(e: Event) {
-		const value = (e.target as HTMLElement & { value: string }).value;
+		const value = (e as CustomEvent<{ value: string }>).detail.value;
 		crypto.setTrade({ side: value as 'buy' | 'sell' });
 	}
 
 	function onMode(e: Event) {
-		const value = (e.target as HTMLElement & { value: string }).value;
+		const value = (e as CustomEvent<{ value: string }>).detail.value;
 		crypto.setTrade({ mode: value as 'units' | 'cash' });
 	}
 

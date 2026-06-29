@@ -43,7 +43,7 @@
 
 	// ── Selection handlers ──
 	function onMode(event: Event) {
-		const value = (event.target as HTMLElement & { value: string }).value;
+		const value = (event as CustomEvent<{ value: string }>).detail.value;
 		mode = value === 'send' ? 'send' : 'receive';
 	}
 

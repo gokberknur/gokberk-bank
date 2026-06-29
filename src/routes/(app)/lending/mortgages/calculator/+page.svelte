@@ -99,7 +99,7 @@
 		lending.setMortgage({ termYears: Number((event.currentTarget as HTMLInputElement).value) });
 	}
 	function onRateType(event: Event) {
-		const value = (event.target as HTMLElement & { value: string }).value;
+		const value = (event as CustomEvent<{ value: string }>).detail.value;
 		if (value === 'fixed' || value === 'variable') lending.setMortgage({ rateType: value });
 	}
 
