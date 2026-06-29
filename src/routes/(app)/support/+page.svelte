@@ -263,12 +263,15 @@
 					{@attach on('input', (e) => support.setRaise({ body: (e.currentTarget as HTMLElement & { value: string }).value }))}
 				></gok-textarea>
 
+				<gok-file-upload
+					label="Attach a file"
+					accept="image/*,application/pdf"
+					multiple
+					max-size={10 * 1024 * 1024}
+					helper="Optional. Nothing is really uploaded in this demo."
+				></gok-file-upload>
+
 				<div class="form-foot">
-					<div class="attach">
-						<!-- F09 file-upload dropzone is deferred; affordance shown disabled. -->
-						<gok-button variant="secondary" size="s" disabled>Attach a file</gok-button>
-						<gok-tag size="s">Soon</gok-tag>
-					</div>
 					<gok-button
 						variant="primary"
 						disabled={!support.canRaise}
@@ -470,14 +473,8 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		justify-content: space-between;
+		justify-content: flex-end;
 		gap: var(--gok-space-300);
-	}
-
-	.attach {
-		display: flex;
-		align-items: center;
-		gap: var(--gok-space-200);
 	}
 
 	/* --- Live chat row --- */
