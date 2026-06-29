@@ -12,7 +12,6 @@
 	import { getTransactionById } from '$lib/data/disputes-data';
 	import { setProps, on } from '$lib/wc.svelte';
 	import { formatDate } from '$lib/format';
-	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 
 	// Help center: the query drives whether we show search results or the browse-
 	// by-category index. Both read from the store's reactive getters.
@@ -122,18 +121,16 @@
 {/snippet}
 
 <div class="page">
-	<PageHeader
+	<gok-page-header
 		eyebrow="Support"
-		title="How can I help myself today?"
-		titleClass="gok-headline-2"
+		heading="How can I help myself today?"
 		caption="Most answers are a search away. If I still need a hand, I can raise a ticket and I’ll hear back soon — usually within a day."
+		trim
 	>
-		{#snippet actions()}
-			<gok-button variant="secondary" {@attach on('click', scrollToRaise)}>
-				Raise a ticket
-			</gok-button>
-		{/snippet}
-	</PageHeader>
+		<gok-button slot="actions" variant="secondary" {@attach on('click', scrollToRaise)}>
+			Raise a ticket
+		</gok-button>
+	</gok-page-header>
 
 	<!-- 1 · Help center: search first, then browse. -->
 	<section class="help" aria-labelledby="help-heading">
