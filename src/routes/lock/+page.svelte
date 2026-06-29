@@ -3,12 +3,11 @@
 	// not signed out: a passkey or the 6-digit code resumes it and returns to /home. The
 	// frame is dimmed with a scrim to read as "paused". No backend; the code is checked by
 	// the auth flow (auth.unlock), which preserves the route. Interop is setProps/on; the
-	// OtpInput is an app-local Svelte composite, so bind:value is fine.
+	// DS gok-otp takes its `value` as a DOM property and reports changes on its `input` event.
 	import { goto } from '$app/navigation';
 	import { on, setProps } from '$lib/wc.svelte';
 	import { auth } from '$lib/state/auth.svelte';
 	import { AUTH_COPY } from '$lib/auth/auth';
-	import OtpInput from '$lib/components/security/OtpInput.svelte';
 
 	let code = $state('');
 	let submitting = $state(false);
@@ -68,9 +67,13 @@
 
 			<form class="form" aria-label="Unlock" onsubmit={(e) => e.preventDefault()}>
 				<div class="otp-field">
-					<span class="field-label gok-body-small">My code</span>
-					<OtpInput bind:value={code} label="My 6-digit code" describedBy="lock-otp-hint" />
-					<p id="lock-otp-hint" class="hint gok-footnote">{AUTH_COPY.otpHint}</p>
+					<gok-otp
+						label="My 6-digit code"
+						helper={AUTH_COPY.otpHint}
+						reserve-message
+						{@attach setProps({ value: code })}
+						{@attach on('input', (e) => (code = (e as CustomEvent<{ value: string }>).detail.value))}
+					></gok-otp>
 					<p class="sr-only" aria-live="polite">{otpStatus}</p>
 				</div>
 
@@ -186,15 +189,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-200);
-	}
-
-	.field-label {
-		color: var(--gok-color-text);
-	}
-
-	.hint {
-		margin: 0;
-		color: var(--gok-color-text-muted);
 	}
 
 	.block {

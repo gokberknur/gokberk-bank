@@ -4,11 +4,11 @@
 	// so the screen never reveals whether an email is registered. Then a 6-digit code + a
 	// new password; on a good code it lands back on /login. No backend: the code is checked
 	// locally against MOCK_OTP (we must NOT call auth.verifyOtp here — that would sign in).
-	// Interop is setProps/on; the OtpInput is an app-local composite, so bind:value is fine.
+	// Interop is setProps/on; the DS gok-otp takes `value` as a DOM property and reports
+	// changes on its `input` event.
 	import { goto } from '$app/navigation';
 	import { on, setProps } from '$lib/wc.svelte';
 	import { AUTH_COPY, MOCK_OTP } from '$lib/auth/auth';
-	import OtpInput from '$lib/components/security/OtpInput.svelte';
 
 	type Stage = 'request' | 'reset' | 'done';
 
@@ -122,9 +122,13 @@
 
 				<form class="form" aria-label="Set a new password" onsubmit={(e) => e.preventDefault()}>
 					<div class="otp-field">
-						<span class="field-label gok-body-small">My code</span>
-						<OtpInput bind:value={code} label="My 6-digit code" describedBy="reset-otp-hint" />
-						<p id="reset-otp-hint" class="hint gok-footnote">{AUTH_COPY.otpHint}</p>
+						<gok-otp
+							label="My 6-digit code"
+							helper={AUTH_COPY.otpHint}
+							reserve-message
+							{@attach setProps({ value: code })}
+							{@attach on('input', (e) => (code = (e as CustomEvent<{ value: string }>).detail.value))}
+						></gok-otp>
 						<p class="sr-only" aria-live="polite">{otpStatus}</p>
 					</div>
 
@@ -257,15 +261,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-200);
-	}
-
-	.field-label {
-		color: var(--gok-color-text);
-	}
-
-	.hint {
-		margin: 0;
-		color: var(--gok-color-text-muted);
 	}
 
 	.aux-line {

@@ -4,12 +4,12 @@
 	// same screen: credentials, then an inline 2FA step-up (a 6-digit code OR my passkey).
 	// `auth.pendingEmail` being non-null is the signal that the password step passed —
 	// that's what flips this to the 2FA stage. Interop is strictly setProps/on with values
-	// read off events; the OtpInput is an app-local Svelte composite, so bind:value is fine.
+	// read off events; the DS gok-otp takes `value` as a DOM property and reports changes
+	// on its `input` event.
 	import { goto } from '$app/navigation';
 	import { on, setProps } from '$lib/wc.svelte';
 	import { auth } from '$lib/state/auth.svelte';
 	import { AUTH_COPY, SEEDED_EMAIL } from '$lib/auth/auth';
-	import OtpInput from '$lib/components/security/OtpInput.svelte';
 
 	// The seeded email is prefilled as a demo convenience; the password is mine to type.
 	let email = $state(SEEDED_EMAIL);
@@ -112,9 +112,13 @@
 
 				<form class="form" aria-label="Two-step verification" onsubmit={(e) => e.preventDefault()}>
 					<div class="otp-field">
-						<span class="field-label gok-body-small">My code</span>
-						<OtpInput bind:value={code} label="My 6-digit code" describedBy="login-otp-hint" />
-						<p id="login-otp-hint" class="hint gok-footnote">{AUTH_COPY.otpHint}</p>
+						<gok-otp
+							label="My 6-digit code"
+							helper={AUTH_COPY.otpHint}
+							reserve-message
+							{@attach setProps({ value: code })}
+							{@attach on('input', (e) => (code = (e as CustomEvent<{ value: string }>).detail.value))}
+						></gok-otp>
 						<p class="sr-only" aria-live="polite">{otpStatus}</p>
 					</div>
 
@@ -282,15 +286,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-200);
-	}
-
-	.field-label {
-		color: var(--gok-color-text);
-	}
-
-	.hint {
-		margin: 0;
-		color: var(--gok-color-text-muted);
 	}
 
 	/* The primary stays the single earned accent; this just makes the secondary

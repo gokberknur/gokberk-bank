@@ -7,14 +7,14 @@
 	// close, copying RevealDialog's idiom.
 	//
 	// Interop is strictly `setProps`/`on` from wc.svelte — never `bind:` on a gok-*
-	// element. `bind:value` is fine on the app-local OtpInput. All SIMULATED: any
-	// 6-digit code passes; the real check would be a server's.
+	// element. The DS `gok-otp` is form-associated: its `value` is set as a DOM property
+	// and every change arrives on its `input` event. All SIMULATED: any 6-digit code
+	// passes; the real check would be a server's.
 	import { untrack } from 'svelte';
 	import { setProps, on } from '$lib/wc.svelte';
 	import { cardSecurity } from '$lib/cards/security.svelte';
 	import type { Card } from '$lib/data/types';
 	import StepUp from '$lib/components/security/StepUp.svelte';
-	import OtpInput from '$lib/components/security/OtpInput.svelte';
 
 	let {
 		card,
@@ -29,10 +29,13 @@
 	// The step-up gate that guards "Show my PIN".
 	let stepUpOpen = $state(false);
 
-	// Change-PIN drafts (two-way to the app-local OtpInput) + the OTP confirm.
+	// Change-PIN drafts (mirrored from each gok-otp's `input` event) + the OTP confirm.
 	let newPin = $state('');
 	let confirmPin = $state('');
 	let otp = $state('');
+
+	/** Read the joined code off a gok-otp `input`/`complete`/`change` CustomEvent. */
+	const otpValue = (e: Event) => (e as CustomEvent<{ value: string }>).detail.value;
 
 	// The reveal countdown — starts at 0 (no countdown in the other phases); `showPin`
 	// sets it to `seconds` when the reveal begins, so the prop is only read in closures.
@@ -201,18 +204,21 @@
 			<p class="lead">I'll pick a new 4-digit PIN, then enter it once more to confirm.</p>
 
 			<div class="field">
-				<p id="new-pin-label" class="field-label gok-eyebrow">New PIN</p>
-				<OtpInput bind:value={newPin} length={4} label="New 4-digit PIN" describedBy="new-pin-label" />
+				<gok-otp
+					length="4"
+					label="New 4-digit PIN"
+					{@attach setProps({ value: newPin })}
+					{@attach on('input', (e) => (newPin = otpValue(e)))}
+				></gok-otp>
 			</div>
 
 			<div class="field">
-				<p id="confirm-pin-label" class="field-label gok-eyebrow">Confirm new PIN</p>
-				<OtpInput
-					bind:value={confirmPin}
-					length={4}
+				<gok-otp
+					length="4"
 					label="Confirm the new 4-digit PIN"
-					describedBy="confirm-pin-label"
-				/>
+					{@attach setProps({ value: confirmPin })}
+					{@attach on('input', (e) => (confirmPin = otpValue(e)))}
+				></gok-otp>
 			</div>
 
 			<!-- Reserved message line — always present, so a rejection never shifts layout. -->
@@ -223,14 +229,19 @@
 			<p class="lead">I've sent a one-time code. I'll enter it to confirm the new PIN.</p>
 
 			<div class="field">
-				<p id="otp-label" class="field-label gok-eyebrow">6-digit code</p>
-				<OtpInput bind:value={otp} length={6} label="6-digit confirmation code" describedBy="otp-label" />
+				<!-- gok-otp owns its reserved message line; the helper nudges while incomplete
+				     (a short code simply hasn't finished yet) and clears once filled. -->
+				<gok-otp
+					length="6"
+					label="6-digit confirmation code"
+					reserve-message
+					helper={otp.length > 0 && !otpComplete
+						? 'The code is 6 digits — a few more to go.'
+						: ''}
+					{@attach setProps({ value: otp })}
+					{@attach on('input', (e) => (otp = otpValue(e)))}
+				></gok-otp>
 			</div>
-
-			<!-- Reserved message line (a short code simply hasn't completed yet). -->
-			<p class="msg" role="status" aria-live="polite">
-				{otp.length > 0 && !otpComplete ? 'The code is 6 digits — a few more to go.' : ''}
-			</p>
 		</div>
 	{/if}
 

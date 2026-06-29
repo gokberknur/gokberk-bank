@@ -15,7 +15,7 @@ const OTP = '424242';
 
 async function fillOtp(page: import('@playwright/test').Page, code: string) {
 	for (let i = 0; i < code.length; i++) {
-		await page.getByRole('textbox', { name: `Digit ${i + 1} of 6` }).fill(code[i]);
+		await page.getByRole('textbox', { name: `Character ${i + 1} of 6` }).fill(code[i]);
 	}
 }
 

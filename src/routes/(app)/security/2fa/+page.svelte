@@ -2,13 +2,12 @@
 	// Two-factor — set up, change, or turn off the second factor. When 2FA is on I
 	// can regenerate my recovery codes (behind step-up) or turn it off (behind a
 	// danger step-up; blocked with an info alert when it's my only factor). When it's
-	// off I enroll: pick a method, enter a simulated 6-digit code (the F08 OtpInput —
-	// app-local, nothing is verified server-side), then a step-up before it turns on.
+	// off I enroll: pick a method, enter a simulated 6-digit code (the DS gok-otp —
+	// nothing is verified server-side), then a step-up before it turns on.
 	// Either way the fresh recovery codes are shown ONCE in a monospace card I dismiss
 	// with "I've saved these". Every mutation runs on the step-up's confirm.
 	import { security, type TwoFaMethod } from '$lib/state/security.svelte';
 	import { setProps, on } from '$lib/wc.svelte';
-	import OtpInput from '$lib/components/security/OtpInput.svelte';
 	import StepUp from '$lib/components/security/StepUp.svelte';
 
 	const twoFa = $derived(security.twoFa);
@@ -197,10 +196,12 @@
 				</div>
 
 				<div class="enroll-field">
-					<p id="otp-help" class="otp-label">
-						Enter the 6-digit code from my {method === 'app' ? 'authenticator app' : 'text message'}.
-					</p>
-					<OtpInput bind:value={otp} label="6-digit verification code" describedBy="otp-help" />
+					<gok-otp
+						label="6-digit verification code"
+						helper={`Enter the 6-digit code from my ${method === 'app' ? 'authenticator app' : 'text message'}.`}
+						{@attach setProps({ value: otp })}
+						{@attach on('input', (e) => (otp = (e as CustomEvent<{ value: string }>).detail.value))}
+					></gok-otp>
 				</div>
 
 				<div class="enroll-actions">
@@ -343,14 +344,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-200);
-	}
-
-	.otp-label {
-		margin: 0;
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-small-size);
-		line-height: var(--gok-type-body-small-line);
-		color: var(--gok-color-text-muted);
 	}
 
 	.enroll-actions {
