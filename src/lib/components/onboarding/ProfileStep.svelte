@@ -2,13 +2,17 @@
 	// Step 1 · "About me" — name, date of birth, residency. Writes through
 	// onboarding.patch on every input. Profile/address validators return a FIELD
 	// MAP (not a step-level string), so the Wizard shell shows no alert for them —
-	// this panel surfaces each field's error inline instead. DOB has no DS date
-	// control (dogfooding #3), so it's a native <input type="date"> tokened to
-	// rhyme with gok-input. Interop is setProps/on; the native date input is
-	// app-local so a plain value/oninput is fine.
+	// this panel surfaces each field's error inline instead. DOB uses the DS
+	// gok-date-picker (it renders its own label + reserved message line + error),
+	// capped at today so a future birth date can't be picked. Interop is setProps/on
+	// — never bind: on a gok-* host; the ISO value is read off the event detail.
 	import { setProps, on } from '$lib/wc.svelte';
 	import { onboarding } from '$lib/onboarding/onboarding.svelte';
 	import { COUNTRIES } from '$lib/onboarding/kyc';
+	import { TODAY, isoDate } from '$lib/data/time';
+
+	// A date of birth can never be in the future — cap the picker at the fixed today.
+	const maxDob = isoDate(TODAY);
 
 	// The active step error is a field-map for this step; read it defensively.
 	const fieldErrors = $derived<Record<string, string>>(
@@ -22,7 +26,7 @@
 	}
 
 	function onDob(event: Event) {
-		onboarding.patch({ dob: (event.currentTarget as HTMLInputElement).value });
+		onboarding.patch({ dob: (event as CustomEvent<{ value: string }>).detail.value });
 	}
 
 	function onResidency(event: Event) {
@@ -41,24 +45,15 @@
 		{@attach on('change', onName)}
 	></gok-input>
 
-	<!-- DOB · native date input, tokened to match gok-input (dogfooding #3). -->
-	<div class="date-field">
-		<label class="date-label" for="dob">My date of birth</label>
-		<input
-			id="dob"
-			class="date-input"
-			class:is-invalid={Boolean(fieldErrors.dob)}
-			type="date"
-			value={onboarding.data.dob}
-			aria-describedby="dob-message"
-			aria-invalid={fieldErrors.dob ? 'true' : undefined}
-			oninput={onDob}
-		/>
-		<!-- Reserved message line: always present so an error never shifts the row. -->
-		<p id="dob-message" class="date-message" role={fieldErrors.dob ? 'alert' : undefined}>
-			{fieldErrors.dob ?? ''}
-		</p>
-	</div>
+	<!-- DOB · gok-date-picker (owns its label, reserved message line, and error). -->
+	<gok-date-picker
+		label="My date of birth"
+		max={maxDob}
+		reserve-message
+		{@attach setProps({ value: onboarding.data.dob, error: fieldErrors.dob })}
+		{@attach on('input', onDob)}
+		{@attach on('change', onDob)}
+	></gok-date-picker>
 
 	<gok-select
 		label="Where I live"
@@ -79,55 +74,5 @@
 		flex-direction: column;
 		gap: var(--gok-space-400);
 		max-inline-size: 32rem;
-	}
-
-	/* --- Native date field, tokened to rhyme with gok-input --- */
-	.date-field {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-100);
-	}
-
-	.date-label {
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-small-size);
-		line-height: var(--gok-type-body-small-line);
-		color: var(--gok-color-text);
-	}
-
-	.date-input {
-		inline-size: 100%;
-		padding-inline: var(--gok-space-300);
-		padding-block: var(--gok-space-300);
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-regular-line);
-		color: var(--gok-color-text);
-		background: var(--gok-color-surface);
-		border: var(--gok-border-width-hairline) solid var(--gok-color-border-strong);
-		border-radius: var(--gok-radius-m);
-	}
-
-	.date-input::-webkit-calendar-picker-indicator {
-		cursor: pointer;
-	}
-
-	.date-input:focus-visible {
-		outline: var(--gok-focus-ring-width) solid var(--gok-color-focus-ring);
-		outline-offset: var(--gok-focus-ring-offset);
-		border-color: var(--gok-color-primary);
-	}
-
-	.date-input.is-invalid {
-		border-color: var(--gok-color-status-error);
-	}
-
-	.date-message {
-		min-block-size: var(--gok-type-body-small-line);
-		margin: 0;
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-small-size);
-		line-height: var(--gok-type-body-small-line);
-		color: var(--gok-color-status-error);
 	}
 </style>

@@ -14,15 +14,19 @@
 	// Interop is strictly `setProps`/`on` — never `bind:` on a gok-* host; fields write
 	// into the draft through `patch` (an immutable patch so persistence + reactivity
 	// flow), and gok-* values are read off the event — including the gok-textarea
-	// account. The native date input is app-local (the DS ships no date control), so a
-	// plain value/oninput is fine there.
+	// account and the gok-date-picker (it owns its label + helper line; the ISO value
+	// is read off the event detail).
 	import { goto } from '$app/navigation';
 	import { setProps, on } from '$lib/wc.svelte';
 	import { formatDate } from '$lib/format';
+	import { TODAY, isoDate } from '$lib/data/time';
 	import { claims, CLAIM_TYPE_LABELS } from '$lib/insurance/claims.svelte';
 	import type { ClaimData } from '$lib/insurance/claims.svelte';
 	import { getProduct } from '$lib/data/insurance-data';
 	import Wizard from '$lib/components/wizard/Wizard.svelte';
+
+	// An incident can't be in the future — cap the picker at the fixed today.
+	const maxIncidentDate = isoDate(TODAY);
 
 	// ── Reads off the claims state (revision-reactive getters). ──
 	const activePolicies = $derived(claims.activePolicies());
@@ -51,7 +55,7 @@
 		patch({ type: value as ClaimData['type'] });
 	}
 	function onDateInput(event: Event) {
-		patch({ incidentDate: (event.currentTarget as HTMLInputElement).value });
+		patch({ incidentDate: (event as CustomEvent<{ value: string }>).detail.value });
 	}
 	function onDescriptionInput(event: Event) {
 		patch({ description: (event.currentTarget as HTMLElement & { value: string }).value });
@@ -186,22 +190,15 @@
 					{/each}
 				</gok-segmented>
 
-				<!-- Incident date · native date input, tokened to rhyme with gok-input. -->
-				<div class="date-field">
-					<label class="date-label" for="incident-date">When did it happen?</label>
-					<input
-						id="incident-date"
-						class="date-input"
-						type="date"
-						value={claims.wizard.data.incidentDate}
-						aria-describedby="incident-date-message"
-						oninput={onDateInput}
-					/>
-					<!-- Reserved message line: always present so a note never shifts the row. -->
-					<p id="incident-date-message" class="date-message">
-						The day the incident happened, as best I remember.
-					</p>
-				</div>
+				<!-- Incident date · DS gok-date-picker (owns its label + helper line), capped at today. -->
+				<gok-date-picker
+					label="When did it happen?"
+					helper="The day the incident happened, as best I remember."
+					max={maxIncidentDate}
+					{@attach setProps({ value: claims.wizard.data.incidentDate })}
+					{@attach on('input', onDateInput)}
+					{@attach on('change', onDateInput)}
+				></gok-date-picker>
 
 				<!-- Account · the form-associated gok-textarea (renders its own label + message). -->
 				<gok-textarea
@@ -538,52 +535,6 @@
 		font-size: var(--gok-type-body-regular-size);
 		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text);
-	}
-
-	/* --- Native date field, tokened to rhyme with gok-input --- */
-	.date-field {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-100);
-	}
-
-	.date-label {
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-small-size);
-		line-height: var(--gok-type-body-small-line);
-		color: var(--gok-color-text);
-	}
-
-	.date-input {
-		inline-size: 100%;
-		padding-inline: var(--gok-space-300);
-		padding-block: var(--gok-space-300);
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-regular-line);
-		color: var(--gok-color-text);
-		background: var(--gok-color-surface);
-		border: var(--gok-border-width-hairline) solid var(--gok-color-border-strong);
-		border-radius: var(--gok-radius-m);
-	}
-
-	.date-input::-webkit-calendar-picker-indicator {
-		cursor: pointer;
-	}
-
-	.date-input:focus-visible {
-		outline: var(--gok-focus-ring-width) solid var(--gok-color-focus-ring);
-		outline-offset: var(--gok-focus-ring-offset);
-		border-color: var(--gok-color-primary);
-	}
-
-	.date-message {
-		min-block-size: var(--gok-type-body-small-line);
-		margin: 0;
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-small-size);
-		line-height: var(--gok-type-body-small-line);
-		color: var(--gok-color-text-muted);
 	}
 
 	/* --- Step 3 · evidence --- */

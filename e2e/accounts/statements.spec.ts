@@ -19,8 +19,8 @@ test('statements list renders the periodic statements', async ({ page }) => {
 test('generating a valid range renders an on-screen statement doc', async ({ page }) => {
 	await gotoApp(page, '/accounts/eur-main/statements');
 
-	await page.getByRole('textbox', { name: 'From' }).fill('2026-05-01');
-	await page.getByRole('textbox', { name: 'To' }).fill('2026-05-15');
+	await page.getByRole('textbox', { name: 'Statement period start' }).fill('2026-05-01');
+	await page.getByRole('textbox', { name: 'Statement period end' }).fill('2026-05-15');
 	await page.getByRole('button', { name: 'Generate statement' }).click();
 
 	// The assembled statement renders holder + period as a real document.
@@ -33,8 +33,8 @@ test('generating a valid range renders an on-screen statement doc', async ({ pag
 test('an inverted date range is blocked reward-early', async ({ page }) => {
 	await gotoApp(page, '/accounts/eur-main/statements');
 
-	await page.getByRole('textbox', { name: 'From' }).fill('2026-05-20');
-	await page.getByRole('textbox', { name: 'To' }).fill('2026-05-10');
+	await page.getByRole('textbox', { name: 'Statement period start' }).fill('2026-05-20');
+	await page.getByRole('textbox', { name: 'Statement period end' }).fill('2026-05-10');
 
 	await expect(page.getByText('The start date needs to be on or before the end date.')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Generate statement' })).toBeDisabled();

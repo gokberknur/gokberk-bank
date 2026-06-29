@@ -54,7 +54,7 @@
 		goalMinor = minor;
 	}
 	function onDate(e: Event) {
-		targetDate = (e.currentTarget as HTMLInputElement).value;
+		targetDate = (e as CustomEvent<{ value: string }>).detail.value;
 	}
 	function onRoundUps(e: Event) {
 		roundUps = (e.target as HTMLElement & { checked?: boolean }).checked ?? false;
@@ -122,20 +122,13 @@
 			<p class="field-hint">A target is optional — without one, the pot just grows as I save.</p>
 		</div>
 
-		<div class="date-field">
-			<label class="date-label" for="pot-target-date">Target date (optional)</label>
-			<input
-				id="pot-target-date"
-				class="date-input"
-				type="date"
-				value={targetDate}
-				aria-describedby="pot-target-date-message"
-				oninput={onDate}
-			/>
-			<p id="pot-target-date-message" class="date-message">
-				The day I'd like to reach my goal — just a marker, never a deadline.
-			</p>
-		</div>
+		<gok-date-picker
+			label="Target date (optional)"
+			helper="The day I'd like to reach my goal — just a marker, never a deadline."
+			{@attach setProps({ value: targetDate })}
+			{@attach on('input', onDate)}
+			{@attach on('change', onDate)}
+		></gok-date-picker>
 
 		<div class="emblem">
 			<span class="emblem-label">Emblem</span>
@@ -198,53 +191,6 @@
 	}
 
 	.field-hint {
-		margin: 0;
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-small-size);
-		line-height: var(--gok-type-body-small-line);
-		color: var(--gok-color-text-muted);
-	}
-
-	/* --- Native date field, tokened to rhyme with gok-input --- */
-	.date-field {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-100);
-	}
-
-	.date-label {
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-small-size);
-		line-height: var(--gok-type-body-small-line);
-		font-weight: var(--gok-font-weight-medium);
-		color: var(--gok-color-text);
-	}
-
-	.date-input {
-		inline-size: 100%;
-		padding-inline: var(--gok-space-300);
-		padding-block: var(--gok-space-300);
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-regular-line);
-		color: var(--gok-color-text);
-		background: var(--gok-color-surface);
-		border: var(--gok-border-width-hairline) solid var(--gok-color-border-strong);
-		border-radius: var(--gok-radius-m);
-	}
-
-	.date-input::-webkit-calendar-picker-indicator {
-		cursor: pointer;
-	}
-
-	.date-input:focus-visible {
-		outline: var(--gok-focus-ring-width) solid var(--gok-color-focus-ring);
-		outline-offset: var(--gok-focus-ring-offset);
-		border-color: var(--gok-color-primary);
-	}
-
-	.date-message {
-		min-block-size: var(--gok-type-body-small-line);
 		margin: 0;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);

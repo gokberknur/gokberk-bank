@@ -10,8 +10,9 @@
 	// flow runs with `persist: false`.
 	//
 	// Interop is strictly `setProps`/`on` — never `bind:` on a gok-* host. MoneyInput
-	// is a Svelte composite, so its `value`/`onchange` are plain props. The native
-	// date input borrows the claims/new tokened pattern (the DS ships no date control).
+	// is a Svelte composite, so its `value`/`onchange` are plain props. The expiry uses
+	// the DS gok-date-picker (it owns its label + helper line); the ISO value is read
+	// off the event detail.
 	import { setProps, on } from '$lib/wc.svelte';
 	import { formatMoney } from '$lib/format';
 	import { requests } from '$lib/payments/requests.svelte';
@@ -27,7 +28,7 @@
 		amountMinor: number;
 		note: string;
 		walletId: string;
-		/** The native date-input string (yyyy-mm-dd); '' = no expiry. Converted to ISO on create. */
+		/** The picked date (ISO yyyy-mm-dd); '' = no expiry. Converted to a full ISO instant on create. */
 		expiryDate: string;
 		payerChoosesAmount: boolean;
 	}
@@ -111,7 +112,7 @@
 		patch({ walletId: (event.target as HTMLElement & { value?: string }).value ?? '' });
 	}
 	function onExpiryInput(event: Event) {
-		patch({ expiryDate: (event.currentTarget as HTMLInputElement).value });
+		patch({ expiryDate: (event as CustomEvent<{ value: string }>).detail.value });
 	}
 	function onPayerChoosesChange(event: Event) {
 		patch({ payerChoosesAmount: (event.target as HTMLElement & { checked?: boolean }).checked ?? false });
@@ -284,20 +285,13 @@
 
 						{#if showMore}
 							<div id="more-options" class="more-body">
-								<div class="date-field">
-									<label class="date-label" for="request-expiry">Expires (optional)</label>
-									<input
-										id="request-expiry"
-										class="date-input"
-										type="date"
-										value={wizard.data.expiryDate}
-										aria-describedby="request-expiry-message"
-										oninput={onExpiryInput}
-									/>
-									<p id="request-expiry-message" class="date-message">
-										After this date the link stops working. Leave it blank for no expiry.
-									</p>
-								</div>
+								<gok-date-picker
+									label="Expires (optional)"
+									helper="After this date the link stops working. Leave it blank for no expiry."
+									{@attach setProps({ value: wizard.data.expiryDate })}
+									{@attach on('input', onExpiryInput)}
+									{@attach on('change', onExpiryInput)}
+								></gok-date-picker>
 
 								<gok-switch
 									{@attach setProps({ checked: wizard.data.payerChoosesAmount })}
@@ -573,52 +567,6 @@
 		gap: var(--gok-space-400);
 		padding-inline-start: var(--gok-space-300);
 		border-inline-start: var(--gok-border-width-hairline) solid var(--gok-color-border);
-	}
-
-	/* Native date field, tokened to rhyme with gok-input. */
-	.date-field {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-100);
-	}
-
-	.date-label {
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-small-size);
-		line-height: var(--gok-type-body-small-line);
-		color: var(--gok-color-text);
-	}
-
-	.date-input {
-		inline-size: 100%;
-		padding-inline: var(--gok-space-300);
-		padding-block: var(--gok-space-300);
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-regular-line);
-		color: var(--gok-color-text);
-		background: var(--gok-color-surface);
-		border: var(--gok-border-width-hairline) solid var(--gok-color-border-strong);
-		border-radius: var(--gok-radius-m);
-	}
-
-	.date-input::-webkit-calendar-picker-indicator {
-		cursor: pointer;
-	}
-
-	.date-input:focus-visible {
-		outline: var(--gok-focus-ring-width) solid var(--gok-color-focus-ring);
-		outline-offset: var(--gok-focus-ring-offset);
-		border-color: var(--gok-color-primary);
-	}
-
-	.date-message {
-		min-block-size: var(--gok-type-body-small-line);
-		margin: 0;
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-small-size);
-		line-height: var(--gok-type-body-small-line);
-		color: var(--gok-color-text-muted);
 	}
 
 	/* --- Step 2 share --- */

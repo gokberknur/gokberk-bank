@@ -12,8 +12,8 @@
 	// is assembled from three fields). The flow runs with `persist: false` — a created
 	// schedule is a one-time result, never resumed. Interop is strictly `setProps`/`on`
 	// from `wc.svelte` — never `bind:` on a gok-* host. MoneyInput is a Svelte composite,
-	// so its value/onchange are plain props. The native date input borrows the
-	// claims/new tokened pattern (the DS ships no date control).
+	// so its value/onchange are plain props. The start/end dates are DS gok-date-pickers
+	// (each owns its label + helper line); the ISO value is read off the event detail.
 	import { goto } from '$app/navigation';
 	import { setProps, on } from '$lib/wc.svelte';
 	import { formatMoney, formatDate } from '$lib/format';
@@ -146,6 +146,13 @@
 	const startShiftsTo = $derived(
 		isWeekend(wizard.data.startIso) ? businessDayShift(wizard.data.startIso) : null
 	);
+	// The picker's own helper line carries the shift/origin note (it used to be a
+	// reserved <p> under the native input).
+	const startHelper = $derived(
+		startShiftsTo
+			? `That's a weekend — the payment runs on the next business day, ${formatDate(startShiftsTo)}.`
+			: `The day the first payment leaves ${selectedWallet?.name ?? 'my wallet'}.`
+	);
 
 	// ── Projection (step 3) — computed live, never stored stale. ─────────────────────
 	const projectionRuns = $derived(
@@ -192,13 +199,13 @@
 		patch({ frequency: (event.target as HTMLElement & { value?: string }).value as Frequency });
 	}
 	function onStartInput(event: Event) {
-		patch({ startIso: (event.currentTarget as HTMLInputElement).value });
+		patch({ startIso: (event as CustomEvent<{ value: string }>).detail.value });
 	}
 	function onEndKindChange(event: Event) {
 		patch({ endKind: (event.target as HTMLElement & { value?: string }).value as EndRule['kind'] });
 	}
 	function onEndDateInput(event: Event) {
-		patch({ endDateIso: (event.currentTarget as HTMLInputElement).value });
+		patch({ endDateIso: (event as CustomEvent<{ value: string }>).detail.value });
 	}
 	function onEndCountInput(event: Event) {
 		const n = Number((event.target as HTMLElement & { value?: string }).value ?? '');
@@ -401,26 +408,14 @@
 						<gok-segmented-item value="monthly">Monthly</gok-segmented-item>
 					</gok-segmented>
 
-					<div class="date-field">
-						<label class="date-label" for="schedule-start">When does the first payment go out?</label>
-						<input
-							id="schedule-start"
-							class="date-input"
-							type="date"
-							value={wizard.data.startIso}
-							min={TODAY_ISO}
-							aria-describedby="schedule-start-message"
-							oninput={onStartInput}
-						/>
-						<p id="schedule-start-message" class="date-message">
-							{#if startShiftsTo}
-								That's a weekend — the payment runs on the next business day,
-								{formatDate(startShiftsTo)}.
-							{:else}
-								The day the first payment leaves {selectedWallet?.name ?? 'my wallet'}.
-							{/if}
-						</p>
-					</div>
+					<gok-date-picker
+						label="When does the first payment go out?"
+						min={TODAY_ISO}
+						helper={startHelper}
+						{@attach setProps({ value: wizard.data.startIso })}
+						{@attach on('input', onStartInput)}
+						{@attach on('change', onStartInput)}
+					></gok-date-picker>
 
 					{#if wizard.data.frequency !== 'once'}
 						<gok-radio-group
@@ -435,20 +430,15 @@
 						</gok-radio-group>
 
 						{#if wizard.data.endKind === 'on-date'}
-							<div class="date-field indent">
-								<label class="date-label" for="schedule-end-date">Stop on</label>
-								<input
-									id="schedule-end-date"
-									class="date-input"
-									type="date"
-									value={wizard.data.endDateIso}
+							<div class="indent">
+								<gok-date-picker
+									label="Stop on"
 									min={wizard.data.startIso}
-									aria-describedby="schedule-end-date-message"
-									oninput={onEndDateInput}
-								/>
-								<p id="schedule-end-date-message" class="date-message">
-									The last payment runs on or before this date.
-								</p>
+									helper="The last payment runs on or before this date."
+									{@attach setProps({ value: wizard.data.endDateIso })}
+									{@attach on('input', onEndDateInput)}
+									{@attach on('change', onEndDateInput)}
+								></gok-date-picker>
 							</div>
 						{:else if wizard.data.endKind === 'after-count'}
 							<div class="indent">
@@ -669,53 +659,6 @@
 	.indent {
 		padding-inline-start: var(--gok-space-300);
 		border-inline-start: var(--gok-border-width-hairline) solid var(--gok-color-border);
-	}
-
-	/* --- Native date field, tokened to rhyme with gok-input. --- */
-	.date-field {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-100);
-	}
-
-	.date-label {
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-small-size);
-		line-height: var(--gok-type-body-small-line);
-		color: var(--gok-color-text);
-	}
-
-	.date-input {
-		inline-size: 100%;
-		padding-inline: var(--gok-space-300);
-		padding-block: var(--gok-space-300);
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-regular-line);
-		font-variant-numeric: tabular-nums;
-		color: var(--gok-color-text);
-		background: var(--gok-color-surface);
-		border: var(--gok-border-width-hairline) solid var(--gok-color-border-strong);
-		border-radius: var(--gok-radius-m);
-	}
-
-	.date-input::-webkit-calendar-picker-indicator {
-		cursor: pointer;
-	}
-
-	.date-input:focus-visible {
-		outline: var(--gok-focus-ring-width) solid var(--gok-color-focus-ring);
-		outline-offset: var(--gok-focus-ring-offset);
-		border-color: var(--gok-color-primary);
-	}
-
-	.date-message {
-		min-block-size: var(--gok-type-body-small-line);
-		margin: 0;
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-small-size);
-		line-height: var(--gok-type-body-small-line);
-		color: var(--gok-color-text-muted);
 	}
 
 	/* --- Projection runs (step 3) --- */

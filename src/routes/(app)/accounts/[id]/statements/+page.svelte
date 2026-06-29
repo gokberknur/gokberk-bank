@@ -8,8 +8,8 @@
 	// token-driven while the page that comes out of the printer is readable in any theme.
 	//
 	// Interop is strictly `setProps`/`on` from $lib/wc.svelte — never `bind:` on a
-	// gok-* host. The two date inputs are native (the DS ships no date control), tokened
-	// to rhyme with the rest of the app and read off their `input` events.
+	// gok-* host. The from/to range is one DS gok-date-range (two ISO fields, one
+	// calendar); both ends are read off the event detail on `input`.
 	import { tick } from 'svelte';
 	import { page } from '$app/state';
 	import { browser } from '$app/environment';
@@ -31,7 +31,7 @@
 	let opened = $state<Statement | null>(null);
 	const openedTxns = $derived(opened ? statements.transactions(opened) : []);
 
-	// ── Generate. Two native date inputs + reward-early validation on a reserved line. ──
+	// ── Generate. One gok-date-range (from/to) + reward-early validation on a reserved line. ──
 	let start = $state('');
 	let end = $state('');
 	let emptyNote = $state(false);
@@ -46,12 +46,10 @@
 				: ''
 	);
 
-	function onStartInput(event: Event) {
-		start = (event.currentTarget as HTMLInputElement).value;
-		emptyNote = false;
-	}
-	function onEndInput(event: Event) {
-		end = (event.currentTarget as HTMLInputElement).value;
+	function onRangeInput(event: Event) {
+		const detail = (event as CustomEvent<{ start: string; end: string }>).detail;
+		start = detail.start;
+		end = detail.end;
 		emptyNote = false;
 	}
 
@@ -121,28 +119,12 @@
 			<p class="section-note">Pick a start and end date and I’ll assemble a statement for that period.</p>
 
 			<div class="range">
-				<div class="date-field">
-					<label class="date-label" for="stmt-start">From</label>
-					<input
-						id="stmt-start"
-						class="date-input"
-						type="date"
-						value={start}
-						aria-describedby="range-message"
-						oninput={onStartInput}
-					/>
-				</div>
-				<div class="date-field">
-					<label class="date-label" for="stmt-end">To</label>
-					<input
-						id="stmt-end"
-						class="date-input"
-						type="date"
-						value={end}
-						aria-describedby="range-message"
-						oninput={onEndInput}
-					/>
-				</div>
+				<gok-date-range
+					label="Statement period"
+					{@attach setProps({ valueStart: start, valueEnd: end })}
+					{@attach on('input', onRangeInput)}
+					{@attach on('change', onRangeInput)}
+				></gok-date-range>
 				<gok-button
 					variant="secondary"
 					{@attach setProps({ disabled: !rangeValid })}
@@ -385,43 +367,6 @@
 		align-items: flex-end;
 		gap: var(--gok-space-300);
 		margin-block-start: var(--gok-space-200);
-	}
-
-	.date-field {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-100);
-	}
-
-	.date-label {
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-small-size);
-		line-height: var(--gok-type-body-small-line);
-		color: var(--gok-color-text);
-	}
-
-	.date-input {
-		inline-size: 100%;
-		padding-inline: var(--gok-space-300);
-		padding-block: var(--gok-space-300);
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-regular-line);
-		color: var(--gok-color-text);
-		background: var(--gok-color-surface);
-		border: var(--gok-border-width-hairline) solid var(--gok-color-border-strong);
-		border-radius: var(--gok-radius-m);
-	}
-
-	.date-input::-webkit-calendar-picker-indicator {
-		cursor: pointer;
-	}
-
-	/* Neutral focus — ink, not the accent. The vault never spends green. */
-	.date-input:focus-visible {
-		outline: var(--gok-focus-ring-width) solid var(--gok-color-focus-ring);
-		outline-offset: var(--gok-focus-ring-offset);
-		border-color: var(--gok-color-text);
 	}
 
 	.range-message {
