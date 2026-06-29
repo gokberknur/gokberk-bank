@@ -68,10 +68,7 @@
 		drawerOpen = true;
 	}
 
-	function closeDrawer(e?: Event) {
-		// Only the drawer's own cancel/close should close it — guard against any nested
-		// composed event retargeting up to this host.
-		if (e && e.target !== e.currentTarget) return;
+	function closeDrawer() {
 		drawerOpen = false;
 	}
 

@@ -91,13 +91,7 @@
 		phase = 'done';
 	}
 
-	function closeDialog(e?: Event) {
-		// Only the parent dialog's OWN cancel/close should close it. The nested StepUp
-		// and the forced-decision dialog emit composed `gok-close`/`gok-cancel` events
-		// that bubble up to this listener; retargeting makes their `target` the nested
-		// dialog host, not this one — ignore those so confirming the step-up doesn't tear
-		// the whole flow down before the loan settles.
-		if (e && e.target !== e.currentTarget) return;
+	function closeDialog() {
 		open = false;
 	}
 

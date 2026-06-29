@@ -8,8 +8,6 @@
 	// on today's balance, term and LTV — I read it, never recompute).
 	//
 	// Interop is strictly `setProps`/`on` from `wc.svelte` — never `bind:` on a gok-* element.
-	// Dogfooding #33 (nested-dialog guard): the nested confirm's bubbled `gok-close` must not
-	// tear down the parent, so the parent's close handler guards `e.target !== e.currentTarget`.
 	import { untrack } from 'svelte';
 	import { setProps, on } from '$lib/wc.svelte';
 	import { formatMoney } from '$lib/format';
@@ -72,11 +70,7 @@
 		phase = 'done';
 	}
 
-	function closeDialog(e?: Event) {
-		// Dogfooding #33: only the parent dialog's OWN cancel/close should close it — the
-		// nested confirm's composed `gok-close`/`gok-cancel` bubble here with a retargeted
-		// `target` (the inner dialog), so ignore those.
-		if (e && e.target !== e.currentTarget) return;
+	function closeDialog() {
 		open = false;
 	}
 

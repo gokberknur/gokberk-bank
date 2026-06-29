@@ -154,11 +154,7 @@
 		committed = false;
 	}
 
-	// Only the parent dialog's OWN cancel/close should close it. The nested StepUp emits
-	// composed gok-close/gok-cancel that bubble here — ignore those (retargeting makes
-	// their target the StepUp host, not this dialog).
-	function handleDialogClose(e?: Event) {
-		if (e && e.target !== e.currentTarget) return;
+	function handleDialogClose() {
 		onClose();
 	}
 </script>

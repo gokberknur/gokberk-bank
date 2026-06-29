@@ -157,10 +157,7 @@
 		if (ids[0]) drawerOpen = true;
 	}
 
-	// #33 — guard the drawer's own close: ignore close/cancel events that bubbled up
-	// from a child dialog, only act on the drawer's own dismissal.
 	function closeDrawer(e?: Event) {
-		if (e && e.target !== e.currentTarget) return;
 		if (cancelOpen || disputeOpen) {
 			e?.preventDefault();
 			return;
@@ -178,8 +175,7 @@
 	function askCancel() {
 		cancelOpen = true;
 	}
-	function dismissCancel(e?: Event) {
-		if (e && e.target !== e.currentTarget) return;
+	function dismissCancel() {
 		cancelOpen = false;
 	}
 	function confirmCancel() {
@@ -224,8 +220,7 @@
 	function askDispute() {
 		if (canDispute) disputeOpen = true;
 	}
-	function dismissDispute(e?: Event) {
-		if (e && e.target !== e.currentTarget) return;
+	function dismissDispute() {
 		disputeOpen = false;
 	}
 	function confirmDispute() {

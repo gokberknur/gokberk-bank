@@ -154,10 +154,7 @@
 		if (ids[0]) drawerOpen = true;
 	}
 
-	// #33 — guard the drawer's own close: ignore close/cancel events that bubbled up
-	// from a child (the cancel dialog), only act on the drawer's own dismissal.
 	function closeDrawer(e?: Event) {
-		if (e && e.target !== e.currentTarget) return;
 		if (confirmOpen) {
 			e?.preventDefault();
 			return;

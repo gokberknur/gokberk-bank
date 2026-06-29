@@ -7,8 +7,7 @@
 	// string ("● Working" / "✓ Filled" / "✕ Cancelled") — never colour alone. A row
 	// click opens a detail drawer with the full ledger; a working order can be
 	// modified or cancelled from there. The cancel is a forced-decision dialog nested
-	// inside the drawer (dogfooding #33: the drawer's close handler is guarded on
-	// `target === currentTarget` so the dialog's composed close can't tear it down).
+	// inside the drawer.
 	import { goto } from '$app/navigation';
 	import { invest } from '$lib/state/invest.svelte';
 	import {
@@ -159,12 +158,7 @@
 		if (id) selectedId = id;
 	}
 
-	function closeDrawer(e?: Event) {
-		// dogfooding #33: only the drawer's OWN cancel/close should close it. The nested
-		// cancel dialog emits composed `gok-close`/`gok-cancel` that bubble here;
-		// retargeting makes their `target` the dialog host, not this drawer — ignore
-		// those so confirming a cancel doesn't tear the whole drawer down.
-		if (e && e.target !== e.currentTarget) return;
+	function closeDrawer() {
 		selectedId = null;
 		modifyMode = false;
 		cancelOpen = false;

@@ -11,10 +11,7 @@
 	// gok-* element (MoneyInput is an app composite, so its own `bind:value` is fine).
 	//
 	// The forest-green accent stays earned — it is only the single primary "Repay/Pay"
-	// action. Dogfooding #33 (nested-dialog guard): the drawer hosts a nested confirm
-	// dialog whose composed `gok-close`/`gok-cancel` bubble up here; the drawer's close
-	// handler guards `e.target !== e.currentTarget` so the child's bubbled close doesn't
-	// tear the drawer down mid-flow.
+	// action.
 	import { untrack } from 'svelte';
 	import { setProps, on } from '$lib/wc.svelte';
 	import { formatMoney } from '$lib/format';
@@ -135,11 +132,7 @@
 		phase = 'done';
 	}
 
-	function closeDrawer(e?: Event) {
-		// Dogfooding #33: only the drawer's OWN cancel/close should close it. The nested
-		// confirm dialog emits composed `gok-close`/`gok-cancel` that bubble here; its
-		// retargeted `target` is the inner dialog, not this drawer, so ignore them.
-		if (e && e.target !== e.currentTarget) return;
+	function closeDrawer() {
 		open = false;
 	}
 

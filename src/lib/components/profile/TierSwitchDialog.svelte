@@ -46,8 +46,7 @@
 		return bps === 0 ? 'no markup' : `${bps / 100}%`;
 	}
 
-	function close(e?: Event) {
-		if (e && e.target !== e.currentTarget) return;
+	function close() {
 		onCancel();
 	}
 </script>

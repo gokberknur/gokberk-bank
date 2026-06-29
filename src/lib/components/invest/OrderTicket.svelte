@@ -169,10 +169,6 @@
 
 	// ── Drawer dismissal ──
 	function closeDrawer(e?: Event) {
-		// A nested forced-decision dialog emits composed gok-close/gok-cancel that
-		// bubble here; event retargeting makes target the inner dialog, so only act
-		// on the drawer's OWN dismissal (dogfooding #33).
-		if (e && e.target !== e.currentTarget) return;
 		// While the forced-decision confirm is open, the drawer must not be dismissed
 		// by its own Escape/scrim — gok-cancel is cancelable, so preventDefault keeps it
 		// open (DS contract). The confirm owns the decision.

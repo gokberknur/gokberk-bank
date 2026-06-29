@@ -100,11 +100,7 @@
 		phase = 'done';
 	}
 
-	function closeDrawer(e?: Event) {
-		// Only the drawer's OWN cancel/close should close it — the nested forced-decision
-		// dialog emits composed `gok-close`/`gok-cancel` events that bubble up here; their
-		// retargeted `target` is the inner dialog, not this drawer, so ignore those.
-		if (e && e.target !== e.currentTarget) return;
+	function closeDrawer() {
 		open = false;
 	}
 
