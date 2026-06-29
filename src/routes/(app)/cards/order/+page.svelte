@@ -142,7 +142,7 @@
 {#if placed}
 	<!-- Success · the wizard is swapped for a calm confirmation + status tag. -->
 	<section class="page" aria-label="Card ordered">
-		<gok-empty-state>
+		<gok-empty-state tone="success">
 			<span slot="media" class="success-glyph" aria-hidden="true">
 				<svg viewBox="0 0 24 24" width="28" height="28" fill="none">
 					<path
@@ -623,8 +623,8 @@
 		inline-size: 3rem;
 		block-size: 3rem;
 		border-radius: var(--gok-radius-pill);
-		color: var(--gok-color-primary);
-		border: var(--gok-border-width-strong) solid var(--gok-color-primary);
+		color: var(--gok-color-status-success);
+		border: var(--gok-border-width-strong) solid var(--gok-color-status-success);
 	}
 
 	.success-title {
