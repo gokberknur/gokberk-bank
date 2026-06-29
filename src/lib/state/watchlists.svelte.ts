@@ -127,9 +127,21 @@ class WatchlistsState {
 	removeFromActive(symbol: string): void {
 		const list = this.active();
 		if (!list) return;
-		removeSymbol(list.id, symbol);
+		const listId = list.id;
+		removeSymbol(listId, symbol);
 		revision.bump();
-		toast(`Removed ${symbol}`, { status: 'neutral' });
+		toast(`Removed ${symbol}`, {
+			status: 'neutral',
+			action: {
+				label: 'Undo',
+				onClick: () => {
+					// Restore silently via the low-level add — not addToActive, which
+					// would fire a second "Added" toast.
+					addSymbols(listId, [symbol]);
+					revision.bump();
+				}
+			}
+		});
 	}
 }
 

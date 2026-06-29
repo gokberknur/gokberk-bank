@@ -10,11 +10,19 @@
 
 export type ToastStatus = 'neutral' | 'info' | 'success' | 'warning' | 'error';
 
+/** An optional action affordance — rendered into `gok-toast`'s `action` slot (the
+ * one place the accent is spent). `onClick` runs, then the toast dismisses. */
+export interface ToastAction {
+	label: string;
+	onClick: () => void;
+}
+
 export interface ToastItem {
 	id: number;
 	message: string;
 	status: ToastStatus;
 	duration: number;
+	action?: ToastAction;
 }
 
 class Toasts {
@@ -24,13 +32,18 @@ class Toasts {
 	// and deterministic across the SPA session (and SSR-safe were it ever on).
 	#seq = 0;
 
-	push(message: string, opts?: { status?: ToastStatus; duration?: number }): number {
+	push(
+		message: string,
+		opts?: { status?: ToastStatus; duration?: number; action?: ToastAction }
+	): number {
 		const id = ++this.#seq;
 		this.items.push({
 			id,
 			message,
 			status: opts?.status ?? 'neutral',
-			duration: opts?.duration ?? 4000
+			// With an action, give the user more time to act before auto-dismiss.
+			duration: opts?.duration ?? (opts?.action ? 6000 : 4000),
+			action: opts?.action
 		});
 		return id;
 	}
@@ -43,6 +56,9 @@ class Toasts {
 export const toasts = new Toasts();
 
 /** Convenience shorthand — push a toast and get its id back. */
-export function toast(message: string, opts?: { status?: ToastStatus; duration?: number }): number {
+export function toast(
+	message: string,
+	opts?: { status?: ToastStatus; duration?: number; action?: ToastAction }
+): number {
 	return toasts.push(message, opts);
 }

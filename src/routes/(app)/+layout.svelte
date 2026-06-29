@@ -69,8 +69,21 @@
 		<gok-toast
 			status={t.status}
 			duration={t.duration}
-			{@attach on('gok-dismiss', () => toasts.dismiss(t.id))}>{t.message}</gok-toast
+			{@attach on('gok-dismiss', () => toasts.dismiss(t.id))}
 		>
+			{t.message}
+			{#if t.action}
+				<gok-button
+					slot="action"
+					variant="tertiary"
+					size="s"
+					{@attach on('click', () => {
+						t.action?.onClick();
+						toasts.dismiss(t.id);
+					})}>{t.action.label}</gok-button
+				>
+			{/if}
+		</gok-toast>
 	{/each}
 </gok-toast-region>
 
