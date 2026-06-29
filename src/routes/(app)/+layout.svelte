@@ -5,28 +5,35 @@
 	// desktop, collapsed icon rail on tablet, hidden rail + bottom tab bar on mobile.
 	// The persistent chrome (rail + navbar) is pinned out of the page crossfade via
 	// its own view-transition-name, so only <main> animates between routes.
+	import { untrack } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { goto } from '$app/navigation';
 	import AppSidenav from '$lib/components/shell/AppSidenav.svelte';
 	import AppNavbar from '$lib/components/shell/AppNavbar.svelte';
 	import BottomTabBar from '$lib/components/shell/BottomTabBar.svelte';
-	import CommandPalette from '$lib/components/shell/CommandPalette.svelte';
 	import { toasts } from '$lib/state/toasts.svelte';
 	import { auth } from '$lib/state/auth.svelte';
 	import { command } from '$lib/state/command.svelte';
-	import { on } from '$lib/wc.svelte';
+	import { setProps, on } from '$lib/wc.svelte';
 
 	let { children } = $props();
 
-	// The global command-palette shortcut: Cmd/Ctrl-K toggles it from anywhere — even
-	// while typing in a field — so it's always one keystroke away.
-	function onWindowKeydown(event: KeyboardEvent) {
-		if ((event.metaKey || event.ctrlKey) && (event.key === 'k' || event.key === 'K')) {
-			event.preventDefault();
-			if (command.open) command.close();
-			else command.openPalette();
-		}
+	// The DS `gok-command-menu` owns its own visibility (built-in `hotkey="$mod+K"`,
+	// Escape, scrim). We only capture the element and consume the one-shot `command.open`
+	// intent (set by the navbar Search button) to open it imperatively.
+	let menuEl = $state<(HTMLElement & { show: () => void; close: () => void }) | null>(null);
+	function captureMenu(node: HTMLElement & { show: () => void; close: () => void }) {
+		menuEl = node;
+		return () => {
+			menuEl = null;
+		};
 	}
+	$effect(() => {
+		if (command.open && menuEl) {
+			menuEl.show();
+			untrack(() => (command.open = false));
+		}
+	});
 
 	// Soft client-side guard. This app is a pure SPA (ssr=false), so there's no
 	// server gate: if I'm not signed in, bounce to /login. An effect (not render
@@ -40,8 +47,6 @@
 	// full rail.
 	const tablet = new MediaQuery('(min-width: 40rem) and (max-width: 63.999rem)');
 </script>
-
-<svelte:window onkeydown={onWindowKeydown} />
 
 <a href="#main" class="skip">Skip to content</a>
 
@@ -62,7 +67,19 @@
 
 <BottomTabBar />
 
-<CommandPalette />
+<gok-command-menu
+	label="Search the app"
+	placeholder="Search the app — or type a command"
+	empty-label="No matches — try a different word."
+	hotkey="$mod+K"
+	{@attach captureMenu}
+	{@attach setProps({ commands: command.commands, externalFiltering: true })}
+	{@attach on('gok-input', (e) => command.setQuery((e as CustomEvent<{ query: string }>).detail.query))}
+	{@attach on('gok-select', (e) =>
+		command.recordRecent((e as CustomEvent<{ command: { id: string } }>).detail.command.id)
+	)}
+	{@attach on('gok-close', () => command.close())}
+></gok-command-menu>
 
 <gok-toast-region placement="bottom-end">
 	{#each toasts.items as t (t.id)}

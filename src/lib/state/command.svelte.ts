@@ -1,81 +1,56 @@
-// Command palette state (X03) — open/close, the query, the ranked results (or recent +
-// suggested when empty), and a flat list for keyboard roving. Recent destinations are
-// persisted. Navigation itself is done by the palette component (goto on the chosen
-// item's href); this state just records what was run.
+// Command-menu state (X03, now on the DS `gok-command-menu`). The element owns the
+// overlay, keyboard, and a11y; this state owns only the app side: a one-shot "please
+// open" intent the shell reacts to, the live query, the persisted recents, and the
+// `commands` list handed to the element (which renders it as-given in external-
+// filtering mode). Navigation/actions live on each command; this state just records
+// what was run for the recent list.
 
 import { readJSON, writeJSON } from './persist';
 import { search, suggestedItems, itemsByIds } from '$lib/command/registry';
-import type { SearchItem, SearchGroupResult } from '$lib/command/registry';
+import type { Command } from '$lib/command/registry';
 
 const RECENT_KEY = 'command-recent';
 const RECENT_MAX = 6;
 
 class CommandState {
-	open = $state(false);
+	open = $state(false); // one-shot "please open" intent the shell layout reacts to
 	query = $state('');
-	selectedIndex = $state(0);
 	private recentIds = $state<string[]>(readJSON<string[]>(RECENT_KEY, []));
 
-	/** Ranked, grouped results for the current query ([] when the query is empty). */
-	get results(): SearchGroupResult[] {
-		return search(this.query);
-	}
-
-	get suggested(): SearchItem[] {
-		return suggestedItems();
-	}
-
-	get recent(): SearchItem[] {
+	get recent(): Command[] {
 		return itemsByIds(this.recentIds);
 	}
 
-	get hasQuery(): boolean {
-		return this.query.trim().length > 0;
-	}
-
-	/** The empty-query groups (Recent + Suggested), shown when nothing is typed. */
-	get emptyGroups(): SearchGroupResult[] {
-		const groups: SearchGroupResult[] = [];
-		if (this.recent.length) groups.push({ group: 'Actions', items: this.recent });
-		groups.push({ group: 'Actions', items: this.suggested });
-		return groups;
-	}
-
-	/** The flat, ordered item list the keyboard roves over (matches what's rendered). */
-	get flat(): SearchItem[] {
-		const groups = this.hasQuery ? this.results : this.emptyGroups;
-		return groups.flatMap((g) => g.items);
-	}
-
-	get selected(): SearchItem | undefined {
-		return this.flat[this.selectedIndex];
+	// The commands handed to gok-command-menu (external-filtering renders this list as-given).
+	// Empty query -> Recent + Suggested (deduped); else the ranked, section-grouped search
+	// results flattened in best-score order (so the top hit is the first/active option = Enter target).
+	get commands(): Command[] {
+		const q = this.query.trim();
+		if (!q) {
+			const recentIds = new Set(this.recentIds);
+			const recent = this.recent.map((c) => ({ ...c, section: 'Recent' }));
+			const suggested = suggestedItems()
+				.filter((c) => !recentIds.has(c.id))
+				.map((c) => ({ ...c, section: 'Suggested' }));
+			return [...recent, ...suggested];
+		}
+		return search(q).flatMap((g) => g.items);
 	}
 
 	openPalette() {
-		this.open = true;
 		this.query = '';
-		this.selectedIndex = 0;
+		this.open = true;
 	}
 
 	close() {
 		this.open = false;
 		this.query = '';
-		this.selectedIndex = 0;
 	}
 
 	setQuery(q: string) {
 		this.query = q;
-		this.selectedIndex = 0;
 	}
 
-	/** Move the selection, clamped to the rendered list. */
-	move(delta: number) {
-		const n = this.flat.length;
-		if (n === 0) return;
-		this.selectedIndex = (this.selectedIndex + delta + n) % n;
-	}
-
-	/** Record a run for the recent list (newest first, deduped, capped). */
 	recordRecent(id: string) {
 		this.recentIds = [id, ...this.recentIds.filter((x) => x !== id)].slice(0, RECENT_MAX);
 		writeJSON(RECENT_KEY, this.recentIds);

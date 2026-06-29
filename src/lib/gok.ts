@@ -19,6 +19,7 @@ import '@gokberknur/design-system/gok-button';
 import '@gokberknur/design-system/gok-card';
 import '@gokberknur/design-system/gok-checkbox';
 import '@gokberknur/design-system/gok-combobox';
+import '@gokberknur/design-system/gok-command-menu';
 import '@gokberknur/design-system/gok-date-picker';
 import '@gokberknur/design-system/gok-date-range';
 import '@gokberknur/design-system/gok-dialog';
