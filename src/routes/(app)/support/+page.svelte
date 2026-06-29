@@ -254,20 +254,14 @@
 					{/each}
 				</gok-select>
 
-				<!-- The DS ships no gok-textarea, so this is a tokened <textarea> that
-				     mirrors gok-input's label + reserved-message anatomy. -->
-				<div class="field">
-					<label class="field-label" for="raise-body">Describe it</label>
-					<textarea
-						id="raise-body"
-						class="field-textarea"
-						rows="5"
-						placeholder="What happened, and what I’d like to sort out. The more detail, the faster I can help."
-						value={support.raiseDraft.body}
-						oninput={(e) => support.setRaise({ body: e.currentTarget.value })}
-					></textarea>
-					<p class="field-message">I won’t be blamed — just tell it like it happened.</p>
-				</div>
+				<gok-textarea
+					label="Describe it"
+					helper="I won’t be blamed — just tell it like it happened."
+					rows={5}
+					placeholder="What happened, and what I’d like to sort out. The more detail, the faster I can help."
+					{@attach setProps({ value: support.raiseDraft.body })}
+					{@attach on('input', (e) => support.setRaise({ body: (e.currentTarget as HTMLElement & { value: string }).value }))}
+				></gok-textarea>
 
 				<div class="form-foot">
 					<div class="attach">
@@ -470,51 +464,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-400);
-	}
-
-	.field {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-100);
-	}
-
-	.field-label {
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-label-size, var(--gok-type-body-small-size));
-		line-height: var(--gok-type-body-small-line);
-		font-weight: var(--gok-font-weight-medium);
-		color: var(--gok-color-text);
-	}
-
-	.field-textarea {
-		width: 100%;
-		padding: var(--gok-space-300);
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-regular-line);
-		color: var(--gok-color-text);
-		background: var(--gok-color-surface);
-		border: var(--gok-border-width-hairline) solid var(--gok-color-border);
-		border-radius: var(--gok-radius-200, 6px);
-		resize: vertical;
-	}
-
-	.field-textarea::placeholder {
-		color: var(--gok-color-text-muted);
-	}
-
-	.field-textarea:focus-visible {
-		outline: none;
-		border-color: var(--gok-color-primary);
-		box-shadow: 0 0 0 var(--gok-border-width-hairline) var(--gok-color-primary);
-	}
-
-	.field-message {
-		margin: 0;
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-small-size);
-		line-height: var(--gok-type-body-small-line);
-		color: var(--gok-color-text-muted);
 	}
 
 	.form-foot {

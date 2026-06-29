@@ -13,8 +13,9 @@
 	//
 	// Interop is strictly `setProps`/`on` — never `bind:` on a gok-* host; fields write
 	// into the draft through `patch` (an immutable patch so persistence + reactivity
-	// flow). The native date input and the textarea are app-local (the DS ships no date
-	// control and no gok-textarea), so a plain value/oninput is fine there.
+	// flow), and gok-* values are read off the event — including the gok-textarea
+	// account. The native date input is app-local (the DS ships no date control), so a
+	// plain value/oninput is fine there.
 	import { goto } from '$app/navigation';
 	import { setProps, on } from '$lib/wc.svelte';
 	import { formatDate } from '$lib/format';
@@ -53,7 +54,7 @@
 		patch({ incidentDate: (event.currentTarget as HTMLInputElement).value });
 	}
 	function onDescriptionInput(event: Event) {
-		patch({ description: (event.currentTarget as HTMLTextAreaElement).value });
+		patch({ description: (event.currentTarget as HTMLElement & { value: string }).value });
 	}
 	function onAcknowledgeChange(event: Event) {
 		const checked = (event.target as HTMLElement & { checked?: boolean }).checked ?? false;
@@ -202,22 +203,16 @@
 					</p>
 				</div>
 
-				<!-- Account · tokened <textarea> mirroring gok-input's label + message anatomy. -->
-				<div class="field">
-					<label class="field-label" for="incident-description">Tell me what happened</label>
-					<textarea
-						id="incident-description"
-						class="field-textarea"
-						rows="5"
-						placeholder="In my own words — what happened, and what was affected."
-						aria-describedby="incident-description-message"
-						value={claims.wizard.data.description}
-						oninput={onDescriptionInput}
-					></textarea>
-					<p id="incident-description-message" class="field-message">
-						Just the facts as I remember them — there's no wrong way to tell it.
-					</p>
-				</div>
+				<!-- Account · the form-associated gok-textarea (renders its own label + message). -->
+				<gok-textarea
+					label="Tell me what happened"
+					helper="Just the facts as I remember them — there's no wrong way to tell it."
+					reserve-message
+					rows={5}
+					placeholder="In my own words — what happened, and what was affected."
+					{@attach setProps({ value: claims.wizard.data.description })}
+					{@attach on('input', onDescriptionInput)}
+				></gok-textarea>
 
 				{#if duplicate}
 					<gok-alert status="info">
@@ -583,53 +578,6 @@
 	}
 
 	.date-message {
-		min-block-size: var(--gok-type-body-small-line);
-		margin: 0;
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-small-size);
-		line-height: var(--gok-type-body-small-line);
-		color: var(--gok-color-text-muted);
-	}
-
-	/* --- Native textarea, mirroring gok-input's label + message anatomy --- */
-	.field {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-100);
-	}
-
-	.field-label {
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-small-size);
-		line-height: var(--gok-type-body-small-line);
-		font-weight: var(--gok-font-weight-medium);
-		color: var(--gok-color-text);
-	}
-
-	.field-textarea {
-		inline-size: 100%;
-		padding: var(--gok-space-300);
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-regular-line);
-		color: var(--gok-color-text);
-		background: var(--gok-color-surface);
-		border: var(--gok-border-width-hairline) solid var(--gok-color-border-strong);
-		border-radius: var(--gok-radius-m);
-		resize: vertical;
-	}
-
-	.field-textarea::placeholder {
-		color: var(--gok-color-text-muted);
-	}
-
-	.field-textarea:focus-visible {
-		outline: none;
-		border-color: var(--gok-color-primary);
-		box-shadow: 0 0 0 var(--gok-border-width-hairline) var(--gok-color-primary);
-	}
-
-	.field-message {
 		min-block-size: var(--gok-type-body-small-line);
 		margin: 0;
 		font-family: var(--gok-font-family-text);

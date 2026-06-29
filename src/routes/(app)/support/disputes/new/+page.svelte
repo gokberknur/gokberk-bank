@@ -17,8 +17,7 @@
 	//
 	// Interop is strictly `setProps` / `on` — never `bind:` on a gok-* host; fields write
 	// into the draft through `patch` (an immutable patch so persistence + reactivity both
-	// flow), and gok-* values are read off the event. The native <textarea> is app-local
-	// (the DS ships no gok-textarea), so a plain value / oninput is fine there.
+	// flow), and gok-* values are read off the event — including the gok-textarea statement.
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { setProps, on } from '$lib/wc.svelte';
@@ -105,7 +104,7 @@
 
 	// ── Step 3 · details. Native textarea + the merchant-first Yes/No segmented. ──
 	function onStatementInput(event: Event) {
-		patch({ statement: (event.currentTarget as HTMLTextAreaElement).value });
+		patch({ statement: (event.currentTarget as HTMLElement & { value: string }).value });
 	}
 	function onContactedChange(event: Event) {
 		const value = (event.target as HTMLElement & { value?: string }).value ?? '';
@@ -275,22 +274,15 @@
 		{#if disputes.wizard.current.id === 'details'}
 			<!-- Step 3 · tell me more — the account, and the merchant-first question. -->
 			<section class="step fields" aria-label="Tell me more">
-				<!-- Statement · tokened <textarea> mirroring gok-input's label + message anatomy. -->
-				<div class="field">
-					<label class="field-label" for="dispute-statement">Tell me what happened</label>
-					<textarea
-						id="dispute-statement"
-						class="field-textarea"
-						rows="5"
-						placeholder="In my own words — what happened with this charge."
-						aria-describedby="dispute-statement-message"
-						value={disputes.wizard.data.statement}
-						oninput={onStatementInput}
-					></textarea>
-					<p id="dispute-statement-message" class="field-message">
-						Just the facts as I remember them — there's no wrong way to tell it.
-					</p>
-				</div>
+				<gok-textarea
+					label="Tell me what happened"
+					helper="Just the facts as I remember them — there's no wrong way to tell it."
+					reserve-message
+					rows={5}
+					placeholder="In my own words — what happened with this charge."
+					{@attach setProps({ value: disputes.wizard.data.statement })}
+					{@attach on('input', onStatementInput)}
+				></gok-textarea>
 
 				{#if needsMerchant}
 					<!-- Merchant-first branch · asked once for not-received / faulty, never blaming. -->
@@ -656,51 +648,11 @@
 		color: var(--gok-color-text);
 	}
 
-	/* --- Native textarea, mirroring gok-input's label + message anatomy --- */
+	/* --- Field group (wraps the merchant-first segmented control) --- */
 	.field {
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-100);
-	}
-
-	.field-label {
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-small-size);
-		line-height: var(--gok-type-body-small-line);
-		font-weight: var(--gok-font-weight-medium);
-		color: var(--gok-color-text);
-	}
-
-	.field-textarea {
-		inline-size: 100%;
-		padding: var(--gok-space-300);
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-regular-line);
-		color: var(--gok-color-text);
-		background: var(--gok-color-surface);
-		border: var(--gok-border-width-hairline) solid var(--gok-color-border-strong);
-		border-radius: var(--gok-radius-m);
-		resize: vertical;
-	}
-
-	.field-textarea::placeholder {
-		color: var(--gok-color-text-muted);
-	}
-
-	.field-textarea:focus-visible {
-		outline: none;
-		border-color: var(--gok-color-primary);
-		box-shadow: 0 0 0 var(--gok-border-width-hairline) var(--gok-color-primary);
-	}
-
-	.field-message {
-		min-block-size: var(--gok-type-body-small-line);
-		margin: 0;
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-small-size);
-		line-height: var(--gok-type-body-small-line);
-		color: var(--gok-color-text-muted);
 	}
 
 	/* --- Evidence --- */

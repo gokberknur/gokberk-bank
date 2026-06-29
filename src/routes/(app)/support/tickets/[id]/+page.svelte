@@ -8,7 +8,7 @@
 	import { page } from '$app/state';
 	import { support, TICKET_STATUS_LABELS } from '$lib/state/support.svelte';
 	import type { TicketStatus } from '$lib/state/support.svelte';
-	import { on } from '$lib/wc.svelte';
+	import { setProps, on } from '$lib/wc.svelte';
 	import { formatDate } from '$lib/format';
 
 	const ticket = $derived(page.params.id ? support.ticket(page.params.id) : undefined);
@@ -20,6 +20,10 @@
 	function sendReply() {
 		if (!ticket || !canReply) return;
 		if (support.reply(ticket.id, replyBody)) replyBody = '';
+	}
+
+	function onReplyInput(e: Event) {
+		replyBody = (e.currentTarget as HTMLElement & { value: string }).value;
 	}
 </script>
 
@@ -113,18 +117,13 @@
 				</p>
 			{/if}
 
-			<!-- The DS ships no gok-textarea, so this is a tokened <textarea> that
-			     mirrors gok-input's label + reserved-message anatomy. -->
-			<div class="field">
-				<label class="field-label" for="reply-body">My reply</label>
-				<textarea
-					id="reply-body"
-					class="field-textarea"
-					rows="4"
-					placeholder="Add to the conversation…"
-					bind:value={replyBody}
-				></textarea>
-			</div>
+			<gok-textarea
+				label="My reply"
+				rows={4}
+				placeholder="Add to the conversation…"
+				{@attach setProps({ value: replyBody })}
+				{@attach on('input', onReplyInput)}
+			></gok-textarea>
 
 			<div class="reply-foot">
 				<gok-button variant="primary" disabled={!canReply} {@attach on('click', sendReply)}>
@@ -317,43 +316,6 @@
 		font-size: var(--gok-type-body-small-size);
 		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
-	}
-
-	.field {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-100);
-	}
-
-	.field-label {
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-label-size, var(--gok-type-body-small-size));
-		line-height: var(--gok-type-body-small-line);
-		font-weight: var(--gok-font-weight-medium);
-		color: var(--gok-color-text);
-	}
-
-	.field-textarea {
-		width: 100%;
-		padding: var(--gok-space-300);
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-regular-line);
-		color: var(--gok-color-text);
-		background: var(--gok-color-surface);
-		border: var(--gok-border-width-hairline) solid var(--gok-color-border);
-		border-radius: var(--gok-radius-200, 6px);
-		resize: vertical;
-	}
-
-	.field-textarea::placeholder {
-		color: var(--gok-color-text-muted);
-	}
-
-	.field-textarea:focus-visible {
-		outline: none;
-		border-color: var(--gok-color-primary);
-		box-shadow: 0 0 0 var(--gok-border-width-hairline) var(--gok-color-primary);
 	}
 
 	.reply-foot {
