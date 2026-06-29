@@ -97,7 +97,7 @@
 			const wrap = document.createElement('div');
 			wrap.style.display = 'flex';
 			wrap.style.flexDirection = 'column';
-			wrap.style.gap = 'var(--gok-space-50)';
+			wrap.style.gap = 'var(--gok-space-100)';
 			const name = document.createElement('span');
 			name.textContent = row.payeeName;
 			name.style.color = 'var(--gok-color-text)';

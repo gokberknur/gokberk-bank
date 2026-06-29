@@ -159,7 +159,7 @@
 
 	.tier-mark {
 		display: block;
-		margin-block-start: var(--gok-space-50, 2px);
+		margin-block-start: var(--gok-space-100);
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-eyebrow-size);
 		letter-spacing: var(--gok-type-eyebrow-tracking);

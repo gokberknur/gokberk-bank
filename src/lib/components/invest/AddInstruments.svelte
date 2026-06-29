@@ -230,7 +230,7 @@
 	.filter {
 		inline-size: 100%;
 		padding: var(--gok-space-200) var(--gok-space-300);
-		border: var(--gok-border-width-thin, 1px) solid var(--gok-color-border-strong);
+		border: var(--gok-border-width-hairline) solid var(--gok-color-border-strong);
 		border-radius: var(--gok-radius-m);
 		background: var(--gok-color-surface);
 		font-family: var(--gok-font-family-text);
@@ -244,7 +244,7 @@
 	}
 
 	.filter:focus-visible {
-		outline: var(--gok-border-width-thin, 2px) solid var(--gok-color-focus, var(--gok-color-primary));
+		outline: var(--gok-focus-ring-width) solid var(--gok-color-focus-ring);
 		outline-offset: 1px;
 		border-color: var(--gok-color-primary);
 	}
@@ -306,7 +306,7 @@
 		flex: none;
 		inline-size: 1.125rem;
 		block-size: 1.125rem;
-		border: var(--gok-border-width-thin, 1px) solid var(--gok-color-border-strong);
+		border: var(--gok-border-width-hairline) solid var(--gok-color-border-strong);
 		border-radius: var(--gok-radius-s);
 		color: var(--gok-color-text-on-primary);
 	}
@@ -319,7 +319,7 @@
 	.opt-main {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gok-space-50);
+		gap: var(--gok-space-100);
 		min-inline-size: 0;
 		flex: 1 1 auto;
 	}
@@ -342,7 +342,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-end;
-		gap: var(--gok-space-50);
+		gap: var(--gok-space-100);
 		flex: none;
 	}
 

@@ -323,7 +323,7 @@
 	.meta-link:focus-visible {
 		outline: var(--gok-focus-ring-width) solid var(--gok-color-primary);
 		outline-offset: var(--gok-focus-ring-offset);
-		border-radius: var(--gok-radius-xs, var(--gok-radius-s));
+		border-radius: var(--gok-radius-s);
 	}
 
 	/* ── Blocks ── */
@@ -453,7 +453,7 @@
 	.doc-text {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gok-space-50);
+		gap: var(--gok-space-100);
 	}
 
 	.doc-label {

@@ -451,7 +451,7 @@
 	.doc-meta-row {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gok-space-50, 0.125rem);
+		gap: var(--gok-space-100);
 	}
 
 	.doc-meta-row dt {

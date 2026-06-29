@@ -116,7 +116,7 @@
 	.meta {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gok-space-50, 2px);
+		gap: var(--gok-space-100);
 		flex: 1 1 auto;
 		min-inline-size: 0;
 	}
@@ -161,7 +161,7 @@
 	.figure {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gok-space-50, 2px);
+		gap: var(--gok-space-100);
 	}
 
 	.figure-label {

@@ -759,7 +759,7 @@
 	.addon-text {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gok-space-50);
+		gap: var(--gok-space-100);
 	}
 
 	.addon-label {
@@ -932,7 +932,7 @@
 	.cover-text {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gok-space-50);
+		gap: var(--gok-space-100);
 	}
 
 	.cover-label {

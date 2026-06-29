@@ -277,7 +277,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-end;
-		gap: var(--gok-space-50, 2px);
+		gap: var(--gok-space-100);
 		margin: 0;
 		text-align: end;
 	}
@@ -299,7 +299,7 @@
 	.postal {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gok-space-50, 2px);
+		gap: var(--gok-space-100);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
 		line-height: var(--gok-type-body-regular-line);

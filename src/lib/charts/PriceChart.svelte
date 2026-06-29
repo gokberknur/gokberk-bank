@@ -228,7 +228,7 @@
 	.credit {
 		margin-block-start: var(--gok-space-100);
 		font-family: var(--gok-font-family-mono);
-		font-size: var(--gok-font-size-50);
+		font-size: var(--gok-type-footnote-size);
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
 		color: var(--gok-color-text-muted);

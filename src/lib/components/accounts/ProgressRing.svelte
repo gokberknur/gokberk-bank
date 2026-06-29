@@ -137,7 +137,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: var(--gok-space-50, 2px);
+		gap: var(--gok-space-100);
 		text-align: center;
 	}
 
@@ -152,7 +152,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: var(--gok-space-50, 2px);
+		gap: var(--gok-space-100);
 	}
 
 	@media (prefers-reduced-motion: reduce) {

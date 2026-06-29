@@ -202,7 +202,7 @@
 	.meta-item {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gok-space-50, 2px);
+		gap: var(--gok-space-100);
 	}
 
 	.meta-label {
@@ -250,19 +250,19 @@
 		max-inline-size: 44rem;
 		padding: var(--gok-space-300) var(--gok-space-400);
 		border: var(--gok-border-width-hairline) solid var(--gok-color-border);
-		border-radius: var(--gok-radius-300, 8px);
+		border-radius: var(--gok-radius-l);
 		background: var(--gok-color-surface);
 	}
 
 	/* My own messages get a faint tint + a trimmed corner so the two voices read
 	   apart without leaning on colour alone (the author label carries the meaning). */
 	.msg-me .bubble {
-		background: var(--gok-color-surface-raised, var(--gok-color-surface));
-		border-start-end-radius: var(--gok-radius-100, 2px);
+		background: var(--gok-color-surface);
+		border-start-end-radius: var(--gok-radius-s);
 	}
 
 	.msg:not(.msg-me) .bubble {
-		border-start-start-radius: var(--gok-radius-100, 2px);
+		border-start-start-radius: var(--gok-radius-s);
 	}
 
 	.bubble-head {

@@ -261,8 +261,8 @@
 		display: inline-flex;
 		align-items: center;
 		gap: var(--gok-space-100);
-		padding: var(--gok-space-150, var(--gok-space-100)) var(--gok-space-300);
-		border: var(--gok-border-width-thin, 1px) solid var(--gok-color-border);
+		padding: var(--gok-space-100) var(--gok-space-300);
+		border: var(--gok-border-width-hairline) solid var(--gok-color-border);
 		border-radius: var(--gok-radius-pill);
 		background: var(--gok-color-surface);
 		font-family: var(--gok-font-family-text);
@@ -278,7 +278,7 @@
 	}
 
 	.tab:focus-visible {
-		outline: var(--gok-border-width-thin, 2px) solid var(--gok-color-focus, var(--gok-color-primary));
+		outline: var(--gok-focus-ring-width) solid var(--gok-color-focus-ring);
 		outline-offset: 2px;
 	}
 
@@ -320,7 +320,7 @@
 	.list-titles {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gok-space-50);
+		gap: var(--gok-space-100);
 	}
 
 	.list-name {

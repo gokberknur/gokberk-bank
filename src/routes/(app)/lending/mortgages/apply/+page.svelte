@@ -984,7 +984,7 @@
 		flex: none;
 		inline-size: 1.25rem;
 		block-size: 1.25rem;
-		margin-block-start: var(--gok-space-50, 0.125rem);
+		margin-block-start: var(--gok-space-100);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -995,7 +995,7 @@
 	.doc-text {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gok-space-50, 0.125rem);
+		gap: var(--gok-space-100);
 		min-inline-size: 0;
 	}
 
@@ -1157,7 +1157,7 @@
 		flex: none;
 		inline-size: 1.1rem;
 		block-size: 1.1rem;
-		margin-block-start: var(--gok-space-50, 0.125rem);
+		margin-block-start: var(--gok-space-100);
 		border: var(--gok-border-width-strong) solid var(--gok-color-border-strong);
 		border-radius: var(--gok-radius-pill);
 	}

@@ -79,7 +79,7 @@
 			const wrap = document.createElement('div');
 			wrap.style.display = 'flex';
 			wrap.style.flexDirection = 'column';
-			wrap.style.gap = 'var(--gok-space-50)';
+			wrap.style.gap = 'var(--gok-space-100)';
 			const name = document.createElement('span');
 			name.textContent = row.creditorName;
 			name.style.color = 'var(--gok-color-text)';
@@ -98,7 +98,7 @@
 			const wrap = document.createElement('div');
 			wrap.style.display = 'flex';
 			wrap.style.flexDirection = 'column';
-			wrap.style.gap = 'var(--gok-space-50)';
+			wrap.style.gap = 'var(--gok-space-100)';
 			const amount = tnum(formatMoney(c.amountMinor, row.currency));
 			amount.style.color = 'var(--gok-color-text)';
 			const date = tnum(formatDate(c.dateIso));
@@ -863,7 +863,7 @@
 
 	.choice-status {
 		font-family: var(--gok-font-family-mono);
-		font-size: var(--gok-type-label-small-size, var(--gok-type-body-small-size));
+		font-size: var(--gok-type-body-small-size);
 		line-height: var(--gok-type-body-small-line);
 		text-transform: uppercase;
 		letter-spacing: 0.04em;

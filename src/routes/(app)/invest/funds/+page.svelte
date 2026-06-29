@@ -390,7 +390,7 @@
 	}
 
 	.clear:focus-visible {
-		outline: var(--gok-focus-ring-width) solid var(--gok-color-focus, var(--gok-color-primary));
+		outline: var(--gok-focus-ring-width) solid var(--gok-color-focus-ring);
 		outline-offset: var(--gok-focus-ring-offset);
 		border-radius: var(--gok-radius-s);
 	}
@@ -425,7 +425,7 @@
 	.sheet-id {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gok-space-50);
+		gap: var(--gok-space-100);
 	}
 
 	.sheet-ticker {
@@ -521,8 +521,8 @@
 	}
 
 	.holdings-item {
-		padding: var(--gok-space-50) var(--gok-space-200);
-		border: var(--gok-border-width-thin, 1px) solid var(--gok-color-border);
+		padding: var(--gok-space-100) var(--gok-space-200);
+		border: var(--gok-border-width-hairline) solid var(--gok-color-border);
 		border-radius: var(--gok-radius-pill);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);

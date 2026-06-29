@@ -413,7 +413,7 @@
 	.delta-line {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gok-space-50);
+		gap: var(--gok-space-100);
 		margin: 0;
 	}
 
@@ -574,7 +574,7 @@
 	}
 
 	.grid thead th {
-		border-block-end: var(--gok-border-width-thin, 1px) solid var(--gok-color-border-strong);
+		border-block-end: var(--gok-border-width-hairline) solid var(--gok-color-border-strong);
 		font-weight: var(--gok-font-weight-regular);
 		text-align: start;
 		color: var(--gok-color-text-muted);
@@ -611,7 +611,7 @@
 	}
 
 	.sort-btn:focus-visible {
-		outline: var(--gok-border-width-thin, 2px) solid var(--gok-color-focus, var(--gok-color-primary));
+		outline: var(--gok-focus-ring-width) solid var(--gok-color-focus-ring);
 		outline-offset: 2px;
 		border-radius: var(--gok-radius-s);
 	}
@@ -630,23 +630,23 @@
 	}
 
 	.row:hover {
-		background: var(--gok-color-surface-subtle, var(--gok-color-surface-strong));
+		background: var(--gok-color-surface-strong);
 	}
 
 	.row:focus-within {
-		background: var(--gok-color-surface-subtle, var(--gok-color-surface-strong));
+		background: var(--gok-color-surface-strong);
 	}
 
 	.sym-link {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gok-space-50);
+		gap: var(--gok-space-100);
 		text-decoration: none;
 		color: inherit;
 	}
 
 	.sym-link:focus-visible {
-		outline: var(--gok-border-width-thin, 2px) solid var(--gok-color-focus, var(--gok-color-primary));
+		outline: var(--gok-focus-ring-width) solid var(--gok-color-focus-ring);
 		outline-offset: 2px;
 		border-radius: var(--gok-radius-s);
 	}
@@ -668,7 +668,7 @@
 	.cell-delta {
 		display: inline-flex;
 		align-items: baseline;
-		gap: var(--gok-space-50);
+		gap: var(--gok-space-100);
 		justify-content: flex-end;
 	}
 

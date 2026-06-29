@@ -611,7 +611,7 @@
 	}
 
 	.sym-name {
-		font-size: var(--gok-font-size-50);
+		font-size: var(--gok-type-footnote-size);
 		color: var(--gok-color-text-muted);
 	}
 

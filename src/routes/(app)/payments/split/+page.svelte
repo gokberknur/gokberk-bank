@@ -767,7 +767,7 @@
 	.row-name {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gok-space-50);
+		gap: var(--gok-space-100);
 		min-inline-size: 0;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);

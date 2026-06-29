@@ -368,7 +368,7 @@
 		max-inline-size: 60ch;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-relaxed-line, var(--gok-type-body-regular-line));
+		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -413,15 +413,15 @@
 	}
 
 	.ticket-link:focus-visible {
-		outline: var(--gok-border-width-thick, 2px) solid var(--gok-color-primary);
+		outline: var(--gok-border-width-regular) solid var(--gok-color-primary);
 		outline-offset: var(--gok-space-100);
-		border-radius: var(--gok-radius-200, 4px);
+		border-radius: var(--gok-radius-m);
 	}
 
 	.ticket-main {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gok-space-50, 2px);
+		gap: var(--gok-space-100);
 		min-inline-size: 0;
 	}
 
@@ -488,7 +488,7 @@
 	.chat-copy {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gok-space-50, 2px);
+		gap: var(--gok-space-100);
 	}
 
 	.chat-title {

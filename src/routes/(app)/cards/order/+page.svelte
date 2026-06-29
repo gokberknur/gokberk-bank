@@ -491,7 +491,7 @@
 	.choice-label {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gok-space-50, 2px);
+		gap: var(--gok-space-100);
 	}
 
 	.choice-head {
@@ -581,7 +581,7 @@
 	.review-cell {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gok-space-50, 2px);
+		gap: var(--gok-space-100);
 		min-inline-size: 0;
 	}
 

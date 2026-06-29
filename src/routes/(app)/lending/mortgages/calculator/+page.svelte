@@ -442,7 +442,7 @@
 	.range:focus-visible {
 		outline: var(--gok-border-width-strong) solid var(--gok-color-primary);
 		outline-offset: var(--gok-space-100);
-		border-radius: var(--gok-radius-100);
+		border-radius: var(--gok-radius-s);
 	}
 
 	.range-scale {

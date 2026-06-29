@@ -584,7 +584,7 @@
 	.evidence-main {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gok-space-50, 2px);
+		gap: var(--gok-space-100);
 		flex: 1 1 auto;
 		min-inline-size: 0;
 	}
@@ -653,7 +653,7 @@
 	.review-cell {
 		display: flex;
 		flex-direction: column;
-		gap: var(--gok-space-50, 2px);
+		gap: var(--gok-space-100);
 		min-inline-size: 0;
 	}
 

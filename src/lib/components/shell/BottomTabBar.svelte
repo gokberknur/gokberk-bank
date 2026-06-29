@@ -242,8 +242,8 @@
 		color: var(--gok-color-text);
 		border-radius: var(--gok-radius-s);
 		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-size);
-		line-height: var(--gok-type-body-line);
+		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		transition:
 			color var(--gok-motion-duration-fast) var(--gok-motion-ease-standard),
 			background var(--gok-motion-duration-fast) var(--gok-motion-ease-standard);

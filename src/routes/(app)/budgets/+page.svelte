@@ -610,7 +610,7 @@
 	}
 
 	.ledger-row.is-total {
-		border-block-end: var(--gok-border-width-thin, 1px) solid var(--gok-color-border-strong);
+		border-block-end: var(--gok-border-width-hairline) solid var(--gok-color-border-strong);
 	}
 
 	.ledger-label {
@@ -713,7 +713,7 @@
 		gap: var(--gok-space-100) var(--gok-space-200);
 		padding: var(--gok-space-300);
 		border: var(--gok-border-width-hairline) solid var(--gok-color-border);
-		border-radius: var(--gok-radius-200);
+		border-radius: var(--gok-radius-m);
 	}
 
 	.sub-merchant {
@@ -736,7 +736,7 @@
 	.sub-cadence {
 		grid-column: 1 / 2;
 		font-family: var(--gok-font-family-mono);
-		font-size: var(--gok-font-size-50);
+		font-size: var(--gok-type-footnote-size);
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
 		color: var(--gok-color-text-muted);
@@ -801,7 +801,7 @@
 
 	.mom-prior {
 		font-family: var(--gok-font-family-mono);
-		font-size: var(--gok-font-size-50);
+		font-size: var(--gok-type-footnote-size);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -809,7 +809,7 @@
 	.delta {
 		display: inline-flex;
 		align-items: baseline;
-		gap: var(--gok-space-50);
+		gap: var(--gok-space-100);
 		min-inline-size: 6rem;
 		justify-content: flex-end;
 		font-family: var(--gok-font-family-text);
@@ -831,7 +831,7 @@
 	}
 
 	.delta-pct {
-		font-size: var(--gok-font-size-50);
+		font-size: var(--gok-type-footnote-size);
 	}
 
 	/* ── Empty ── */
