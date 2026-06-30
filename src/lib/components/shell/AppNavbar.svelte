@@ -47,9 +47,10 @@
 </script>
 
 <header class="navbar">
-	<a class="brand" href="/home">gökberk<span class="dot">.</span> bank</a>
-
-	<div class="spacer"></div>
+	<a class="brand" href="/home" aria-label="gökberk bank — home">
+		<span class="brand__full">gökberk<span class="dot">.</span> bank</span>
+		<span class="brand__mark" aria-hidden="true">g<span class="dot">.</span></span>
+	</a>
 
 	<div class="actions">
 		<gok-button variant="secondary" accessible-label="Search" {@attach on('click', openSearch)}>
@@ -88,15 +89,21 @@
 </header>
 
 <style>
+	/* The top bar spans the full width of the shell. The brand is a fixed block as wide as
+	   the rail below it (it reads the same `--gok-app-shell-rail-width`), with a hairline that
+	   continues the rail's edge — so the logo sits squarely top-left above the side nav. */
 	.navbar {
 		display: flex;
-		align-items: center;
-		gap: var(--gok-space-300);
-		padding-inline: var(--gok-space-500);
-		padding-block: var(--gok-space-300);
+		align-items: stretch;
 	}
 
 	.brand {
+		flex: none;
+		display: inline-flex;
+		align-items: center;
+		inline-size: var(--gok-app-shell-rail-width, 17rem);
+		padding-inline: var(--gok-space-400);
+		border-inline-end: var(--gok-border-width-hairline) solid var(--gok-color-border);
 		font-family: var(--gok-font-family-display);
 		font-size: var(--gok-type-headline-6-size);
 		font-weight: var(--gok-font-weight-semibold);
@@ -108,7 +115,7 @@
 
 	.brand:focus-visible {
 		outline: var(--gok-border-width-strong) solid var(--gok-color-primary);
-		outline-offset: var(--gok-space-100);
+		outline-offset: calc(-1 * var(--gok-border-width-strong));
 		border-radius: var(--gok-radius-s);
 	}
 
@@ -116,13 +123,45 @@
 		color: var(--gok-color-primary);
 	}
 
-	.spacer {
-		flex: 1 1 auto;
+	.brand__mark {
+		display: none;
 	}
 
 	.actions {
+		flex: 1 1 auto;
+		min-inline-size: 0;
 		display: flex;
 		align-items: center;
+		justify-content: flex-end;
 		gap: var(--gok-space-200);
+		padding-inline: var(--gok-space-500);
+		padding-block: var(--gok-space-300);
+	}
+
+	/* Tablet (40–64rem): the rail is a collapsed icon rail, so the brand block shrinks with
+	   it — swap the wordmark for the compact mark, centered. */
+	@media (min-width: 40rem) and (max-width: 63.999rem) {
+		.brand {
+			justify-content: center;
+			padding-inline: var(--gok-space-200);
+		}
+
+		.brand__full {
+			display: none;
+		}
+
+		.brand__mark {
+			display: inline;
+		}
+	}
+
+	/* Mobile (<40rem): the rail is hidden, so the top bar is a single full-width row —
+	   the brand returns to its natural width with no divider. */
+	@media (max-width: 39.999rem) {
+		.brand {
+			inline-size: auto;
+			border-inline-end: none;
+			padding-inline: var(--gok-space-400);
+		}
 	}
 </style>

@@ -7,7 +7,7 @@
 	// its own view-transition-name, so only <main> animates between routes.
 	import { untrack } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
-	import { goto } from '$app/navigation';
+	import { afterNavigate, goto } from '$app/navigation';
 	import AppSidenav from '$lib/components/shell/AppSidenav.svelte';
 	import AppNavbar from '$lib/components/shell/AppNavbar.svelte';
 	import BottomTabBar from '$lib/components/shell/BottomTabBar.svelte';
@@ -46,23 +46,31 @@
 	// rail is hidden entirely (the bottom bar takes over); at/above 64rem it is the
 	// full rail.
 	const tablet = new MediaQuery('(min-width: 40rem) and (max-width: 63.999rem)');
+
+	// The scroll container is now `.gok-app-shell__main` (the shell pins the chrome and
+	// only the content scrolls), so SvelteKit's window-based scroll handling can't reach
+	// it. Reset it to the top on each route change — but let in-page anchors (e.g. the
+	// skip link's #main) win when the target carries a hash.
+	afterNavigate((nav) => {
+		if (nav.to?.url.hash) return;
+		document.getElementById('main')?.scrollTo({ top: 0 });
+	});
 </script>
 
 <a href="#main" class="skip">Skip to content</a>
 
-<div class="shell">
-	<div class="rail">
-		<AppSidenav collapsed={tablet.current} />
+<div class="shell gok-app-shell" class:is-tablet={tablet.current}>
+	<div class="topbar gok-app-shell__topbar">
+		<AppNavbar />
 	</div>
 
-	<div class="content">
-		<div class="navbar-wrap">
-			<AppNavbar />
-		</div>
-		<main id="main" class="main">
-			{@render children()}
-		</main>
-	</div>
+	<aside class="rail gok-app-shell__rail">
+		<AppSidenav collapsed={tablet.current} />
+	</aside>
+
+	<main id="main" class="main gok-app-shell__main">
+		{@render children()}
+	</main>
 </div>
 
 <BottomTabBar />
@@ -128,45 +136,40 @@
 		outline-offset: var(--gok-space-100);
 	}
 
-	.shell {
-		display: flex;
-		align-items: stretch;
-		min-block-size: 100dvh;
+	/* The shell layout (pinned top bar + rail, scrolling content) comes from the DS
+	   `.gok-app-shell` utility. We only set app chrome + the responsive rail width. */
+
+	/* Tablet (40–64rem): the rail collapses to the icon rail, so the grid column
+	   (and the brand block above it, which reads the same var) follow it down. */
+	.shell.is-tablet {
+		--gok-app-shell-rail-width: var(--gok-sidenav-rail-width, 3.5rem);
 	}
 
-	.rail {
-		view-transition-name: app-rail;
-		flex: none;
-		border-inline-end: var(--gok-border-width-hairline) solid var(--gok-color-border);
-		background: var(--gok-color-surface);
-	}
-
-	.content {
-		flex: 1 1 auto;
-		min-inline-size: 0;
-		display: flex;
-		flex-direction: column;
-	}
-
-	.navbar-wrap {
+	.topbar {
 		view-transition-name: app-navbar;
-		position: sticky;
-		inset-block-start: 0;
-		z-index: var(--gok-z-sticky);
 		background: var(--gok-color-surface-translucent);
 		backdrop-filter: blur(var(--gok-blur-chrome));
 		border-block-end: var(--gok-border-width-hairline) solid var(--gok-color-border);
 	}
 
+	.rail {
+		view-transition-name: app-rail;
+		border-inline-end: var(--gok-border-width-hairline) solid var(--gok-color-border);
+		background: var(--gok-color-surface);
+	}
+
 	.main {
-		flex: 1 1 auto;
-		min-inline-size: 0;
 		padding-inline: var(--gok-space-500);
 		padding-block: var(--gok-space-600);
 	}
 
-	/* Mobile: rail hidden, bottom bar shown — pad the content so it clears the bar. */
+	/* Mobile: one column, rail hidden, bottom bar shown — pad content to clear the bar. */
 	@media (max-width: 39.999rem) {
+		.shell {
+			grid-template-columns: 1fr;
+			grid-template-areas: 'topbar' 'main';
+		}
+
 		.rail {
 			display: none;
 		}

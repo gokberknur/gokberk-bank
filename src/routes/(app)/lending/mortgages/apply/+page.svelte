@@ -124,7 +124,8 @@
 	function goToStep(next: Step) {
 		step = next;
 		if (next === 'decision') decisionState = app.draft.decided ? 'result' : 'consent';
-		if (typeof window !== 'undefined') window.scrollTo({ top: 0 });
+		// The app shell's scroll container is `#main`, not the window.
+		document.getElementById('main')?.scrollTo({ top: 0 });
 	}
 
 	function continueFromProperty() {

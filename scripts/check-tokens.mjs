@@ -31,7 +31,13 @@ const TOKENS = new Set(manifest.tokens);
 // are NOT design tokens (so absent from the manifest). Empty today — the app sets
 // component props as declarations, it doesn't read them. Add with a reason if that
 // changes, rather than loosening the check.
-const ALLOWLIST = new Set([]);
+const ALLOWLIST = new Set([
+	// Public component override hooks (documented @cssprop, with fallbacks) that the
+	// app shell legitimately READS to keep the top bar's brand block and the rail
+	// column the same width — not design tokens, so absent from the manifest.
+	'--gok-app-shell-rail-width', // .gok-app-shell rail-column width (defaults to --gok-sidenav-width)
+	'--gok-sidenav-rail-width' // gok-sidenav collapsed/icon-rail width (defaults to 3.5rem)
+]);
 
 const EXTS = ['.svelte', '.ts', '.css', '.svelte.ts'];
 const VAR_RE = /var\(\s*(--gok-[a-z0-9-]+)/g;
