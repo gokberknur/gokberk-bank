@@ -4,6 +4,7 @@
 	// events arrive via the `on` attachment; object/boolean props go in via
 	// setProps. Search/notifications/most menu items are deliberate no-ops for now
 	// (their surfaces land in later features) — never a 404.
+	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { session } from '$lib/state/session.svelte';
 	import { density } from '$lib/state/density.svelte';
@@ -11,6 +12,12 @@
 	import { command } from '$lib/state/command.svelte';
 	import { setProps, on } from '$lib/wc.svelte';
 	import NavIcon from './NavIcon.svelte';
+
+	let modLabel = $state('⌘K');
+	onMount(() => {
+		if (/mac/i.test(navigator.userAgent)) modLabel = '⌘K';
+		else modLabel = 'Ctrl K';
+	});
 
 	function openSearch() {
 		command.openPalette();
@@ -52,8 +59,21 @@
 		<span class="brand__mark" aria-hidden="true">g<span class="dot">.</span></span>
 	</a>
 
+	<div class="search">
+		<button type="button" class="omnisearch" {@attach on('click', openSearch)}>
+			<span class="omnisearch-icon" aria-hidden="true"><NavIcon name="search" /></span>
+			<span class="omnisearch-text">Search the app</span>
+			<kbd class="omnisearch-kbd" aria-hidden="true">{modLabel}</kbd>
+		</button>
+	</div>
+
 	<div class="actions">
-		<gok-button variant="secondary" accessible-label="Search" {@attach on('click', openSearch)}>
+		<gok-button
+			variant="secondary"
+			class="nav-search-icon"
+			accessible-label="Search"
+			{@attach on('click', openSearch)}
+		>
 			<NavIcon slot="icon" name="search" />
 		</gok-button>
 
@@ -127,8 +147,66 @@
 		display: none;
 	}
 
-	.actions {
+	.search {
 		flex: 1 1 auto;
+		min-inline-size: 0;
+		display: none;
+		align-items: center;
+		justify-content: center;
+		padding-inline: var(--gok-space-500);
+	}
+
+	.omnisearch {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--gok-space-200);
+		inline-size: 100%;
+		max-inline-size: 30rem;
+		padding-block: var(--gok-space-200);
+		padding-inline: var(--gok-space-300);
+		border: var(--gok-border-width-hairline) solid var(--gok-color-border);
+		border-radius: var(--gok-radius-m);
+		background: var(--gok-color-surface);
+		font-family: var(--gok-font-family-text);
+		font-size: var(--gok-type-body-small-size);
+		color: var(--gok-color-text-muted);
+		cursor: pointer;
+		text-align: start;
+	}
+
+	.omnisearch:hover {
+		background: var(--gok-color-surface-strong);
+		border-color: var(--gok-color-border-strong);
+	}
+
+	.omnisearch:focus-visible {
+		outline: var(--gok-border-width-strong) solid var(--gok-color-primary);
+		outline-offset: calc(-1 * var(--gok-border-width-strong));
+	}
+
+	.omnisearch-icon {
+		display: inline-flex;
+		color: var(--gok-color-text-muted);
+	}
+
+	.omnisearch-text {
+		flex: 1 1 auto;
+	}
+
+	.omnisearch-kbd {
+		flex: none;
+		padding-block: 0;
+		padding-inline: var(--gok-space-100);
+		border: var(--gok-border-width-hairline) solid var(--gok-color-border);
+		border-radius: var(--gok-radius-s);
+		font-family: var(--gok-font-family-mono);
+		font-size: var(--gok-type-caption-size);
+		color: var(--gok-color-text-muted);
+	}
+
+	.actions {
+		flex: none;
+		margin-inline-start: auto;
 		min-inline-size: 0;
 		display: flex;
 		align-items: center;
@@ -162,6 +240,18 @@
 			inline-size: auto;
 			border-inline-end: none;
 			padding-inline: var(--gok-space-400);
+		}
+	}
+
+	/* Desktop (≥64rem): the centered search field appears; the actions-cluster search
+	   icon steps aside so the field is the single, prominent search entry point. */
+	@media (min-width: 64rem) {
+		.search {
+			display: flex;
+		}
+
+		.nav-search-icon {
+			display: none;
 		}
 	}
 </style>

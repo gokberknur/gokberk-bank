@@ -18,7 +18,9 @@ import type { Page, Locator } from '@playwright/test';
  */
 
 async function openMenu(page: Page): Promise<Locator> {
-	await page.getByRole('button', { name: 'Search', exact: true }).click();
+	// Desktop: the centered "Search the app" field in the top nav opens the menu (the
+	// right-corner search icon is desktop-hidden). The tablet/mobile icon stays named "Search".
+	await page.getByRole('button', { name: 'Search the app' }).click();
 	const menu = page.getByRole('dialog', { name: 'Search the app' });
 	await expect(menu.getByRole('combobox', { name: 'Search the app' })).toBeVisible();
 	return menu;
