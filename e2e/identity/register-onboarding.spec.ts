@@ -32,12 +32,14 @@ test('register rejects a weak / mismatched password inline, then routes to onboa
 test('onboarding step 1 blocks an under-18 date of birth', async ({ page }) => {
 	await page.goto('/onboarding');
 
-	await expect(page.getByRole('heading', { name: 'About me' })).toBeVisible();
+	// Step 1 (About me) — the wizard shows step titles in its numbered rail; assert the
+	// step-1 fields render rather than the panel heading (which is a visually-hidden focus target).
+	await expect(page.getByRole('textbox', { name: 'My full name' })).toBeVisible();
 	await page.getByRole('textbox', { name: 'My full name' }).fill('Test User');
 	await page.getByRole('textbox', { name: 'My date of birth' }).fill('2015-01-01');
 	await page.getByRole('button', { name: 'Continue' }).click();
 
 	await expect(page.getByText(/18 or older/i)).toBeVisible();
-	// Did not advance past step 1.
-	await expect(page.getByText(/Step 1 of 6/i)).toBeVisible();
+	// Did not advance past step 1 — its fields are still on screen.
+	await expect(page.getByRole('textbox', { name: 'My date of birth' })).toBeVisible();
 });

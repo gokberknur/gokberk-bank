@@ -8,7 +8,8 @@ import { test, expect, gotoApp } from '../support/fixtures';
  */
 test('PAY-U-03: frequency, start and end are one collapsed step (Step 2 of 4)', async ({ page }) => {
 	await gotoApp(page, '/payments/scheduled/new');
-	await expect(page.getByText('Step 1 of 4')).toBeVisible();
+	// The wizard states its position via the numbered step rail (4 steps).
+	await expect(page.getByRole('navigation', { name: 'Progress' }).getByRole('button')).toHaveCount(4);
 
 	// Step 1 — recipient & amount (the wallet defaults to the primary EUR wallet).
 	await page.getByRole('button', { name: /saved payee/i }).click();
@@ -18,7 +19,10 @@ test('PAY-U-03: frequency, start and end are one collapsed step (Step 2 of 4)', 
 
 	// Step 2 — the collapsed "How & when": all three controls on a single step. Assert via
 	// each control's own slotted/label text (component `label` attrs are shadow-encapsulated).
-	await expect(page.getByText('Step 2 of 4')).toBeVisible();
+	// The rail's second step is the current one now (position shown by the rail, not text).
+	await expect(
+		page.getByRole('navigation', { name: 'Progress' }).getByRole('button').nth(1)
+	).toHaveAttribute('aria-current', 'step');
 	// Frequency (segmented) + start date (native input) + end rule (radio) all coexist here.
 	await expect(page.getByText('Weekly', { exact: true })).toBeVisible();
 	await expect(page.getByLabel('When does the first payment go out?')).toBeVisible();

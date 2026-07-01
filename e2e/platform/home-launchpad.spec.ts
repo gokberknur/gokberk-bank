@@ -18,8 +18,10 @@ import { toMinorUnits } from '../support/money';
 
 test('home renders the launchpad blocks', async ({ page }) => {
 	await gotoApp(page, '/home');
-	await expect(page.getByRole('heading', { level: 1, name: /Good to see you/ })).toBeVisible();
-	await expect(page.getByText('Net worth').first()).toBeVisible();
+	// The greeting is a quiet eyebrow now (net worth owns the hero), and the net-worth
+	// figure leads — assert both render.
+	await expect(page.getByText(/Good to see you/)).toBeVisible();
+	await expect(page.locator('.figure').first()).toBeVisible();
 	await expect(page.getByRole('heading', { name: 'Start something' })).toBeVisible();
 	await expect(page.getByText('Total across wallets')).toBeVisible();
 });

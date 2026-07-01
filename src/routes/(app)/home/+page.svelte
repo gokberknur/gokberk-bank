@@ -22,14 +22,11 @@
 </script>
 
 <div class="page">
-	<header class="greeting">
-		<p class="eyebrow gok-eyebrow">Overview</p>
-		<h1 class="title gok-headline-2">Good to see you, {firstName}</h1>
-	</header>
+	<p class="greeting gok-eyebrow">Good to see you, {firstName}</p>
 
 	<div class="dashboard">
 		<section class="net-worth" aria-labelledby="net-worth-heading">
-			<h2 id="net-worth-heading" class="visually-hidden">Net worth</h2>
+			<h1 id="net-worth-heading" class="visually-hidden">Net worth</h1>
 			<NetWorthHero />
 		</section>
 
@@ -89,19 +86,13 @@
 	}
 
 	.greeting {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-200);
+		margin: 0;
+		color: var(--gok-color-text-muted);
 	}
 
 	.eyebrow {
 		margin: 0;
 		color: var(--gok-color-text-muted);
-	}
-
-	.title {
-		margin: 0;
-		color: var(--gok-color-text);
 	}
 
 	.dashboard {

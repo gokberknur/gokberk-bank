@@ -30,6 +30,11 @@
 		{ label: 'Direct debits', desc: 'Mandates I’ve set up', href: '/payments/direct-debits', icon: 'square-check' }
 	];
 
+	// Send money leads the hub as the single featured action; the rest fill the
+	// secondary grid. `ready` stays the source of truth — we just split it here.
+	const primary = ready[0];
+	const rest = ready.slice(1);
+
 	// The four most-recently-paid payees, never-paid last. A spread keeps the shared
 	// list immutable; the comparator pushes null `lastUsedAt` to the bottom.
 	const recent = $derived(
@@ -65,8 +70,22 @@
 	</header>
 
 	<section class="actions" aria-label="What I can do">
+		<gok-card interactive class="featured" style="position: relative">
+			<a class="stretched" href={primary.href} aria-label={primary.label}></a>
+			<div class="featured-body">
+				<div class="featured-text">
+					<gok-icon name={primary.icon} size="m" class="featured-icon"></gok-icon>
+					<div class="featured-copy">
+						<h2 class="featured-label gok-headline-4">{primary.label}</h2>
+						<p class="featured-desc">{primary.desc}</p>
+					</div>
+				</div>
+				<span class="featured-chevron gok-tabular-nums" aria-hidden="true">&rarr;</span>
+			</div>
+		</gok-card>
+
 		<ul class="action-grid">
-			{#each ready as action (action.label)}
+			{#each rest as action (action.label)}
 				<li class="action-cell">
 					<gok-card interactive style="position: relative">
 						<a class="stretched" href={action.href} aria-label={action.label}></a>
@@ -197,6 +216,51 @@
 		font-size: var(--gok-type-body-small-size);
 		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
+	}
+
+	/* --- Featured primary action --- */
+	.featured-body {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--gok-space-400);
+	}
+
+	.featured-text {
+		display: flex;
+		align-items: center;
+		gap: var(--gok-space-300);
+		min-inline-size: 0;
+	}
+
+	.featured-icon {
+		color: var(--gok-color-primary);
+	}
+
+	.featured-copy {
+		display: flex;
+		flex-direction: column;
+		gap: var(--gok-space-100);
+		min-inline-size: 0;
+	}
+
+	.featured-label {
+		margin: 0;
+		color: var(--gok-color-text);
+	}
+
+	.featured-desc {
+		margin: 0;
+		font-family: var(--gok-font-family-text);
+		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
+		color: var(--gok-color-text-muted);
+	}
+
+	.featured-chevron {
+		flex: none;
+		font-size: var(--gok-type-headline-4-size);
+		color: var(--gok-color-primary);
 	}
 
 	/* --- Quick-send strip --- */

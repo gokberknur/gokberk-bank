@@ -14,6 +14,7 @@
 	import { DonutChart, StackedBar } from '$lib/charts';
 	import { setProps, on } from '$lib/wc.svelte';
 	import MoneyInput from '$lib/components/money/MoneyInput.svelte';
+	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 
 	// ── Period: two segments (custom range out of scope — F06 date-range, deferred) ──
 	const LAST_MONTH = shiftMonth(THIS_MONTH, -1);
@@ -100,24 +101,19 @@
 {/snippet}
 
 <div class="page">
-	<header class="head">
-		<div class="head-titles">
-			<p class="head-eyebrow gok-eyebrow">Budgets</p>
-			<h1 class="head-title gok-headline-2">{monthLabel(budgets.month)}</h1>
-			{#if hasSpend}
-				<p class="head-caption gok-tabular-nums">I spent {eur(total)} this month.</p>
-			{/if}
-		</div>
-		<gok-segmented
-			label="Period"
-			{@attach setProps({ value: budgets.month })}
-			{@attach on('change', onPeriod)}
-		>
-			{#each PERIODS as period (period.value)}
-				<gok-segmented-item value={period.value}>{period.label}</gok-segmented-item>
-			{/each}
-		</gok-segmented>
-	</header>
+	<PageHeader eyebrow={monthLabel(budgets.month)} figure={eur(total)} srLabel="Spent">
+		{#snippet actions()}
+			<gok-segmented
+				label="Period"
+				{@attach setProps({ value: budgets.month })}
+				{@attach on('change', onPeriod)}
+			>
+				{#each PERIODS as period (period.value)}
+					<gok-segmented-item value={period.value}>{period.label}</gok-segmented-item>
+				{/each}
+			</gok-segmented>
+		{/snippet}
+	</PageHeader>
 
 	{#if !hasSpend}
 		<section class="empty">
@@ -370,39 +366,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-section);
-	}
-
-	/* ── Header ── */
-	.head {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: flex-end;
-		justify-content: space-between;
-		gap: var(--gok-space-300);
-	}
-
-	.head-titles {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-100);
-	}
-
-	.head-eyebrow {
-		margin: 0;
-		color: var(--gok-color-text-muted);
-	}
-
-	.head-title {
-		margin: 0;
-		color: var(--gok-color-text);
-	}
-
-	.head-caption {
-		margin: 0;
-		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-regular-line);
-		color: var(--gok-color-text-muted);
 	}
 
 	/* ── Blocks ── */

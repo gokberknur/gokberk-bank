@@ -21,7 +21,8 @@ function ledgerDd(page: import('@playwright/test').Page, term: string) {
 test('income/expense ledger reconciles: Net == In − Out to the cent', async ({ page }) => {
 	await gotoApp(page, '/budgets');
 
-	await expect(page.getByRole('heading', { level: 1, name: 'June 2026' })).toBeVisible();
+	// The month is the header eyebrow now (the spend figure is the h1 hero).
+	await expect(page.getByText('June 2026', { exact: true })).toBeVisible();
 
 	const inMinor = toMinorUnits((await ledgerDd(page, 'In').textContent()) ?? '');
 	const outMinor = toMinorUnits((await ledgerDd(page, 'Out').textContent()) ?? '');
@@ -37,11 +38,12 @@ test('income/expense ledger reconciles: Net == In − Out to the cent', async ({
 test('period selector re-flows the dashboard: This month → Last month', async ({ page }) => {
 	await gotoApp(page, '/budgets');
 
-	await expect(page.getByRole('heading', { level: 1, name: 'June 2026' })).toBeVisible();
+	// The month lives in the header eyebrow now (spend figure is the h1 hero).
+	await expect(page.getByText('June 2026', { exact: true })).toBeVisible();
 
 	await page.getByRole('radio', { name: 'Last month' }).click();
 
-	// The headline month + caption must change — the analytics re-derived, not stale.
-	await expect(page.getByRole('heading', { level: 1, name: 'May 2026' })).toBeVisible();
-	await expect(page.getByRole('heading', { level: 1, name: 'June 2026' })).toHaveCount(0);
+	// The headline month must change — the analytics re-derived, not stale.
+	await expect(page.getByText('May 2026', { exact: true })).toBeVisible();
+	await expect(page.getByText('June 2026', { exact: true })).toHaveCount(0);
 });

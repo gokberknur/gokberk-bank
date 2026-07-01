@@ -3,9 +3,11 @@
 	// the design system has no stepper. It composes gok-* + tokens only and never
 	// restyles a DS component. It reads a `createWizard` store (forward-only-when-
 	// valid + draft persistence) and renders the brand frame around the flow's
-	// active step: a mono eyebrow, a gok-progress indicator, an accessible step
-	// rail, the active heading + the flow's slotted content, an optional step-level
-	// gok-alert, and the one-primary / one-secondary action row.
+	// active step with a single position signal per breakpoint: the numbered step
+	// rail on desktop, the gok-progress fraction on mobile. It also renders a
+	// visually-hidden step heading (the programmatic focus target), the flow's
+	// slotted content, an optional step-level gok-alert, and the one-primary /
+	// one-secondary action row.
 	//
 	// Rail rationale: we deliberately do NOT use gok-tabs here. Tabs model
 	// free, non-linear navigation between peer panels; a wizard is forward-gated
@@ -56,14 +58,12 @@
 </script>
 
 <section class="wizard">
-	<header class="head">
-		<p class="gok-eyebrow eyebrow">Step {wizard.stepNumber} of {wizard.total}</p>
-		<gok-progress
-			format="fraction"
-			label={wizard.current.title}
-			{@attach setProps({ value: wizard.stepNumber, max: wizard.total })}
-		></gok-progress>
-	</header>
+	<gok-progress
+		class="progress"
+		format="fraction"
+		label={wizard.current.title}
+		{@attach setProps({ value: wizard.stepNumber, max: wizard.total })}
+	></gok-progress>
 
 	<nav class="rail" aria-label="Progress">
 		<ol class="rail-list">
@@ -104,7 +104,7 @@
 	</nav>
 
 	<div class="panel">
-		<h2 class="gok-headline-5 step-heading" tabindex="-1" {@attach focusOnStepChange}>
+		<h2 class="step-heading" tabindex="-1" {@attach focusOnStepChange}>
 			{wizard.current.title}
 		</h2>
 
@@ -134,15 +134,10 @@
 		gap: var(--gok-space-500);
 	}
 
-	.head {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-200);
-	}
-
-	.eyebrow {
-		margin: 0;
-		color: var(--gok-color-text-muted);
+	/* One visible position signal per breakpoint: the rail owns it on desktop, so
+	   the progress fraction is hidden here and revealed only on mobile below. */
+	.progress {
+		display: none;
 	}
 
 	/* --- The step rail (purpose-built, not gok-tabs — see the script comment). --- */
@@ -243,9 +238,19 @@
 		border-block-start: var(--gok-border-width-hairline) solid var(--gok-color-border);
 	}
 
+	/* Kept in the DOM as the programmatic focus target + accessible heading, but
+	   visually hidden — it's redundant with the rail (desktop) and the progress
+	   label (mobile). Same technique as .sr-only below. */
 	.step-heading {
-		margin: 0;
-		color: var(--gok-color-text);
+		position: absolute;
+		inline-size: 1px;
+		block-size: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
 	}
 
 	/* Don't paint a focus ring on the heading — it's a programmatic focus target. */
@@ -282,10 +287,16 @@
 		border: 0;
 	}
 
-	/* Mobile: collapse the rail to just the eyebrow + progress + active title. */
+	/* Mobile: hide the rail and reveal the progress fraction in its place. */
 	@media (max-width: 40rem) {
 		.rail {
 			display: none;
+		}
+
+		/* The rail is gone on mobile, so the progress fraction (which carries the
+		   step title via its label) becomes the single position signal. */
+		.progress {
+			display: block;
 		}
 
 		/* Pin the action row above the fixed bottom tab bar so the primary stays
