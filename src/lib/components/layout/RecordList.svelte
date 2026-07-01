@@ -29,6 +29,7 @@
 		selectionMode = 'single',
 		selectedId = null,
 		onselect,
+		onsort,
 		paginated = false,
 		pageSize = 25,
 		accessibleLabel,
@@ -42,6 +43,8 @@
 		selectionMode?: 'single' | 'none';
 		selectedId?: string | null;
 		onselect: (row: T) => void;
+		/** Forwarded from gok-table's own gok-sort event; null when sorting is cleared. RecordList stays generic and does not interpret it. */
+		onsort?: (sort: { key: string; direction: 'asc' | 'desc' } | null) => void;
 		paginated?: boolean;
 		pageSize?: number;
 		accessibleLabel: string;
@@ -81,6 +84,23 @@
 		if (!id) return;
 		const row = rows.find((r) => getRowId(r) === id);
 		if (row) onselect(row);
+	}
+
+	// gok-table fires row-activate on a full-row click or Enter (independent of selection
+	// mode) — this is the "open this record" gesture, matching the mobile card's full-row tap.
+	function handleActivate(e: Event) {
+		const id = (e as CustomEvent<{ id?: string }>).detail?.id;
+		if (!id) return;
+		const row = rows.find((r) => getRowId(r) === id);
+		if (row) onselect(row);
+	}
+
+	// gok-table sorts its own internal copy; we only forward the signal so a consumer
+	// can react (e.g. blank a running-balance column off the canonical order). We never
+	// interpret the sort or touch `rows` here — RecordList stays generic.
+	function handleSort(e: Event) {
+		const detail = (e as CustomEvent<{ key: string; direction: 'asc' | 'desc' }>).detail;
+		onsort?.(detail ?? null);
 	}
 
 	// Mobile pagination is a simple "show more" reveal (no column sorting on
@@ -150,6 +170,8 @@
 		accessible-label={accessibleLabel}
 		{@attach setProps({ columns, rows, getRowId, selection: selectedId ? [selectedId] : [] })}
 		{@attach on('gok-selection-change', handleSelection)}
+		{@attach on('gok-sort', handleSort)}
+		{@attach on('row-activate', handleActivate)}
 	>
 		{#if caption}
 			<div slot="caption">{@render caption()}</div>
@@ -169,6 +191,12 @@
 		display: flex;
 		flex-direction: column;
 		border-block-start: var(--gok-border-width-hairline) solid var(--gok-color-border);
+	}
+
+	/* Body rows open a record on click (gok-table row-activate → onselect); signal it with a
+	   pointer. Uses gok-table's public ::part(row) API — never reaches into its shadow DOM. */
+	gok-table::part(row) {
+		cursor: pointer;
 	}
 
 	.rec {

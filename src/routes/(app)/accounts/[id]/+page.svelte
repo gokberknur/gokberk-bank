@@ -16,7 +16,7 @@
 	import type { Transaction } from '$lib/data/types';
 	import TxnToolbar from '$lib/components/accounts/TxnToolbar.svelte';
 	import TransactionGrid from '$lib/components/accounts/TransactionGrid.svelte';
-	import TransactionDrawer from '$lib/components/accounts/TransactionDrawer.svelte';
+	import TransactionDialog from '$lib/components/accounts/TransactionDialog.svelte';
 
 	const wallet = $derived(page.params.id ? accounts.wallet(page.params.id) : undefined);
 
@@ -128,7 +128,7 @@
 			onselect={(t) => (selected = t)}
 		/>
 
-		<TransactionDrawer
+		<TransactionDialog
 			txn={selected}
 			open={selected !== null}
 			currency={wallet.currency}

@@ -1,10 +1,13 @@
 <script lang="ts">
-	// A clickable record-row ledger over the wallet's transactions, via RecordList
-	// with `alwaysRows` — clicking anywhere on a row opens the detail drawer, and
-	// rows are keyboard-accessible. It no longer uses gok-table on desktop because
-	// gok-table has no row-activate event / full-row click target (design-system
-	// gap, docs/dogfooding/findings.md #12). `columns`/`rows`/`getRowId` are still
-	// handed in as DOM **properties**; cells render formatted **strings** only.
+	// A clickable ledger over the wallet's transactions, via RecordList: a real
+	// <gok-table> on desktop (>=40rem) and a stacked record-card list on mobile.
+	// A full-row click or Enter opens the detail drawer through gok-table's
+	// row-activate event → onselect (rows stay keyboard-accessible); there is no
+	// selection checkbox column — the table runs selection-mode="none". The
+	// running-balance column reads true only in the seed's canonical date-desc
+	// order, so it blanks to an em dash for pending rows and whenever the table is
+	// sorted off that order (see displayRows below). `columns`/`rows`/`getRowId`
+	// are handed in as DOM **properties**; cells render formatted **strings** only.
 	import RecordList from '$lib/components/layout/RecordList.svelte';
 	import { formatMoney, formatDayMonth } from '$lib/format';
 	import type { Currency } from '$lib/data/money';
@@ -74,11 +77,17 @@
 		{ key: 'runningBalanceMinor', label: 'Balance', numeric: true, width: '8.5rem', format: (v) => (Number.isNaN(v as number) ? '—' : formatMoney(v as number, currency)) }
 	]);
 
-	// A running balance is a settled-ledger concept. Pending rows haven't posted (the seed
-	// stamps them with the current settled balance), so blank their Balance cell — NaN is the
-	// sentinel the Balance column's format renders as an em dash (ACC-Q-02).
+	// Tracks gok-table's current sort, forwarded by RecordList; null when unsorted.
+	let sort = $state<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+
+	// A running balance is a settled-ledger concept that only reads true in the seed's default
+	// date-desc order. Blank it for pending rows (ACC-Q-02) AND whenever the table is sorted off
+	// that canonical order — NaN is the sentinel the Balance column's format renders as an em dash.
+	const canonical = $derived(sort === null || (sort.key === 'date' && sort.direction === 'desc'));
 	const displayRows = $derived(
-		rows.map((r) => (r.status === 'settled' ? r : { ...r, runningBalanceMinor: Number.NaN }))
+		rows.map((r) =>
+			canonical && r.status === 'settled' ? r : { ...r, runningBalanceMinor: Number.NaN }
+		)
 	);
 
 	const getRowId = (r: Transaction) => r.id;
@@ -93,9 +102,10 @@
 	columns={columns}
 	rows={displayRows}
 	getRowId={getRowId}
-	alwaysRows
+	selectionMode="none"
 	selectedId={selectedId}
 	onselect={handleActivate}
+	onsort={(s) => (sort = s)}
 	paginated
 	pageSize={25}
 	accessibleLabel="Transactions"

@@ -1,9 +1,9 @@
 <script lang="ts">
-	// A read-only transaction detail drawer (A05 will add the actions). The host
-	// gok-drawer manages focus, the scrim, and Escape; we feed it `open` as a
-	// property and close on its gok-close / gok-cancel events. Amount reads by
-	// sign — never by colour — and status is shown as a word plus a shape rule
-	// (filled = settled, ring = pending), so it never relies on hue alone.
+	// A read-only transaction detail modal (A05 will add the actions). The host
+	// gok-dialog is a centred modal that manages focus-trap, the scrim, and Escape;
+	// we feed it `open` as a property and close on its gok-close / gok-cancel events.
+	// Amount reads by sign — never by colour — and status is shown as a word plus a
+	// shape rule (filled = settled, ring = pending), so it never relies on hue alone.
 	import { setProps, on } from '$lib/wc.svelte';
 	import { formatMoney, formatDate } from '$lib/format';
 	import { disputes } from '$lib/disputes/disputes.svelte';
@@ -48,8 +48,8 @@
 	const existingHref = $derived(existingDispute ? `/support/disputes/${existingDispute.id}` : '');
 </script>
 
-<gok-drawer
-	placement="end"
+<gok-dialog
+	size="m"
 	heading="Transaction"
 	{@attach setProps({ open })}
 	{@attach on('gok-close', onclose)}
@@ -121,7 +121,7 @@
 		</div>
 		<gok-tag size="s">Soon</gok-tag>
 	</div>
-</gok-drawer>
+</gok-dialog>
 
 <style>
 	.body {
