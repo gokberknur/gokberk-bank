@@ -1,12 +1,11 @@
 <script lang="ts">
-	// The flagship gok-table showcase: one ledger grid over the wallet's
-	// transactions. The table owns sorting + pagination internally (it has its own
-	// engine) — we never preventDefault gok-sort, and state owns only filter +
-	// search. `columns`/`rows`/`getRowId` are handed in as DOM **properties** via
-	// setProps (objects/arrays can't survive attribute stringification), never as
-	// attributes or binds. Cells render formatted **strings** only — a known DS
-	// limit, so status reads as the word "Pending"/"Settled" rather than a tag.
-	import { setProps, on } from '$lib/wc.svelte';
+	// A clickable record-row ledger over the wallet's transactions, via RecordList
+	// with `alwaysRows` — clicking anywhere on a row opens the detail drawer, and
+	// rows are keyboard-accessible. It no longer uses gok-table on desktop because
+	// gok-table has no row-activate event / full-row click target (design-system
+	// gap, docs/dogfooding/findings.md #12). `columns`/`rows`/`getRowId` are still
+	// handed in as DOM **properties**; cells render formatted **strings** only.
+	import RecordList from '$lib/components/layout/RecordList.svelte';
 	import { formatMoney, formatDayMonth } from '$lib/format';
 	import type { Currency } from '$lib/data/money';
 	import type { Transaction, TxnType } from '$lib/data/types';
@@ -84,44 +83,48 @@
 
 	const getRowId = (r: Transaction) => r.id;
 
-	function handleSelection(e: Event) {
-		const id = (e as CustomEvent<{ ids: string[] }>).detail.ids?.[0];
-		if (!id) return;
-		const t = rows.find((r) => r.id === id);
+	function handleActivate(row: Transaction) {
+		const t = rows.find((r) => r.id === row.id);
 		if (t) onselect(t);
 	}
 </script>
 
-<gok-table
-	selection-mode="single"
+<RecordList
+	columns={columns}
+	rows={displayRows}
+	getRowId={getRowId}
+	alwaysRows
+	selectedId={selectedId}
+	onselect={handleActivate}
 	paginated
-	page-size={25}
-	accessible-label="Transactions"
-	{@attach setProps({ columns, rows: displayRows, getRowId, selection: selectedId ? [selectedId] : [] })}
-	{@attach on('gok-selection-change', handleSelection)}
+	pageSize={25}
+	accessibleLabel="Transactions"
 >
-	<div slot="caption" class="caption">
-		<p class="caption-eyebrow gok-eyebrow">Ledger</p>
-		<h2 class="caption-title gok-headline-5">Transactions</h2>
-		<p class="caption-count gok-tabular-nums">Showing {total} of {scopedTotal}</p>
-	</div>
-
-	<div slot="empty" class="empty">
-		{#if scopedTotal === 0}
-			<gok-empty-state>
-				<p class="empty-title gok-headline-6">No transactions yet</p>
-				<p class="empty-body">When money moves in this wallet, it shows up here.</p>
-			</gok-empty-state>
-		{:else}
-			<gok-empty-state>
-				<p class="empty-title gok-headline-6">No matching transactions</p>
-				<p class="empty-body">
-					No rows match your search and filters. Clear them above to see the full ledger again.
-				</p>
-			</gok-empty-state>
-		{/if}
-	</div>
-</gok-table>
+	{#snippet caption()}
+		<div class="caption">
+			<p class="caption-eyebrow gok-eyebrow">Ledger</p>
+			<h2 class="caption-title gok-headline-5">Transactions</h2>
+			<p class="caption-count gok-tabular-nums">Showing {total} of {scopedTotal}</p>
+		</div>
+	{/snippet}
+	{#snippet empty()}
+		<div class="empty">
+			{#if scopedTotal === 0}
+				<gok-empty-state>
+					<p class="empty-title gok-headline-6">No transactions yet</p>
+					<p class="empty-body">When money moves in this wallet, it shows up here.</p>
+				</gok-empty-state>
+			{:else}
+				<gok-empty-state>
+					<p class="empty-title gok-headline-6">No matching transactions</p>
+					<p class="empty-body">
+						No rows match your search and filters. Clear them above to see the full ledger again.
+					</p>
+				</gok-empty-state>
+			{/if}
+		</div>
+	{/snippet}
+</RecordList>
 
 <style>
 	.caption {

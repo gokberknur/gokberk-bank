@@ -42,9 +42,10 @@ test('wallet detail renders header, copyable IBAN/BIC and the ledger grid', asyn
 	await expect(page.getByRole('heading', { level: 1, name: 'Main' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Copy IBAN' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Copy BIC' })).toBeVisible();
-	await expect(page.getByRole('grid', { name: 'Transactions' })).toBeVisible();
-	// A known seeded row is in the ledger.
-	await expect(page.getByRole('gridcell', { name: 'Acme GmbH — salary' })).toBeVisible();
+	// The ledger renders as clickable record-rows (RecordList alwaysRows) — not a gok-table
+	// grid — so assert the caption heading + a known row's full-row button.
+	await expect(page.getByRole('heading', { name: 'Transactions' })).toBeVisible();
+	await expect(page.getByRole('button', { name: /Acme GmbH — salary/ })).toBeVisible();
 });
 
 test('ledger search narrows to the distinct filtered-empty state', async ({ page }) => {
@@ -68,20 +69,18 @@ test('a brand-new wallet shows the zero-data empty state (distinct from filtered
 	await expect(page.getByText('No transactions yet')).toBeVisible();
 });
 
-// ACC-Q-01 (S1) — activating a transaction row must open the detail drawer (A05), and the same
-// row must reopen after the drawer closes. The DS gok-table activates via the row's leading select
-// control (no full-row click — a DS gap, dogfooding #12); we consume gok-selection-change as a
-// transient row-activate (preventDefault) so a repeat activation always reopens.
+// ACC-Q-01 — activating a transaction row must open the detail drawer (A05), and the same row
+// must reopen after the drawer closes. The ledger now renders full-row buttons (RecordList
+// alwaysRows), so a plain click anywhere on the row activates it — click AND keyboard both work,
+// resolving the old DS gap (gok-table had no full-row click / row-activate — dogfooding #12).
 test('ACC-Q-01: activating a transaction row opens (and reopens) the detail drawer', async ({
 	page
 }) => {
 	await gotoApp(page, '/accounts/eur-main');
-	const row = page.getByRole('row').filter({ hasText: 'Acme GmbH — salary' });
-	// Activate via the row's gok-checkbox host (the DS select control). The inner input
-	// doesn't respond to a click, but the custom element host toggles + fires change.
-	const activate = row.locator('gok-checkbox');
+	// The whole row is a button; its accessible name carries the description.
+	const row = page.getByRole('button', { name: /Acme GmbH — salary/ });
 
-	await activate.click();
+	await row.click();
 	// The drawer surfaces the ledger detail (reference, etc.).
 	await expect(page.getByText(/Reference/)).toBeVisible();
 	await expect(page.getByText(/REF-/)).toBeVisible();
@@ -89,7 +88,7 @@ test('ACC-Q-01: activating a transaction row opens (and reopens) the detail draw
 	// Reopen contract: close the drawer, then activate the same row again.
 	await page.keyboard.press('Escape');
 	await expect(page.getByText(/REF-/)).toBeHidden();
-	await activate.click();
+	await row.click();
 	await expect(page.getByText(/REF-/)).toBeVisible();
 });
 
@@ -111,18 +110,18 @@ test('ACC-Q-02: the settled running balance reconciles row-to-row in the default
 }) => {
 	await gotoApp(page, '/accounts/eur-main');
 
-	const rows = page.getByRole('row');
+	// Each row is a button whose accessible name lists every column, e.g.
+	// "Date 18 Jun, Description Acme GmbH — salary, Category Income, Type SEPA,
+	//  Status Settled, Amount +€3,294.12, Balance €7,000.00".
+	const rows = page.getByRole('button', { name: /Status (Settled|Pending)/ });
 	const rowCount = await rows.count();
 	const data: { status: string; amountMinor: number | null; balanceMinor: number | null }[] = [];
 	for (let i = 0; i < rowCount; i++) {
-		const cells = rows.nth(i).getByRole('gridcell');
-		const n = await cells.count();
-		if (n < 7) continue; // header / non-data rows
-		// Balance is the last column, Amount second-last, Status third-last — robust to any
-		// leading selection-control cell the grid renders.
-		const status = ((await cells.nth(n - 3).textContent()) ?? '').trim();
-		const amountText = ((await cells.nth(n - 2).textContent()) ?? '').trim();
-		const balanceText = ((await cells.nth(n - 1).textContent()) ?? '').trim();
+		const label = (await rows.nth(i).getAttribute('aria-label')) ?? '';
+		// Amount can contain a thousands comma, so bound it by the ", Balance" delimiter.
+		const m = /Status (\w+), Amount (.+?), Balance (.+)$/.exec(label);
+		if (!m) continue;
+		const [, status, amountText, balanceText] = m;
 		data.push({
 			status,
 			amountMinor: parseSignedMinor(amountText),
