@@ -13,14 +13,19 @@ export interface WalletBlueprint extends WalletGenConfig {
 	openedAt: string;
 }
 
-/** The four wallets the demo user holds. EUR Main is the home/primary wallet. */
+/** The four wallets the demo user holds. The EUR Main wallet is the home/operating
+ *  wallet: it carries the salary + everyday spend (the `primary` gen flag), and the
+ *  money engine settles against it (`accounts.home`) — top-up, exchange, cards, pots,
+ *  and the EUR-priced brokerage all fund from it. The SEK Stockholm wallet is the
+ *  owner's headline account and leads the home + accounts lists (floated by id in
+ *  those views), but is not the EUR settlement wallet. */
 export const WALLET_BLUEPRINTS: readonly WalletBlueprint[] = [
 	{
 		id: 'eur-main',
 		currency: 'EUR' as Currency,
 		name: 'Main',
-		iban: 'DE89 3704 0044 0532 0130 00',
-		bic: 'GOKBDEB1XXX',
+		iban: 'SE45 5000 0000 0583 9825 7466',
+		bic: 'GOKBSESS',
 		openedAt: '2023-02-14',
 		primary: true,
 		targetCurrentMinor: 700_000,
@@ -30,8 +35,8 @@ export const WALLET_BLUEPRINTS: readonly WalletBlueprint[] = [
 		id: 'usd-travel',
 		currency: 'USD' as Currency,
 		name: 'Travel',
-		iban: 'DE44 5001 0517 5407 3249 31',
-		bic: 'GOKBDEB1XXX',
+		iban: 'SE83 1200 0000 0123 4567 8901',
+		bic: 'GOKBSESS',
 		openedAt: '2024-05-03',
 		primary: false,
 		targetCurrentMinor: 124_010,
@@ -41,8 +46,8 @@ export const WALLET_BLUEPRINTS: readonly WalletBlueprint[] = [
 		id: 'gbp-london',
 		currency: 'GBP' as Currency,
 		name: 'London',
-		iban: 'DE12 5001 0517 0648 4898 90',
-		bic: 'GOKBDEB1XXX',
+		iban: 'SE50 6002 0000 0987 6543 2109',
+		bic: 'GOKBSESS',
 		openedAt: '2024-09-21',
 		primary: false,
 		targetCurrentMinor: 98_040,
@@ -52,8 +57,8 @@ export const WALLET_BLUEPRINTS: readonly WalletBlueprint[] = [
 		id: 'sek-stockholm',
 		currency: 'SEK' as Currency,
 		name: 'Stockholm',
-		iban: 'DE71 5001 0517 9876 5432 10',
-		bic: 'GOKBDEB1XXX',
+		iban: 'SE30 8000 6000 0123 4987 6543',
+		bic: 'GOKBSESS',
 		openedAt: '2025-01-11',
 		primary: false,
 		targetCurrentMinor: 1_420_000,

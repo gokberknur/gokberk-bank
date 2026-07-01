@@ -1,12 +1,12 @@
 // Deterministic IBAN/BIC issuance for the onboarding completion (O01). Mock —
-// no real bank, no real account — but the IBAN is a *valid* Irish IBAN with
+// no real bank, no real account — but the IBAN is a *valid* Swedish IBAN with
 // correct ISO 13616 mod-97 check digits, so it reads as the real thing. The
-// account/branch digits derive from a seed (the applicant's name), so the same
+// clearing/account digits derive from a seed (the applicant's name), so the same
 // applicant always gets the same IBAN. No Math.random / Date.now.
 
-const BANK_CODE = 'GOKB'; // our notional 4-letter institution code
-const COUNTRY = 'IE';
-const BIC = 'GOKBIE2D'; // bank · country · location — static for the demo
+const CLEARING = '800'; // notional 3-digit Swedish clearing number
+const COUNTRY = 'SE';
+const BIC = 'GOKBSESS'; // bank · country · location (Stockholm) — static for the demo
 
 /** A small stable string hash → unsigned 32-bit (FNV-1a). */
 function hash(seed: string): number {
@@ -50,12 +50,11 @@ export interface IssuedAccount {
 	bic: string;
 }
 
-/** Issue a deterministic, mod-97-valid IE IBAN for an applicant name. */
+/** Issue a deterministic, mod-97-valid SE IBAN for an applicant name. */
 export function issueIban(seedName: string): IssuedAccount {
 	const seed = seedName.trim().toLowerCase() || 'new applicant';
-	const sortCode = digits(seed, 1, 6); // 6-digit branch
-	const accountNo = digits(seed, 2, 8); // 8-digit account
-	const bban = `${BANK_CODE}${sortCode}${accountNo}`; // 18 chars
+	const accountNo = digits(seed, 2, 17); // 17-digit account
+	const bban = `${CLEARING}${accountNo}`; // 20 numeric digits
 	// Check digits: append "<COUNTRY>00" then compute 98 - mod97.
 	const check = 98 - mod97(`${bban}${COUNTRY}00`);
 	const cc = check.toString().padStart(2, '0');

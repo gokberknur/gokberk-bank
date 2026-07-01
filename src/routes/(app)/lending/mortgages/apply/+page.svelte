@@ -280,7 +280,7 @@
 
 				<gok-input
 					label="Property address"
-					placeholder="e.g. 12 Pearse Street, Dublin 2"
+					placeholder="e.g. Hornsgatan 42, 118 21 Stockholm"
 					{@attach setProps({ value: app.draft.address })}
 					{@attach on('input', onAddress)}
 					{@attach on('change', onAddress)}

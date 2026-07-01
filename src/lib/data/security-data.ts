@@ -26,9 +26,9 @@ export interface Device {
 }
 
 let devices: Device[] = [
-	{ id: 'dev-iphone', name: 'iPhone 16 Pro', platform: 'iOS 19', location: 'Dublin, IE', lastSeen: hoursBeforeToday(0), current: true },
-	{ id: 'dev-macbook', name: 'MacBook Pro', platform: 'macOS 16', location: 'Dublin, IE', lastSeen: hoursBeforeToday(5), current: false },
-	{ id: 'dev-ipad', name: 'iPad Air', platform: 'iPadOS 19', location: 'Dublin, IE', lastSeen: daysAgoIso(3), current: false },
+	{ id: 'dev-iphone', name: 'iPhone 16 Pro', platform: 'iOS 19', location: 'Stockholm, SE', lastSeen: hoursBeforeToday(0), current: true },
+	{ id: 'dev-macbook', name: 'MacBook Pro', platform: 'macOS 16', location: 'Stockholm, SE', lastSeen: hoursBeforeToday(5), current: false },
+	{ id: 'dev-ipad', name: 'iPad Air', platform: 'iPadOS 19', location: 'Stockholm, SE', lastSeen: daysAgoIso(3), current: false },
 	{ id: 'dev-chrome-win', name: 'Chrome on Windows', platform: 'Windows 11', location: 'Berlin, DE', lastSeen: daysAgoIso(9), current: false }
 ];
 
@@ -42,8 +42,8 @@ export interface Session {
 }
 
 let sessions: Session[] = [
-	{ id: 'ses-1', device: 'iPhone 16 Pro', location: 'Dublin, IE', startedAt: hoursBeforeToday(1), current: true },
-	{ id: 'ses-2', device: 'MacBook Pro', location: 'Dublin, IE', startedAt: hoursBeforeToday(5), current: false },
+	{ id: 'ses-1', device: 'iPhone 16 Pro', location: 'Stockholm, SE', startedAt: hoursBeforeToday(1), current: true },
+	{ id: 'ses-2', device: 'MacBook Pro', location: 'Stockholm, SE', startedAt: hoursBeforeToday(5), current: false },
 	{ id: 'ses-3', device: 'Chrome on Windows', location: 'Berlin, DE', startedAt: daysAgoIso(9), current: false }
 ];
 
@@ -122,12 +122,12 @@ export const EVENT_TYPE_LABELS: Record<SecurityEventType, string> = {
 };
 
 let log: SecurityEvent[] = [
-	{ id: 'ev-1', type: 'sign-in', detail: 'Signed in with passkey', device: 'iPhone 16 Pro', location: 'Dublin, IE', at: hoursBeforeToday(1), result: 'ok' },
-	{ id: 'ev-2', type: 'step-up', detail: 'Approved a transfer with passkey', device: 'iPhone 16 Pro', location: 'Dublin, IE', at: hoursBeforeToday(2), result: 'ok' },
-	{ id: 'ev-3', type: 'sign-in', detail: 'Signed in with passkey', device: 'MacBook Pro', location: 'Dublin, IE', at: hoursBeforeToday(5), result: 'ok' },
-	{ id: 'ev-4', type: 'passkey-added', detail: 'Added “MacBook — Touch ID”', device: 'MacBook Pro', location: 'Dublin, IE', at: daysAgoIso(60), result: 'ok' },
+	{ id: 'ev-1', type: 'sign-in', detail: 'Signed in with passkey', device: 'iPhone 16 Pro', location: 'Stockholm, SE', at: hoursBeforeToday(1), result: 'ok' },
+	{ id: 'ev-2', type: 'step-up', detail: 'Approved a transfer with passkey', device: 'iPhone 16 Pro', location: 'Stockholm, SE', at: hoursBeforeToday(2), result: 'ok' },
+	{ id: 'ev-3', type: 'sign-in', detail: 'Signed in with passkey', device: 'MacBook Pro', location: 'Stockholm, SE', at: hoursBeforeToday(5), result: 'ok' },
+	{ id: 'ev-4', type: 'passkey-added', detail: 'Added “MacBook — Touch ID”', device: 'MacBook Pro', location: 'Stockholm, SE', at: daysAgoIso(60), result: 'ok' },
 	{ id: 'ev-5', type: 'sign-in', detail: 'Blocked sign-in — wrong code', device: 'Chrome on Windows', location: 'Berlin, DE', at: daysAgoIso(9), result: 'blocked' },
-	{ id: 'ev-6', type: '2fa-changed', detail: 'Set up authenticator-app 2FA', device: 'iPhone 16 Pro', location: 'Dublin, IE', at: daysAgoIso(120), result: 'ok' }
+	{ id: 'ev-6', type: '2fa-changed', detail: 'Set up authenticator-app 2FA', device: 'iPhone 16 Pro', location: 'Stockholm, SE', at: daysAgoIso(120), result: 'ok' }
 ];
 
 let seq = 100;

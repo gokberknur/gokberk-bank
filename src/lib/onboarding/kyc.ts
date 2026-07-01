@@ -16,6 +16,7 @@ export interface Country {
 }
 
 export const COUNTRIES: readonly Country[] = [
+	{ code: 'SE', name: 'Sweden', postcodeHint: '5 digits, e.g. 118 21', postcodeOk: (v) => /^\d{3}\s?\d{2}$/.test(v.trim()) },
 	{ code: 'IE', name: 'Ireland', postcodeHint: 'Eircode, e.g. D02 AF30', postcodeOk: (v) => /^[A-Z]\d{2}\s?[A-Z0-9]{4}$/i.test(v.trim()) },
 	{ code: 'DE', name: 'Germany', postcodeHint: '5 digits, e.g. 10115', postcodeOk: (v) => /^\d{5}$/.test(v.trim()) },
 	{ code: 'FR', name: 'France', postcodeHint: '5 digits, e.g. 75008', postcodeOk: (v) => /^\d{5}$/.test(v.trim()) },
@@ -119,7 +120,7 @@ export function runOcr(fullName: string, dob: string, countryCode: string, idTyp
 		dob,
 		documentNumber: docNumber(fullName + dob),
 		expiry: exp.toISOString().slice(0, 10),
-		nationality: country?.name ?? 'Ireland'
+		nationality: country?.name ?? 'Sweden'
 	};
 }
 
