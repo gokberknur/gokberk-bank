@@ -105,15 +105,15 @@ export const INSTRUMENTS: readonly Instrument[] = [
 ];
 
 export const HOLDINGS: readonly Holding[] = [
-	{ symbol: 'ASML', quantity: 3, avgCostMinor: 81200 },
-	{ symbol: 'SAP', quantity: 14, avgCostMinor: 19850 },
-	{ symbol: 'AAPL', quantity: 9, avgCostMinor: 18640 },
-	{ symbol: 'NVDA', quantity: 16, avgCostMinor: 7420 },
-	{ symbol: 'IWDA', quantity: 32, avgCostMinor: 8910 },
-	{ symbol: 'VWCE', quantity: 11, avgCostMinor: 11240 },
-	{ symbol: 'BTC', quantity: 0.08, avgCostMinor: 4910000 },
-	{ symbol: 'ETH', quantity: 1.4, avgCostMinor: 198000 },
-	{ symbol: 'SOL', quantity: 22, avgCostMinor: 11200 }
+	{ symbol: 'ASML', quantity: 1, avgCostMinor: 81200 },
+	{ symbol: 'SAP', quantity: 7, avgCostMinor: 19850 },
+	{ symbol: 'AAPL', quantity: 4, avgCostMinor: 18640 },
+	{ symbol: 'NVDA', quantity: 8, avgCostMinor: 7420 },
+	{ symbol: 'IWDA', quantity: 16, avgCostMinor: 8910 },
+	{ symbol: 'VWCE', quantity: 5, avgCostMinor: 11240 },
+	{ symbol: 'BTC', quantity: 0.04, avgCostMinor: 4910000 },
+	{ symbol: 'ETH', quantity: 0.7, avgCostMinor: 198000 },
+	{ symbol: 'SOL', quantity: 11, avgCostMinor: 11200 }
 ];
 
 export interface Candle {
