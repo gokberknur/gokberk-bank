@@ -2,9 +2,11 @@
 	// X01 net-worth hero — the calm first figure the dashboard opens on. Total net
 	// worth (cash across wallets + pots, EUR home currency), a muted month-change
 	// line carried by an arrow glyph + signed amount (never colour-alone), and the
-	// page's single earned accent: the one live primary CTA into /accounts. At full
-	// width the card splits into two columns so it never reads empty: the figure +
-	// CTA on the left, a calm cash/savings breakdown on the right.
+	// page's single earned accent: the one live primary CTA into /accounts. The split
+	// is driven by the card's own width via a container query, not the viewport: the
+	// trend chart stacks full-width below the figure whenever the card is narrow (on
+	// mobile, and the sidebar-squeezed desktop column, where it stays readable) and
+	// only sits beside the figure + CTA on genuinely wide cards.
 	import { accounts } from '$lib/state/accounts.svelte';
 	import { thisMonthNetEurMinor } from '$lib/home/insights';
 	import { LineChart, netWorthSeriesEur } from '$lib/charts';
@@ -30,40 +32,42 @@
 
 <gok-card class="hero">
 	<div class="layout">
-		<div class="main">
-			<p class="eyebrow gok-eyebrow">Net worth</p>
-			<p class="figure gok-headline-1 gok-tabular-nums">{netWorth}</p>
+		<div class="split">
+			<div class="main">
+				<p class="eyebrow gok-eyebrow">Net worth</p>
+				<p class="figure gok-headline-1 gok-tabular-nums">{netWorth}</p>
 
-			<p class="change gok-tabular-nums">
-				<span class="arrow" aria-hidden="true">{arrow}</span>
-				<span>{changeAmount} this month</span>
-			</p>
+				<p class="change gok-tabular-nums">
+					<span class="arrow" aria-hidden="true">{arrow}</span>
+					<span>{changeAmount} this month</span>
+				</p>
 
-			<div class="cta">
-				<gok-button variant="primary" {@attach on('click', () => goto('/accounts'))}>
-					View accounts
-				</gok-button>
+				<div class="cta">
+					<gok-button variant="primary" {@attach on('click', () => goto('/accounts'))}>
+						View accounts
+					</gok-button>
+				</div>
 			</div>
-		</div>
 
-		<div class="trend">
-			<LineChart
-				data={trend}
-				formatValue={(m) => formatMoney(m, 'EUR')}
-				label={trendLabel}
-				area
-				height="13rem"
-			/>
-			<p class="trend-caption">
-				<span class="trend-term">Cash</span>
-				<span class="trend-figure gok-tabular-nums">{cash}</span>
-				<span class="trend-sep" aria-hidden="true">·</span>
-				<span class="trend-term">Savings</span>
-				<span class="trend-figure gok-tabular-nums">{savings}</span>
-				<span class="trend-sep" aria-hidden="true">·</span>
-				<span class="trend-term">Investments</span>
-				<span class="trend-figure gok-tabular-nums">{investments}</span>
-			</p>
+			<div class="trend">
+				<LineChart
+					data={trend}
+					formatValue={(m) => formatMoney(m, 'EUR')}
+					label={trendLabel}
+					area
+					height="13rem"
+				/>
+				<p class="trend-caption">
+					<span class="trend-term">Cash</span>
+					<span class="trend-figure gok-tabular-nums">{cash}</span>
+					<span class="trend-sep" aria-hidden="true">·</span>
+					<span class="trend-term">Savings</span>
+					<span class="trend-figure gok-tabular-nums">{savings}</span>
+					<span class="trend-sep" aria-hidden="true">·</span>
+					<span class="trend-term">Investments</span>
+					<span class="trend-figure gok-tabular-nums">{investments}</span>
+				</p>
+			</div>
 		</div>
 	</div>
 </gok-card>
@@ -74,6 +78,10 @@
 	}
 
 	.layout {
+		container-type: inline-size;
+	}
+
+	.split {
 		display: grid;
 		grid-template-columns: 1fr;
 		gap: var(--gok-space-500);
@@ -144,8 +152,8 @@
 		color: var(--gok-color-border-strong);
 	}
 
-	@media (min-width: 48rem) {
-		.layout {
+	@container (min-width: 48rem) {
+		.split {
 			grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
 			align-items: center;
 			gap: var(--gok-space-700);
