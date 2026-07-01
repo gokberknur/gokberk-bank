@@ -11,6 +11,12 @@
 	let total = $derived(formatMoney(accounts.walletsTotalEurMinor, 'EUR'));
 	let potsSaved = $derived(formatMoney(accounts.potsTotalEurMinor, 'EUR'));
 
+	let orderedWallets = $derived(
+		[...accounts.wallets].sort(
+			(a, b) => (a.id === 'sek-stockholm' ? 0 : 1) - (b.id === 'sek-stockholm' ? 0 : 1)
+		)
+	);
+
 	let walletCount = $derived(accounts.wallets.length);
 	let potCount = $derived(accounts.pots.length);
 	let countLine = $derived(
@@ -47,7 +53,7 @@
 
 	<section class="wallets" aria-label="Wallets">
 		<ul class="wallet-grid">
-			{#each accounts.wallets as wallet (wallet.id)}
+			{#each orderedWallets as wallet (wallet.id)}
 				<li class="wallet-cell">
 					<WalletCard {wallet} />
 				</li>

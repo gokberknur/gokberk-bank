@@ -52,7 +52,7 @@ export interface RedeemPreview {
 
 /** A fresh redeem draft: nothing entered yet, targeting my primary EUR wallet. */
 function emptyRedeemDraft(): RedeemDraft {
-	return { amountMinor: 0, destinationWalletId: accounts.primary.id };
+	return { amountMinor: 0, destinationWalletId: accounts.home.id };
 }
 
 class RewardsState {

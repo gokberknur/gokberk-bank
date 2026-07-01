@@ -19,6 +19,11 @@
 
 	let firstName = $derived(session.name.split(/\s+/)[0]);
 	let walletsTotal = $derived(formatMoney(accounts.walletsTotalEurMinor, 'EUR'));
+	let orderedWallets = $derived(
+		[...accounts.wallets].sort(
+			(a, b) => (a.id === 'sek-stockholm' ? 0 : 1) - (b.id === 'sek-stockholm' ? 0 : 1)
+		)
+	);
 </script>
 
 <div class="page">
@@ -42,7 +47,7 @@
 			</div>
 
 			<ul class="wallet-grid">
-				{#each accounts.wallets as wallet (wallet.id)}
+				{#each orderedWallets as wallet (wallet.id)}
 					<li class="wallet-cell">
 						<WalletCard {wallet} />
 					</li>

@@ -219,7 +219,7 @@ class InsuranceState {
 		// Charge the first premium to the primary EUR wallet on the F03 spine: a
 		// settled outflow (negative amount), typed as a `fee` in the `subscriptions`
 		// category so it reads as a recurring cover charge, not a one-off transfer.
-		const wallet = accounts.primary;
+		const wallet = accounts.home;
 		const charge: Transaction = {
 			id: 'ins-' + d.productId + '-' + getTransactions().length,
 			walletId: wallet.id,

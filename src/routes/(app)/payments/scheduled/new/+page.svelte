@@ -50,7 +50,8 @@
 	const payees = schedule.payees();
 	// Default to the primary EUR wallet (else the first), so the amount field opens in
 	// my home currency.
-	const defaultWallet = wallets.find((w) => w.primary) ?? wallets[0];
+	const defaultWallet =
+		wallets.find((w) => w.id === 'eur-main') ?? wallets.find((w) => w.primary) ?? wallets[0];
 
 	function freshData(): ScheduleDraftData {
 		return {

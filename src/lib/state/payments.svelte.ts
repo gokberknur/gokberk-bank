@@ -41,10 +41,10 @@ export interface SendDraft {
 /** A new payee from the add-payee flow (id + lastUsedAt are assigned on save). */
 export type NewPayeeInput = Omit<Payee, 'id' | 'lastUsedAt'>;
 
-/** A fresh draft seeded to send from the primary wallet to a payee. */
+/** A fresh draft seeded to send from the EUR operating wallet to a payee. */
 function emptyDraft(): SendDraft {
 	return {
-		fromWalletId: getPrimaryWallet().id,
+		fromWalletId: (getWallet('eur-main') ?? getPrimaryWallet()).id,
 		recipientKind: 'payee',
 		payeeId: null,
 		toWalletId: null,

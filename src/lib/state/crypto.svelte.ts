@@ -191,7 +191,7 @@ class CryptoState {
 	/** Buying power for a buy = the EUR Main wallet's available balance. */
 	get buyingPowerMinor(): number {
 		revision.value;
-		return accounts.primary.availableMinor;
+		return accounts.home.availableMinor;
 	}
 
 	/** The held quantity for a symbol, decimal units. */
@@ -245,7 +245,7 @@ class CryptoState {
 		const grossMinor = Math.round(units * priceMinor);
 		const feeMinor = tradeFee(grossMinor);
 		const totalMinor = d.side === 'buy' ? grossMinor + feeMinor : grossMinor - feeMinor;
-		const spendableMinor = accounts.primary.availableMinor;
+		const spendableMinor = accounts.home.availableMinor;
 
 		return {
 			units,
@@ -275,7 +275,7 @@ class CryptoState {
 		const d = this.tradeDraft;
 		if (p.units <= 0 || p.insufficientFunds || p.insufficientUnits) return null;
 
-		const wallet = accounts.primary;
+		const wallet = accounts.home;
 		const display = `${formatUnits(d.symbol, p.units)} ${d.symbol}`;
 
 		if (d.side === 'buy') {

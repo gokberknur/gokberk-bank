@@ -201,13 +201,13 @@ class InvestState {
 
 	/**
 	 * Derive the cost preview from the current draft + the instrument quote.
-	 * Reads `accounts.primary` (the EUR Main wallet) for buying power, so it
+	 * Reads `accounts.home` (the EUR operating wallet) for buying power, so it
 	 * re-flows reactively with the rest of the spine.
 	 */
 	preview(): OrderPreview {
 		const d = this.draft;
 		const inst = instrumentOf(d.symbol);
-		const buyingPowerEurMinor = accounts.primary.availableMinor;
+		const buyingPowerEurMinor = accounts.home.availableMinor;
 
 		// No instrument resolved → a zeroed, inert preview.
 		if (!inst) {

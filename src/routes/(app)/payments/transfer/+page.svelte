@@ -35,7 +35,7 @@
 	const STEP_UP_MIN_MINOR = 100_000; // €1,000.00 in minor units.
 	const MAX_REFERENCE = 140;
 
-	const primary = $derived(accounts.primary);
+	const primary = $derived(accounts.home);
 	// EUR-eligible saved payees only (cross-currency send is deferred to P04).
 	const eurPayees = $derived(payments.payees.filter((p) => p.currency === 'EUR'));
 	const selectedPayee = $derived<Payee | undefined>(

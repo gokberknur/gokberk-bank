@@ -65,10 +65,16 @@ class AccountsState {
 		return getInvestmentsEurMinor();
 	}
 
-	/** The primary EUR home wallet (falls back to the first wallet). */
+	/** The everyday primary account (now the SEK Stockholm wallet). */
 	get primary(): Wallet {
 		revision.value;
 		return getPrimaryWallet();
+	}
+
+	/** The EUR operating/home wallet the money engine settles against. */
+	get home(): Wallet {
+		revision.value;
+		return getWallet('eur-main') ?? getPrimaryWallet();
 	}
 
 	/** Find a wallet by id. */

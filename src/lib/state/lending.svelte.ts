@@ -596,7 +596,7 @@ class LendingState {
 		revision.value;
 		const sl = getServicedLoan();
 		const extraMinor = this.overpayDraft.extraMinor;
-		const fundsAvailableMinor = accounts.primary.availableMinor;
+		const fundsAvailableMinor = accounts.home.availableMinor;
 		return {
 			effect: overpaymentEffect(sl.loan, paidMonths(), sl.overpaidMinor, extraMinor),
 			insufficientFunds: extraMinor > fundsAvailableMinor,
@@ -624,7 +624,7 @@ class LendingState {
 		if (amountMinor <= 0 || preview.insufficientFunds || sl.status !== 'active') return false;
 
 		const loan = sl.loan;
-		const wallet = accounts.primary;
+		const wallet = accounts.home;
 		const debit: Transaction = {
 			id: 'loan-overpay-' + wallet.id + '-' + getTransactions().length,
 			walletId: wallet.id,
@@ -665,7 +665,7 @@ class LendingState {
 
 	/** Whether the full payoff total exceeds the EUR funding wallet's available balance. */
 	payoffInsufficientFunds(): boolean {
-		return this.payoff().totalMinor > accounts.primary.availableMinor;
+		return this.payoff().totalMinor > accounts.home.availableMinor;
 	}
 
 	/**
@@ -681,7 +681,7 @@ class LendingState {
 
 		const loan = sl.loan;
 		const amountMinor = this.payoff().totalMinor;
-		const wallet = accounts.primary;
+		const wallet = accounts.home;
 		const debit: Transaction = {
 			id: 'loan-settle-' + wallet.id + '-' + getTransactions().length,
 			walletId: wallet.id,
