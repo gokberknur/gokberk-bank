@@ -269,8 +269,19 @@
 			--gok-command-menu-inline-size: 100%;
 		}
 
+		/* The visible mobile opener is the actions search icon (it calls menuEl.show()); the DS
+		   trigger bar itself stays hidden. But DS 0.4.8 anchors the palette card to the trigger's
+		   bounding rect (top/left/width), so the trigger must NOT be display:none — that zeroes the
+		   rect and collapses the card to a sliver. Keep it laid out at full width, but collapse it to
+		   an invisible zero-height box so the card still drops full-width just under the bar. */
 		.search gok-command-menu::part(trigger) {
-			display: none;
+			visibility: hidden;
+			block-size: 0;
+			min-block-size: 0;
+			padding-block: 0;
+			border-block-width: 0;
+			overflow: hidden;
+			pointer-events: none;
 		}
 	}
 </style>

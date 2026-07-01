@@ -114,21 +114,9 @@
 
 	.topbar {
 		view-transition-name: app-navbar;
-		position: relative;
-		/* The frosted glass lives on ::before, NOT on .topbar itself: an element with
-		   backdrop-filter becomes the containing block for position:fixed descendants, which
-		   would trap the gok-command-menu scrim inside the bar instead of covering the viewport. */
-		background: transparent;
-		border-block-end: var(--gok-border-width-hairline) solid var(--gok-color-border);
-	}
-
-	.topbar::before {
-		content: '';
-		position: absolute;
-		inset: 0;
-		z-index: -1;
 		background: var(--gok-color-surface-translucent);
 		backdrop-filter: blur(var(--gok-blur-chrome));
+		border-block-end: var(--gok-border-width-hairline) solid var(--gok-color-border);
 	}
 
 	.rail {
