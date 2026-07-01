@@ -5,7 +5,6 @@
 	// desktop, collapsed icon rail on tablet, hidden rail + bottom tab bar on mobile.
 	// The persistent chrome (rail + navbar) is pinned out of the page crossfade via
 	// its own view-transition-name, so only <main> animates between routes.
-	import { untrack } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { afterNavigate, goto } from '$app/navigation';
 	import AppSidenav from '$lib/components/shell/AppSidenav.svelte';
@@ -13,27 +12,9 @@
 	import BottomTabBar from '$lib/components/shell/BottomTabBar.svelte';
 	import { toasts } from '$lib/state/toasts.svelte';
 	import { auth } from '$lib/state/auth.svelte';
-	import { command } from '$lib/state/command.svelte';
-	import { setProps, on } from '$lib/wc.svelte';
+	import { on } from '$lib/wc.svelte';
 
 	let { children } = $props();
-
-	// The DS `gok-command-menu` owns its own visibility (built-in `hotkey="$mod+K"`,
-	// Escape, scrim). We only capture the element and consume the one-shot `command.open`
-	// intent (set by the navbar Search button) to open it imperatively.
-	let menuEl = $state<(HTMLElement & { show: () => void; close: () => void }) | null>(null);
-	function captureMenu(node: HTMLElement & { show: () => void; close: () => void }) {
-		menuEl = node;
-		return () => {
-			menuEl = null;
-		};
-	}
-	$effect(() => {
-		if (command.open && menuEl) {
-			menuEl.show();
-			untrack(() => (command.open = false));
-		}
-	});
 
 	// Soft client-side guard. This app is a pure SPA (ssr=false), so there's no
 	// server gate: if I'm not signed in, bounce to /login. An effect (not render
@@ -74,20 +55,6 @@
 </div>
 
 <BottomTabBar />
-
-<gok-command-menu
-	label="Search the app"
-	placeholder="Search the app — or type a command"
-	empty-label="No matches — try a different word."
-	hotkey="$mod+K"
-	{@attach captureMenu}
-	{@attach setProps({ commands: command.commands, externalFiltering: true })}
-	{@attach on('gok-input', (e) => command.setQuery((e as CustomEvent<{ query: string }>).detail.query))}
-	{@attach on('gok-select', (e) =>
-		command.recordRecent((e as CustomEvent<{ command: { id: string } }>).detail.command.id)
-	)}
-	{@attach on('gok-close', () => command.close())}
-></gok-command-menu>
 
 <gok-toast-region placement="bottom-end">
 	{#each toasts.items as t (t.id)}
@@ -147,9 +114,21 @@
 
 	.topbar {
 		view-transition-name: app-navbar;
+		position: relative;
+		/* The frosted glass lives on ::before, NOT on .topbar itself: an element with
+		   backdrop-filter becomes the containing block for position:fixed descendants, which
+		   would trap the gok-command-menu scrim inside the bar instead of covering the viewport. */
+		background: transparent;
+		border-block-end: var(--gok-border-width-hairline) solid var(--gok-color-border);
+	}
+
+	.topbar::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: -1;
 		background: var(--gok-color-surface-translucent);
 		backdrop-filter: blur(var(--gok-blur-chrome));
-		border-block-end: var(--gok-border-width-hairline) solid var(--gok-color-border);
 	}
 
 	.rail {

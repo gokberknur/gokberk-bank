@@ -1,10 +1,11 @@
 <script lang="ts">
 	// The top bar inside the content column: brand → /home, a spacer, then the
-	// actions cluster (search, notifications, account menu, theme switch). Custom
+	// actions cluster (search, notifications, account menu, theme switch). The search
+	// entry is now a REAL command menu — the DS `gok-command-menu` trigger IS the
+	// centered search bar (it owns its own overlay, ⌘K hotkey, and a11y). Custom
 	// events arrive via the `on` attachment; object/boolean props go in via
-	// setProps. Search/notifications/most menu items are deliberate no-ops for now
-	// (their surfaces land in later features) — never a 404.
-	import { onMount } from 'svelte';
+	// setProps. Notifications/most menu items are deliberate no-ops for now (their
+	// surfaces land in later features) — never a 404.
 	import { goto } from '$app/navigation';
 	import { session } from '$lib/state/session.svelte';
 	import { density } from '$lib/state/density.svelte';
@@ -13,14 +14,15 @@
 	import { setProps, on } from '$lib/wc.svelte';
 	import NavIcon from './NavIcon.svelte';
 
-	let modLabel = $state('⌘K');
-	onMount(() => {
-		if (/mac/i.test(navigator.userAgent)) modLabel = '⌘K';
-		else modLabel = 'Ctrl K';
-	});
-
-	function openSearch() {
-		command.openPalette();
+	// Capture the DS command-menu element so the mobile/tablet actions-cluster search
+	// icon can open the palette via the element's own public `show()` method (the
+	// centered trigger bar itself is hidden below 64rem — see the styles).
+	let menuEl = $state<(HTMLElement & { show: () => void }) | null>(null);
+	function captureMenu(node: HTMLElement & { show: () => void }) {
+		menuEl = node;
+		return () => {
+			menuEl = null;
+		};
 	}
 
 	function openNotifications() {
@@ -60,11 +62,18 @@
 	</a>
 
 	<div class="search">
-		<button type="button" class="omnisearch" {@attach on('click', openSearch)}>
-			<span class="omnisearch-icon" aria-hidden="true"><NavIcon name="search" /></span>
-			<span class="omnisearch-text">Search the app</span>
-			<kbd class="omnisearch-kbd" aria-hidden="true">{modLabel}</kbd>
-		</button>
+		<gok-command-menu
+			label="Search the app"
+			placeholder="Search the app — or type a command"
+			empty-label="No matches — try a different word."
+			hotkey="$mod+K"
+			{@attach captureMenu}
+			{@attach setProps({ commands: command.commands, externalFiltering: true })}
+			{@attach on('gok-input', (e) => command.setQuery((e as CustomEvent<{ query: string }>).detail.query))}
+			{@attach on('gok-select', (e) =>
+				command.recordRecent((e as CustomEvent<{ command: { id: string } }>).detail.command.id))}
+			{@attach on('gok-close', () => command.close())}
+		></gok-command-menu>
 	</div>
 
 	<div class="actions">
@@ -72,7 +81,7 @@
 			variant="secondary"
 			class="nav-search-icon"
 			accessible-label="Search"
-			{@attach on('click', openSearch)}
+			{@attach on('click', () => menuEl?.show())}
 		>
 			<NavIcon slot="icon" name="search" />
 		</gok-button>
@@ -147,21 +156,30 @@
 		display: none;
 	}
 
+	/* The centered search is the DS `gok-command-menu` trigger itself. It stays mounted
+	   at all breakpoints so the actions-cluster search icon can call its `show()` on
+	   mobile/tablet — where the trigger bar is hidden (::part below) but the element
+	   (and its palette card) must remain in the DOM. */
 	.search {
 		flex: 1 1 auto;
 		min-inline-size: 0;
-		display: none;
+		display: flex;
 		align-items: center;
 		justify-content: center;
 		padding-inline: var(--gok-space-500);
 	}
 
-	.omnisearch {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--gok-space-200);
+	.search gok-command-menu {
 		inline-size: 100%;
 		max-inline-size: 30rem;
+		--gok-command-menu-inline-size: 30rem;
+		--gok-command-menu-radius: var(--gok-radius-m);
+	}
+
+	/* Match the trigger to the old omnisearch bar: hairline, radius-m, surface bg,
+	   muted text, with hover/focus affordances. */
+	.search gok-command-menu::part(trigger) {
+		inline-size: 100%;
 		padding-block: var(--gok-space-200);
 		padding-inline: var(--gok-space-300);
 		border: var(--gok-border-width-hairline) solid var(--gok-color-border);
@@ -170,38 +188,16 @@
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
 		color: var(--gok-color-text-muted);
-		cursor: pointer;
-		text-align: start;
 	}
 
-	.omnisearch:hover {
+	.search gok-command-menu::part(trigger):hover {
 		background: var(--gok-color-surface-strong);
 		border-color: var(--gok-color-border-strong);
 	}
 
-	.omnisearch:focus-visible {
+	.search gok-command-menu::part(trigger):focus-visible {
 		outline: var(--gok-border-width-strong) solid var(--gok-color-primary);
 		outline-offset: calc(-1 * var(--gok-border-width-strong));
-	}
-
-	.omnisearch-icon {
-		display: inline-flex;
-		color: var(--gok-color-text-muted);
-	}
-
-	.omnisearch-text {
-		flex: 1 1 auto;
-	}
-
-	.omnisearch-kbd {
-		flex: none;
-		padding-block: 0;
-		padding-inline: var(--gok-space-100);
-		border: var(--gok-border-width-hairline) solid var(--gok-color-border);
-		border-radius: var(--gok-radius-s);
-		font-family: var(--gok-font-family-mono);
-		font-size: var(--gok-type-caption-size);
-		color: var(--gok-color-text-muted);
 	}
 
 	.actions {
@@ -243,14 +239,37 @@
 		}
 	}
 
-	/* Desktop (≥64rem): the centered search field appears; the actions-cluster search
-	   icon steps aside so the field is the single, prominent search entry point. */
+	/* Desktop (≥64rem): the centered search bar is the single, prominent search entry
+	   point, so the actions-cluster search icon steps aside. */
 	@media (min-width: 64rem) {
-		.search {
-			display: flex;
+		.nav-search-icon {
+			display: none;
+		}
+	}
+
+	/* Below the desktop breakpoint the DS trigger bar is hidden and the palette is opened by the
+	   actions-cluster search icon (menuEl.show()). The command-menu must stay mounted for that to
+	   work, so instead of collapsing it we take .search out of the navbar row and give the host a
+	   real width, so the palette card (which derives its width from the host) renders full-size. */
+	@media (max-width: 63.999rem) {
+		.navbar {
+			position: relative;
 		}
 
-		.nav-search-icon {
+		.search {
+			position: absolute;
+			inset-block-start: 100%;
+			inset-inline: var(--gok-space-400);
+			inline-size: min(30rem, calc(100vw - 2 * var(--gok-space-400)));
+			padding: 0;
+		}
+
+		.search gok-command-menu {
+			inline-size: 100%;
+			--gok-command-menu-inline-size: 100%;
+		}
+
+		.search gok-command-menu::part(trigger) {
 			display: none;
 		}
 	}

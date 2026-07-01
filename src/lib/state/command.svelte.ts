@@ -1,9 +1,8 @@
 // Command-menu state (X03, now on the DS `gok-command-menu`). The element owns the
-// overlay, keyboard, and a11y; this state owns only the app side: a one-shot "please
-// open" intent the shell reacts to, the live query, the persisted recents, and the
-// `commands` list handed to the element (which renders it as-given in external-
-// filtering mode). Navigation/actions live on each command; this state just records
-// what was run for the recent list.
+// overlay, keyboard, and a11y; this state owns only the app side: the live query, the
+// persisted recents, and the `commands` list handed to the element (which renders it
+// as-given in external-filtering mode). Navigation/actions live on each command; this
+// state just records what was run for the recent list.
 
 import { readJSON, writeJSON } from './persist';
 import { search, suggestedItems, itemsByIds } from '$lib/command/registry';
@@ -13,7 +12,6 @@ const RECENT_KEY = 'command-recent';
 const RECENT_MAX = 6;
 
 class CommandState {
-	open = $state(false); // one-shot "please open" intent the shell layout reacts to
 	query = $state('');
 	private recentIds = $state<string[]>(readJSON<string[]>(RECENT_KEY, []));
 
@@ -37,13 +35,7 @@ class CommandState {
 		return search(q).flatMap((g) => g.items);
 	}
 
-	openPalette() {
-		this.query = '';
-		this.open = true;
-	}
-
 	close() {
-		this.open = false;
 		this.query = '';
 	}
 
