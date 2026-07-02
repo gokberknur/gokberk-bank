@@ -138,20 +138,15 @@
 		background: var(--gok-color-border-strong);
 	}
 
-	.row[data-status='ok'] .rule {
-		background: var(--gok-color-status-success);
-	}
-
+	/* ok / info are non-cautionary — the rail stays neutral ink (the default), so
+	   hue is spent only where it means something (SVC-D-02). Their status still
+	   rides along as text in the row's accessible name. */
 	.row[data-status='pending'] .rule {
 		background: var(--gok-color-status-warning);
 	}
 
 	.row[data-status='blocked'] .rule {
 		background: var(--gok-color-status-error);
-	}
-
-	.row[data-status='info'] .rule {
-		background: var(--gok-color-status-info);
 	}
 
 	/* Unread mark — an ink dot (state, not hue), paired with a bolder title. */

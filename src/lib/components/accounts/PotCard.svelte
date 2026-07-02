@@ -42,7 +42,6 @@
 
 	<div class="card">
 		<header class="head">
-			<span class="emoji" aria-hidden="true">{pot.emoji}</span>
 			<span class="meta">
 				<span class="eyebrow gok-eyebrow">Pot</span>
 				<span class="name gok-headline-6">{pot.name}</span>
@@ -106,11 +105,6 @@
 		display: flex;
 		align-items: flex-start;
 		gap: var(--gok-space-200);
-	}
-
-	.emoji {
-		font-size: var(--gok-type-headline-5-size);
-		line-height: 1;
 	}
 
 	.meta {

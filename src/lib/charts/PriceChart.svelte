@@ -110,11 +110,16 @@
 				priceFormat
 			});
 		} else {
+			// Direction over the visible range drives the line — a losing asset must
+			// not read green (CV-A11Y-1 / CRY-D-01). Mirrors the candlestick up/down tokens.
+			const first = candles[0]?.close ?? 0;
+			const last = candles.at(-1)?.close ?? first;
+			const dir = last >= first ? theme.up : theme.down;
 			(series as ISeriesApi<'Area'>).applyOptions({
-				lineColor: theme.accent,
+				lineColor: dir,
 				lineWidth: 2 as LineWidth,
-				topColor: resolveColor(`color-mix(in srgb, ${theme.accent} 22%, transparent)`),
-				bottomColor: resolveColor(`color-mix(in srgb, ${theme.accent} 2%, transparent)`),
+				topColor: resolveColor(`color-mix(in srgb, ${dir} 22%, transparent)`),
+				bottomColor: resolveColor(`color-mix(in srgb, ${dir} 2%, transparent)`),
 				priceFormat
 			});
 		}

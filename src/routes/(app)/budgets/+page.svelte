@@ -190,6 +190,18 @@
 						{@const p = budgets.progress(budget.category)}
 						{@const frac = Math.min(1, Math.max(0, p.fraction))}
 						{@const label = CATEGORY_LABELS[budget.category]}
+						<!-- Fill by state: under keeps the default accent; near = caution, over =
+						     error. Reinforces the icon+tag flag above (never colour-alone). -->
+						{@const fillColor =
+							p.state === 'over'
+								? 'var(--gok-color-status-error)'
+								: p.state === 'near'
+									? 'var(--gok-color-status-warning)'
+									: null}
+						<!-- A flagged bar reads near-full but must NOT hit the DS "complete" state
+						     (value ≥ max swaps the fill to success-green + a check) — hitting a
+						     budget cap is not a win. Hold it just under max to suppress that. -->
+						{@const barValue = p.state === 'under' ? frac : Math.min(frac, 0.999)}
 						<li class="budget-row">
 							<div class="budget-head">
 								<span class="budget-label">{label}</span>
@@ -204,7 +216,8 @@
 								size="s"
 								format="percent"
 								label={`${label} budget — ${eur(p.spentMinor)} of ${eur(p.limitMinor)} spent`}
-								{@attach setProps({ value: frac, max: 1 })}
+								style:--gok-progress-fill-color={fillColor}
+								{@attach setProps({ value: barValue, max: 1 })}
 							></gok-progress>
 							<div class="budget-foot">
 								<span class="budget-figures gok-tabular-nums">

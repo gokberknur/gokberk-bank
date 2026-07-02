@@ -117,16 +117,18 @@ export function prefersReducedMotion(): boolean {
 	return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-/** Build a muted-to-accent ramp of `n` swatches for multi-series/allocation charts.
- *  Keeps the brand discipline: the accent leads, the rest are neutral steps — never
- *  a rainbow. Returns CSS color strings (accent first, then graded muted/border). */
+/** Build a graded neutral-ink ramp of `n` swatches for multi-series/allocation charts.
+ *  Keeps the brand discipline: the forest-green accent is spent once per *context*
+ *  (the primary action / selected / focus) and must NOT be a chart category, or a
+ *  donut/allocation reads as many greens (CV-VIS-1 / CARD-D-03). So every swatch is
+ *  a graded step of the ink over the surface — darkest first, receding — never the
+ *  accent, never a rainbow. Returns CSS color strings. */
 export function categoricalRamp(theme: ChartTheme, n: number): string[] {
-	if (n <= 1) return [theme.accent];
-	const out = [theme.accent];
-	for (let i = 1; i < n; i++) {
+	const out: string[] = [];
+	for (let i = 0; i < n; i++) {
 		// Interpolate opacity of the ink over the surface so later categories recede.
-		const t = i / n;
-		out.push(`color-mix(in oklab, ${theme.text} ${Math.round((1 - t) * 70 + 12)}%, ${theme.surface})`);
+		const t = n <= 1 ? 0 : i / n;
+		out.push(`color-mix(in oklab, ${theme.text} ${Math.round((1 - t) * 70 + 18)}%, ${theme.surface})`);
 	}
 	return out;
 }
