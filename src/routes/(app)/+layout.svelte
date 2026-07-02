@@ -126,6 +126,8 @@
 	}
 
 	.main {
+		inline-size: min(100%, var(--measure-page));
+		margin-inline: auto;
 		padding-inline: var(--gok-space-500);
 		padding-block: var(--gok-space-600);
 	}

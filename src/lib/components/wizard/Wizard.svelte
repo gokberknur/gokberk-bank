@@ -132,6 +132,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-500);
+		max-inline-size: var(--measure-read);
 	}
 
 	/* One visible position signal per breakpoint: the rail owns it on desktop, so

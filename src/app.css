@@ -11,6 +11,40 @@
 	box-sizing: border-box;
 }
 
+/*
+ * Content measure scale (app-local). The design system has no content-width token
+ * and its `.gok-app-shell__main` utility imposes no cap, so a screen would otherwise
+ * run edge-to-edge on wide displays (patterns.md §9 mandates "max-width content").
+ * These are semantic *measures*, not arbitrary widths — pick the role, not a number:
+ *   --measure-page  wide surfaces in the shell (dashboards, data grids)
+ *   --measure-read  long-form reading (disclosures, policy text, review ledgers)
+ *   --measure-form  a form / wizard column (labelled inputs stacked in one column)
+ * Individual fields size to their *content* on top of this (a money input is ~a dozen
+ * characters, never the full column) — see MoneyInput's `width` + --field-* helpers.
+ */
+:root {
+	--measure-page: 72rem;
+	--measure-read: 46rem;
+	--measure-form: 32rem;
+	/* Field content widths — sized to the value, in ch so they track the type. */
+	--field-money: 16ch;
+	--field-short: 12ch;
+}
+
+/* Centre a capped column in whatever container it sits in. */
+.measure-page {
+	max-inline-size: var(--measure-page);
+	margin-inline: auto;
+}
+
+.measure-read {
+	max-inline-size: var(--measure-read);
+}
+
+.measure-form {
+	max-inline-size: var(--measure-form);
+}
+
 html {
 	background: var(--gok-color-bg);
 	color: var(--gok-color-text);

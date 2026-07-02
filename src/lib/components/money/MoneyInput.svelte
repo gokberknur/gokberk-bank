@@ -28,6 +28,8 @@
 		maxMinor?: number;
 		/** Called whenever the canonical minor-unit value changes. */
 		onchange?: (minor: number) => void;
+		/** Optional explicit field width (any CSS length). Defaults to the --field-money content measure. */
+		width?: string;
 	}
 
 	let {
@@ -40,7 +42,8 @@
 		balanceMinor,
 		minMinor,
 		maxMinor,
-		onchange
+		onchange,
+		width
 	}: Props = $props();
 
 	const decimals = $derived(currencyDecimals(currency));
@@ -69,7 +72,14 @@
 	{currency}
 	label={fieldLabel}
 	reserve-message
+	style:--money-w={width}
 	{@attach setProps({ value, error: balanceError, min: minMinor, max: maxMinor, placeholder, disabled, readonly })}
 	{@attach on('input', commit)}
 	{@attach on('change', commit)}
 ></gok-money>
+
+<style>
+	gok-money {
+		max-inline-size: var(--money-w, var(--field-money));
+	}
+</style>
