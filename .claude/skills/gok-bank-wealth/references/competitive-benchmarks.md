@@ -43,6 +43,27 @@ than any of them on cost and risk."
   after you commit.
 - **Crypto sends with a soft, dismissible warning.** The network confirm must be a forced decision.
 
+## The investing-depth bar (V08–V15)
+
+The depth epic covers surfaces V01–V07 didn't; who sets each bar, and where gökberk wins:
+
+- **Savings plans — Avanza *månadssparande* + Trade Republic + Trading212 *Pies / AutoInvest*.** The habit that
+  wins the primary relationship: set an amount + a day + a target and forget it (Avanza in ~3 minutes;
+  Trading212 adds baskets with target weights). Match the capability; build it on the **P05 schedule + V03
+  order** spines with full cost transparency and **no advice** — we offer the mechanism, never "invest €X".
+- **Charting — TradingView (curated).** Uncontested on depth (400+ indicators, drawing tools) — do **not**
+  chase it. The bar we hold is a *curated honest* subset (volume, crosshair OHLC, MA/RSI/MACD/Bollinger, one
+  rebased comparison), each with a data-table fallback. Restraint is the brand.
+- **Analytics — Nordnet / Avanza.** Realized vs unrealized, TWR, a rebased benchmark, a projection tool. Match
+  the depth; keep the projection a **neutral calculator**, never a "future value" promise.
+- **Price alerts — Revolut / eToro / TradingView.** Table-stakes-adjacent now; ours is the **calm** version —
+  factual "X is above €Y", no urgency, no nudge-to-trade.
+- **ISK — Avanza.** The account every Swede invests through (flat schablonskatt, no capital-gains filing). A
+  local-flavor delighter — *represented* as a factual flat-tax line, not a tax engine.
+- **Live data — the credibility play.** Bitpanda/Revolut feel "real" because prices move; we get crypto + FX
+  live nearly free (keyless). But a demo that **breaks** live is worse than a polished mock — the seed stays
+  system-of-record and live only *overlays* it (`ADR-006`).
+
 ## The gökberk angle
 
 Match Nordnet on depth and Trade Republic on calm; **beat** all of them on cost and risk transparency. Where

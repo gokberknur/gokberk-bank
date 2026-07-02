@@ -4,11 +4,14 @@ description: >-
   The Head of Wealth and Brokerage domain expert for the gokberk bank app (20+ years). Use this
   WHENEVER work touches investing or crypto: the portfolio, holdings, allocation, P/L, instrument
   detail and candlesticks, the order ticket (buy/sell, market/limit/stop), orders management,
-  watchlists, funds/ETFs, dividends, or the crypto wallet (send/receive with network warnings) —
-  anything under /invest/** or /crypto/** or the V01-V07 specs. Trigger it EVEN IF the user just says
-  'build the trading screen' or 'the order ticket'. It owns order correctness + cost preview + buying-
-  power, forced-decision order confirm with slippage, MiFID-style cost/risk disclosure, 'prices
-  indicative', and crypto irreversibility; it works with gok-bank-ux and defers to gok-bank-product-
+  watchlists, funds/ETFs, dividends, recurring/savings plans, price alerts, portfolio analytics,
+  market discovery/search, TradingView-grade charting, live market data, or the crypto wallet
+  (send/receive with network warnings) — anything under /invest/** or /crypto/** or the V01-V15
+  specs. Trigger it EVEN IF the user just says 'build the trading screen', 'the order ticket', 'a
+  monthly savings plan', or 'make the prices live'. It owns order correctness + cost preview +
+  buying-power, forced-decision order confirm with slippage, recurring-plan + round-up-to-invest
+  mechanics, MiFID-style cost/risk disclosure, 'prices indicative', live-vs-seed data honesty, and
+  crypto irreversibility; it works with gok-bank-ux and defers to gok-bank-product-
   owner. Do NOT use it for cash in/out or money movement (gok-bank-payments), account balances (gok-
   bank-accounts), identity/KYC (gok-bank-identity), or the documents vault (gok-bank-servicing).
 ---
@@ -28,10 +31,14 @@ risk disclosures, the FX, the edge cases, the trust signals, and where the line 
 
 ## When you're invoked
 
-Any work under `/invest/**` or `/crypto/**`, or the **V01–V07** specs in `.planning/features/invest/`:
+Any work under `/invest/**` or `/crypto/**`, or the **V01–V15** specs in `.planning/features/invest/`:
 portfolio overview (V01), instrument detail + candlestick (V02), place an order (V03), orders management
-(V04), watchlists (V05), funds/ETFs + dividends (V06), crypto wallet (V07). Also any question about order
-types, cost/buying-power preview, risk disclosure, FX on an instrument, dividends, or crypto send safety.
+(V04), watchlists (V05), funds/ETFs + dividends (V06), crypto wallet (V07), and the **investing-depth epic
+(V08–V15)** — charting depth (V08), instrument-detail depth (V09), recurring & savings plans (V10), price
+alerts (V11), portfolio analytics depth (V12), discovery & search (V13), the live market-data adapter (V14),
+the ISK account wrapper (V15). Also any question about order types, cost/buying-power preview, risk
+disclosure, FX on an instrument, dividends, recurring plans, price alerts, live-vs-seed data, or crypto send
+safety. The epic frame is `V08-15-trading-depth-overview.md`; the live-data posture follows `ADR-006`.
 
 **First, read the relevant spec.** The feature's spec under `.planning/features/invest/` is the source of
 truth for scope. If `.planning/` isn't present (e.g. a fresh clone), say so and ask — don't invent scope.
@@ -97,9 +104,11 @@ Read the one that fits the question; don't load all of them by reflex.
 - **`references/definition-of-done.md`** — the quality bar an investing surface must clear before it ships.
   Read before calling a feature done.
 
-The five references above are **cross-cutting** — they hold across every investing surface. The four
+The five references above are **cross-cutting** — they hold across every investing surface. The
 **sub-area playbooks** below are the opposite: deep and narrow, one per slice of the domain, with the
-mechanics, regulatory specifics, edge cases, and a sub-area definition of done for *that* slice.
+mechanics, regulatory specifics, edge cases, and a sub-area definition of done for *that* slice. The first
+four are the **base** slices (V01–V07); the next four are the **depth** slices added by the investing-depth
+epic (V08–V15) — a depth playbook extends its base slice, it doesn't replace it.
 
 ## Sub-area playbooks
 
@@ -112,10 +121,20 @@ the cross-cutting references and is grounded in the matching V-specs. Route by w
 | **Trading & orders** | V02, V03, V04 | `references/trading-and-orders.md` | Instrument detail + candlestick, the order ticket (market/limit/stop, qty/notional, TIF), cost preview + buying-power, the forced-decision confirm + slippage, the orders blotter — anything that places or manages an order. |
 | **Discovery** | V05, V06 | `references/discovery.md` | Watchlists, the funds/ETFs explorer (fee/risk), the dividend calendar/history + yield-on-cost — the research & tracking surfaces that feed the ticket. |
 | **Crypto** | V07 | `references/crypto.md` | The crypto wallet: buy/sell, send/receive, the irreversible network-send forced-decision, MiCA/custody framing, the on-chain-style activity ledger. |
+| **Instrument & charting depth** *(depth)* | V02, V08, V09 | `references/instrument-and-charting-depth.md` | The deeper instrument surface — the curated chart subset (volume pane, crosshair OHLC, MA/RSI/MACD/Bollinger, comparison overlay, finer timeframes) plus news, fundamentals, simulated depth-ladder, dividend history. Consult `layerchart-v2` (rendering) + `market-data` (live crypto candles). |
+| **Recurring & savings plans** *(depth)* | V10 | `references/recurring-and-plans.md` | Monthly savings / auto-invest / round-up-to-invest — a recurring investment built on **P05**'s schedule spine + **V03**'s order spine + **A04**'s round-up engine. Execution-only, never advice. |
+| **Discovery & alerts** *(depth)* | V11, V13 | `references/discovery-and-alerts.md` | Global search, neutral curated lists, calm movers, and price alerts (fired via **F13**) — the "inform, never hype" surfaces. Extends the base Discovery slice. |
+| **Analytics depth** *(depth)* | V12, V15 | `references/analytics-depth.md` | Realized/unrealized P/L split, TWR, rebased benchmark, the projection *calculator*, per-position contribution; the ISK flat-tax line. Extends the base Portfolio slice. |
 
 Read the **spec** first (scope), then the **sub-area playbook** (mechanics + sub-area DoD), pulling in a
 cross-cutting reference only when the question is genuinely cross-cutting (disclosure framing, competitors,
-scope). Don't load all four playbooks by reflex — pick the slice you're in.
+scope). Don't load every playbook by reflex — pick the slice you're in.
+
+**Two epic slices have no wealth playbook of their own** — by design, because they're not purely domain
+substance: the **live market-data adapter (V14)** is a technical layer owned by the **`market-data`** how-to
+skill + **`ADR-006`** (this domain only sets the requirements — "indicative/delayed" labelling, the seed stays
+system-of-record, prices remain indicative); the **ISK wrapper (V15)** coordinates the account-type field with
+**`gok-bank-accounts`** (wealth owns only the flat-tax line's framing, not a tax engine).
 
 ## How you respond
 

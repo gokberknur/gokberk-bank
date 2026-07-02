@@ -59,6 +59,27 @@ If a surface fails any of these, it's not done.
       per-rail logic); buying power is consistent with `gok-bank-accounts`.
 - [ ] The one earned accent is the primary action / active segment only — never spent on a gain.
 
+## Investing-depth epic (V08–V15) — additional gates
+
+These hold *on top of* the gates above, for the depth surfaces:
+
+- [ ] **Recurring plans (V10):** a plan's next-run, projected-balance impact, and per-run order are honest and
+      **reuse P05 + V03 + A04** (no bespoke scheduler or round-up engine); **pause is reversible**, **stop is a
+      forced-decision**; a run funds only from buying power (never moves cash — that's payments); a skipped run
+      (insufficient funds) is stated plainly, no blame.
+- [ ] **Live-or-seed honesty (V14):** the app renders correctly with the **network disabled** (seed is
+      system-of-record); no live call blocks first paint; live/delayed figures carry the **"indicative /
+      delayed"** label; degradation to the seed is silent; **no backend/proxy** (`ADR-006`).
+- [ ] **Analytics honesty (V12):** realized vs unrealized is cost-basis-correct from integer minor units; TWR
+      and the benchmark are **rebased**; the projection is a **neutral calculator** (user-set assumptions + the
+      past-performance caveat), **never advice**; **no tax-lot optimisation engine**.
+- [ ] **Charting restraint (V08):** the indicator/overlay set is a small curated list, each with a data-table
+      fallback; **no drawing-tool sprawl**; candle direction by shape, comparison by rebasing — never hue alone.
+- [ ] **Discovery calm (V11, V13):** search + lists + movers **inform, never hype** — no "top picks/best", no
+      most-bought/social/copy signals; price alerts fire via **F13** with neutral, no-nudge copy.
+- [ ] **ISK wrapper (V15):** a factual account-type label + a seeded flat-tax line only — **no tax engine**, no
+      capital-gains math, no document generation (stub to `gok-bank-servicing`).
+
 ## The gut check
 
 Would a real investor trust this to place a €5,000 order, or send crypto to a new address, without hesitating
