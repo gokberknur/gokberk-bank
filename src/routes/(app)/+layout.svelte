@@ -50,7 +50,9 @@
 	</aside>
 
 	<main id="main" class="main gok-app-shell__main">
-		{@render children()}
+		<div class="main-inner">
+			{@render children()}
+		</div>
 	</main>
 </div>
 
@@ -125,7 +127,21 @@
 		background: var(--gok-color-surface);
 	}
 
+	/* The scroll container fills the whole grid "main" cell (the DS supplies its overflow + 1fr
+	   height). Keeping it full-width — rather than narrowing it to the content measure — puts the
+	   scrollbar at the viewport's right edge and lets the wheel scroll from anywhere in the region.
+	   `position: relative` also makes it the positioning context for its absolutely-positioned
+	   descendants (screen-reader `.visually-hidden`/`.sr-only` spans, chart canvases): without it
+	   those anchor to the document (ICB), landing deep on long pages and inflating the document's
+	   scroll height into a phantom *window* scroll on top of the intended internal one. */
 	.main {
+		position: relative;
+	}
+
+	/* The content column. The measure cap + padding live here, not on the scroll container, so the
+	   content stays centered and capped (patterns.md §9) while `.main` spans the full width above.
+	   Mirrors the `.measure-page` utility in app.css. */
+	.main-inner {
 		inline-size: min(100%, var(--measure-page));
 		margin-inline: auto;
 		padding-inline: var(--gok-space-500);
@@ -143,7 +159,7 @@
 			display: none;
 		}
 
-		.main {
+		.main-inner {
 			padding-inline: var(--gok-space-400);
 			padding-block-end: calc(var(--gok-space-900) + env(safe-area-inset-bottom));
 		}
