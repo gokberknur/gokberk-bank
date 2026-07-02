@@ -1,0 +1,29 @@
+{
+  "skill_name": "layerchart-v2",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "The budgets page needs the spending-by-category donut. Build it with LayerChart v2 so it themes with our tokens and matches the app.",
+      "expected_output": "Invokes the layerchart-v2 skill; uses PieChart with negative innerRadius for the ring, categoricalRamp(data.length) for slice colors (NEVER the accent), center title/value via an aboveMarks snippet with centered <Text> marks; passes var(--gok-*) not Tailwind classes; keeps role=\"img\" + label and money in minor units via formatValue; references the .lc-root-container token-bridge; authors the .svelte through the Svelte MCP; defers visuals to gokberk-design.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Migrate PriceChart.svelte off TradingView Lightweight Charts to LayerChart v2 — keep the candlestick + line toggle.",
+      "expected_output": "Invokes the skill; composes Chart + two Rule marks (wick high→low, thick open→close body) colored up/down via c/cDomain/cRange with chartTokens, scaleUtc() time axis, Highlight lines, and an OHLC Tooltip; line mode via LineChart; keeps the wrapper's prop API stable; deletes the onMount/init/ResizeObserver/dispose and the data-theme MutationObserver (SVG re-themes for free); flags gotchas: no built-in volume pane (add a Bars layer) and pan/zoom via TransformContext; money via formatValue.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "My new LayerChart line chart renders in the wrong colour and doesn't update when I toggle dark mode. What's wrong?",
+      "expected_output": "Invokes the skill; diagnoses the token-bridge — map LayerChart's --color-primary/--color-surface-* to --gok-* on .lc-root-container, and pass series/mark colors as var(--gok-*) strings (not the docs' Tailwind fill-primary classes); explains that with SVG the var(--gok-*) refs re-cascade on data-theme automatically so no MutationObserver is needed; checks that the non-Tailwind @layer theme, base, components, utilities declaration is present so LayerChart's layers stay overridable.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Add a savings-rate gauge (0–100%) to the budgets summary.",
+      "expected_output": "Invokes the skill; notes this is a new capability; uses ArcChart with a single {key,value}, maxValue=100, negative innerRadius for a ring, accent range and a neutral track, motion gated on prefersReducedMotion(); keeps role=\"img\" + label; or composes Arc for a true ticked gauge; verifies against the ArcChart/Arc gauge docs.",
+      "files": []
+    }
+  ]
+}
