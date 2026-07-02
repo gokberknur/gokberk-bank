@@ -30,6 +30,7 @@
 		selectedId = null,
 		onselect,
 		onsort,
+		renderCell,
 		paginated = false,
 		pageSize = 25,
 		accessibleLabel,
@@ -48,6 +49,11 @@
 		onselect?: (row: T) => void;
 		/** Forwarded from gok-table's own gok-sort event; null when sorting is cleared. RecordList stays generic and does not interpret it. */
 		onsort?: (sort: { key: string; direction: 'asc' | 'desc' } | null) => void;
+		/** Optional per-cell renderer, forwarded verbatim to the desktop <gok-table> for custom cells
+		 * (status badges, stacked name+ref cells, date title fallbacks). Signature mirrors gok-table's
+		 * own `renderCell`. It is deliberately NOT used on mobile: the record-card renders each column
+		 * via its string `format` instead, so cells stay readable text and nothing clips. */
+		renderCell?: (column: Column, row: T) => Node | string;
 		paginated?: boolean;
 		pageSize?: number;
 		accessibleLabel: string;
@@ -189,7 +195,7 @@
 		paginated={paginated}
 		page-size={pageSize}
 		accessible-label={accessibleLabel}
-		{@attach setProps({ columns, rows, getRowId, selection: selectedId ? [selectedId] : [] })}
+		{@attach setProps({ columns, rows, getRowId, selection: selectedId ? [selectedId] : [], renderCell })}
 		{@attach onselect ? on('gok-selection-change', handleSelection) : noEffect}
 		{@attach on('gok-sort', handleSort)}
 		{@attach onselect ? on('row-activate', handleActivate) : noEffect}

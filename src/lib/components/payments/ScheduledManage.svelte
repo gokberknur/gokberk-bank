@@ -1,11 +1,13 @@
 <script lang="ts">
 	// P05 · Scheduled payments — manage. My standing orders and future-dated payments
-	// in a gok-table (the same DOM-property + single-selection idiom as the payees and
-	// requests grids), with a row drawer for the detail and the two controls that
-	// matter: Pause and Cancel. Pause is *reversible* — a gok-switch, optimistic + a
-	// toast, no dialog; Cancel is *final*, so it's gated behind a forced-decision
-	// danger dialog. Status travels by the badge's rule + a glyph + the word, never
-	// colour alone. rows is spread fresh each revision so a pause/cancel re-renders.
+	// through RecordList: a real gok-table on desktop (custom cells via renderCell — a
+	// stacked payee/reference cell + a status badge) and stacked record-cards on mobile
+	// (each column's string `format`), so nothing clips at 390px. A row drawer carries
+	// the detail and the two controls that matter: Pause and Cancel. Pause is
+	// *reversible* — a gok-switch, optimistic + a toast, no dialog; Cancel is *final*,
+	// so it's gated behind a forced-decision danger dialog. Status travels by the
+	// badge's rule + a glyph + the word, never colour alone. rows is spread fresh each
+	// revision so a pause/cancel re-renders.
 	//
 	// This component backs both the index surface and the deep-linked [id] drawer —
 	// the page passes `openId` and the matching row opens on mount.
@@ -14,6 +16,7 @@
 	import type { EffectiveStatus } from '$lib/payments/schedule.svelte';
 	import { setProps, on } from '$lib/wc.svelte';
 	import { formatMoney, formatDate } from '$lib/format';
+	import RecordList from '$lib/components/layout/RecordList.svelte';
 
 	// Narrow string unions for the gok-badge / gok-icon attributes we set (the package
 	// doesn't re-export these from the root; we only need the literal values).
@@ -67,8 +70,19 @@
 		}
 	}
 
+	// Every column carries a string `format` so the mobile record-card renders it as readable
+	// text. Desktop still uses renderCell for the two custom cells (stacked payee, status badge);
+	// the formats below only feed the card. The primary (payee) folds the quiet reference in so
+	// the card title surfaces BOTH name and ref (the desktop stays a two-line stacked cell). The
+	// status format returns the plain status word (the desktop keeps the glyph badge).
 	const columns: Column[] = [
-		{ key: 'payeeName', label: 'Payee', primary: true, sortable: true },
+		{
+			key: 'payeeName',
+			label: 'Payee',
+			primary: true,
+			sortable: true,
+			format: (_v, row) => `${row.payeeName} · ${row.reference}`
+		},
 		{
 			key: 'amountMinor',
 			label: 'Amount',
@@ -85,7 +99,7 @@
 			format: (v) => FREQUENCY_LABEL[v as Frequency]
 		},
 		{ key: 'nextRun', label: 'Next run', width: '10rem', format: (_v, row) => nextRunLabel(row) },
-		{ key: 'status', label: 'Status', width: '9rem' }
+		{ key: 'status', label: 'Status', width: '9rem', format: (_v, row) => STATUS_META[schedule.statusOf(row)].label }
 	];
 
 	const getRowId = (i: ScheduledItem) => i.id;
@@ -148,10 +162,11 @@
 	const selectedPaused = $derived(selected ? schedule.isPaused(selected) : false);
 	const upcomingRuns = $derived(selected ? schedule.upcoming(selected, 4) : []);
 
-	function handleSelection(event: Event) {
-		const ids = (event as CustomEvent<{ ids: string[] }>).detail.ids ?? [];
-		selectedIds = ids;
-		if (ids[0]) drawerOpen = true;
+	// RecordList hands back the activated row (desktop full-row click or mobile card tap) — the
+	// same "open this schedule" gesture the gok-selection-change wiring used to carry.
+	function openItem(row: ScheduledItem) {
+		selectedIds = [row.id];
+		drawerOpen = true;
 	}
 
 	function closeDrawer(e?: Event) {
@@ -203,27 +218,35 @@
 		</gok-link>
 	</header>
 
-	<gok-table
-		selection-mode="single"
-		accessible-label="My scheduled payments"
-		{@attach setProps({ columns, rows, getRowId, renderCell, selection: selectedIds })}
-		{@attach on('gok-selection-change', handleSelection)}
+	<RecordList
+		{columns}
+		{rows}
+		{getRowId}
+		{renderCell}
+		selectionMode="none"
+		selectedId={selectedIds[0] ?? null}
+		onselect={openItem}
+		accessibleLabel="My scheduled payments"
 	>
-		<div slot="caption" class="caption">
-			<p class="caption-eyebrow gok-eyebrow">Standing orders</p>
-			<h2 class="caption-title gok-headline-5">My schedule</h2>
-		</div>
+		{#snippet caption()}
+			<div class="caption">
+				<p class="caption-eyebrow gok-eyebrow">Standing orders</p>
+				<h2 class="caption-title gok-headline-5">My schedule</h2>
+			</div>
+		{/snippet}
 
-		<div slot="empty" class="empty">
-			<gok-empty-state>
-				<p class="empty-title gok-headline-6">No scheduled payments</p>
-				<p class="empty-body">Set one up and it’ll run on its own — I can pause or cancel anytime.</p>
-				<gok-link slot="actions" href="/payments/scheduled/new">
-					<gok-button variant="primary">Schedule a payment</gok-button>
-				</gok-link>
-			</gok-empty-state>
-		</div>
-	</gok-table>
+		{#snippet empty()}
+			<div class="empty">
+				<gok-empty-state>
+					<p class="empty-title gok-headline-6">No scheduled payments</p>
+					<p class="empty-body">Set one up and it’ll run on its own — I can pause or cancel anytime.</p>
+					<gok-link slot="actions" href="/payments/scheduled/new">
+						<gok-button variant="primary">Schedule a payment</gok-button>
+					</gok-link>
+				</gok-empty-state>
+			</div>
+		{/snippet}
+	</RecordList>
 </div>
 
 <!-- Row detail · the schedule, the next few runs, and the two controls. -->

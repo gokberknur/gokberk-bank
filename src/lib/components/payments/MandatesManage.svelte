@@ -1,9 +1,11 @@
 <script lang="ts">
 	// P06 · SEPA Direct Debit mandates — manage. Every company I've authorised to pull
-	// from my EUR wallet, in a gok-table (the same DOM-property + single-selection idiom
-	// as the scheduled and payees grids), a leading upcoming-collections ledger, and a
-	// row drawer carrying the identity, the collection history, and the two acts that
-	// matter. Both acts are destructive and so forced decisions behind a danger dialog:
+	// from my EUR wallet, through RecordList: a real gok-table on desktop (custom cells
+	// via renderCell — a stacked creditor/reference cell, a stacked amount/date cell, and
+	// a status badge) and stacked record-cards on mobile (each column's string `format`),
+	// so nothing clips at 390px. A leading upcoming-collections ledger, and a row drawer
+	// carrying the identity, the collection history, and the two acts that matter. Both
+	// acts are destructive and so forced decisions behind a danger dialog:
 	// Cancel a mandate stops every future pull; Dispute a collection flags one pull as
 	// under review. No-blame throughout — a creditor isn't accused, I simply act. Status
 	// travels by the badge/chip's rule + a glyph + the word, never colour alone. rows is
@@ -14,6 +16,7 @@
 	import { untrack } from 'svelte';
 	import { setProps, on } from '$lib/wc.svelte';
 	import { formatMoney, formatDate } from '$lib/format';
+	import RecordList from '$lib/components/layout/RecordList.svelte';
 	import { mandates } from '$lib/payments/mandates.svelte';
 	import type { Mandate, Collection, DisputeReason } from '$lib/payments/mandates.svelte';
 	import { WALLET_BLUEPRINTS } from '$lib/data/accounts';
@@ -32,6 +35,7 @@
 		primary?: boolean;
 		numeric?: boolean;
 		width?: string;
+		format?: (value: unknown, row: Mandate) => string;
 	};
 
 	// Collection status by rule + glyph + word: the chip carries a neutral rule, a glyph
@@ -54,11 +58,40 @@
 	}
 
 	// ── Table · the active mandates. ──
+	// Each column carries a string `format` so the mobile record-card renders it as readable
+	// text (desktop keeps the custom renderCell cells). The primary (creditor) folds the quiet
+	// reference into the card title so it surfaces BOTH name and ref; the desktop stays a
+	// two-line stacked cell. Last collected has no standalone numeric column here, so its amount
+	// rides the meta text alongside the date rather than a right-aligned figure.
 	const columns: Column[] = [
-		{ key: 'creditorName', label: 'Creditor', primary: true, sortable: true },
-		{ key: 'lastCollected', label: 'Last collected', width: '11rem' },
-		{ key: 'nextCollection', label: 'Next collection', width: '10rem' },
-		{ key: 'status', label: 'Status', width: '8rem' }
+		{
+			key: 'creditorName',
+			label: 'Creditor',
+			primary: true,
+			sortable: true,
+			format: (_v, row) => `${row.creditorName} · ${row.reference}`
+		},
+		{
+			key: 'lastCollected',
+			label: 'Last collected',
+			width: '11rem',
+			format: (_v, row) => {
+				const c = lastCollected(row);
+				return c ? `${formatMoney(c.amountMinor, row.currency)} · ${formatDate(c.dateIso)}` : '—';
+			}
+		},
+		{
+			key: 'nextCollection',
+			label: 'Next collection',
+			width: '10rem',
+			format: (_v, row) => (row.next ? `Next ${formatDate(row.next.dateIso)}` : '—')
+		},
+		{
+			key: 'status',
+			label: 'Status',
+			width: '8rem',
+			format: (_v, row) => (row.status === 'active' ? 'Active' : 'Cancelled')
+		}
 	];
 
 	const getRowId = (m: Mandate) => m.id;
@@ -150,11 +183,12 @@
 	const disputable = $derived(selected ? selected.collections.filter((c) => c.status !== 'disputed') : []);
 	const hasDisputed = $derived(selected ? selected.collections.some((c) => c.status === 'disputed') : false);
 
-	function handleSelection(event: Event) {
-		const ids = (event as CustomEvent<{ ids: string[] }>).detail.ids ?? [];
-		selectedIds = ids;
+	// RecordList hands back the activated row (desktop full-row click or mobile card tap) — the
+	// same "open this mandate" gesture the gok-selection-change wiring used to carry.
+	function openMandate(row: Mandate) {
+		selectedIds = [row.id];
 		resetDispute();
-		if (ids[0]) drawerOpen = true;
+		drawerOpen = true;
 	}
 
 	function closeDrawer(e?: Event) {
@@ -270,30 +304,38 @@
 	</gok-card>
 
 	<!-- The mandates themselves — a labelled, keyboard-reachable grid. -->
-	<gok-table
-		selection-mode="single"
-		accessible-label="My direct-debit mandates"
-		{@attach setProps({ columns, rows, getRowId, renderCell, selection: selectedIds })}
-		{@attach on('gok-selection-change', handleSelection)}
+	<RecordList
+		{columns}
+		{rows}
+		{getRowId}
+		{renderCell}
+		selectionMode="none"
+		selectedId={selectedIds[0] ?? null}
+		onselect={openMandate}
+		accessibleLabel="My direct-debit mandates"
 	>
-		<div slot="caption" class="caption">
-			<p class="caption-eyebrow gok-eyebrow">Mandates</p>
-			<h2 class="caption-title gok-headline-5">
-				{activeCount}
-				{activeCount === 1 ? 'company can debit me' : 'companies can debit me'}
-			</h2>
-		</div>
+		{#snippet caption()}
+			<div class="caption">
+				<p class="caption-eyebrow gok-eyebrow">Mandates</p>
+				<h2 class="caption-title gok-headline-5">
+					{activeCount}
+					{activeCount === 1 ? 'company can debit me' : 'companies can debit me'}
+				</h2>
+			</div>
+		{/snippet}
 
-		<div slot="empty" class="empty">
-			<gok-empty-state>
-				<p class="empty-title gok-headline-6">No direct debits set up</p>
-				<p class="empty-body">
-					When a company sets up a mandate to pull from my account, it'll show up here — and I can
-					cancel it anytime.
-				</p>
-			</gok-empty-state>
-		</div>
-	</gok-table>
+		{#snippet empty()}
+			<div class="empty">
+				<gok-empty-state>
+					<p class="empty-title gok-headline-6">No direct debits set up</p>
+					<p class="empty-body">
+						When a company sets up a mandate to pull from my account, it'll show up here — and I can
+						cancel it anytime.
+					</p>
+				</gok-empty-state>
+			</div>
+		{/snippet}
+	</RecordList>
 </div>
 
 <!-- Row detail · the creditor's identity, the collection history, and the two acts. -->

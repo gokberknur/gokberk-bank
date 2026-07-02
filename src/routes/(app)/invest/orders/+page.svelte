@@ -1,13 +1,12 @@
 <script lang="ts">
 	// V04 · The orders blotter — the management half of the invest loop. The ticket
-	// (V03) places orders; this lists and manages them. One gok-table whose
-	// columns/rows/sort/selection are handed in as DOM **properties** (setProps) —
-	// never attributes, never `bind:` on a gok-* element. Cells are formatted STRINGS
-	// only (dogfooding #11/#23), so status reads as rule + mark + text inside the
-	// string ("● Working" / "✓ Filled" / "✕ Cancelled") — never colour alone. A row
-	// click opens a detail drawer with the full ledger; a working order can be
-	// modified or cancelled from there. The cancel is a forced-decision dialog nested
-	// inside the drawer.
+	// (V03) places orders; this lists and manages them. Rendered through RecordList: a
+	// real <gok-table> on desktop (custom cells via renderCell) and stacked record-cards
+	// on mobile (each column's string `format`), so nothing clips at 390px. Status reads
+	// as rule + mark + text ("● Working" / "✓ Filled" / "✕ Cancelled") — never colour
+	// alone. A full-row click/tap opens the detail drawer via RecordList's onselect; a
+	// working order can be modified or cancelled from there. The cancel is a
+	// forced-decision dialog nested inside the drawer.
 	import { goto } from '$app/navigation';
 	import { invest } from '$lib/state/invest.svelte';
 	import {
@@ -22,9 +21,7 @@
 	import { setProps, on } from '$lib/wc.svelte';
 	import { formatMoney, formatNumber, formatDate } from '$lib/format';
 	import MoneyInput from '$lib/components/money/MoneyInput.svelte';
-
-	// The table's controlled-sort shape (mirrors the DS `GokTableSort`).
-	type TableSort = { key: string; direction: 'asc' | 'desc' };
+	import RecordList from '$lib/components/layout/RecordList.svelte';
 
 	// ── Status presentation: rule + mark + text (never hue alone) ──
 	// A filled disc rests, a hollow clock waits in queue, a check settled, a cross was
@@ -140,26 +137,9 @@
 		return text;
 	}
 
-	// Controlled sort lives in the route; the table reflects it in the header chevron
-	// and orders the rows. `gok-sort` cycles asc → desc → unsorted (null direction).
-	let sort = $state<TableSort | null>(null);
-
-	function onSort(e: Event) {
-		const detail = (e as CustomEvent<{ key: string | null; direction: 'asc' | 'desc' | null }>).detail;
-		sort = detail.key && detail.direction ? { key: detail.key, direction: detail.direction } : null;
-	}
-
 	// ── Row → detail drawer ──
-	// Capture the grid node (via an attachment, not `bind:this`) so focus can return
-	// to it when the drawer closes — the row the drawer was opened from.
-	let tableEl: HTMLElement | undefined;
-	function captureTable(node: HTMLElement) {
-		tableEl = node;
-		return () => {
-			tableEl = undefined;
-		};
-	}
-
+	// RecordList sorts the desktop <gok-table> internally (uncontrolled); the blotter
+	// derives nothing from the sort order, so there is no controlled-sort state to hold.
 	let selectedId = $state<string | null>(null);
 	const selectedOrder = $derived<Order | null>(
 		selectedId ? (allOrders.find((o) => o.id === selectedId) ?? null) : null
@@ -168,17 +148,16 @@
 	// A working order is the only state I can still manage.
 	const isWorking = $derived(selectedOrder?.status === 'working');
 
-	function onSelection(e: Event) {
-		const id = (e as CustomEvent<{ ids: string[] }>).detail.ids?.[0];
-		if (id) selectedId = id;
+	// RecordList hands back the activated row (a full-row click on desktop, a card tap on
+	// mobile) — the same "open this order" gesture the gok-table row-activate carried.
+	function openOrder(row: Order) {
+		selectedId = row.id;
 	}
 
 	function closeDrawer() {
 		selectedId = null;
 		modifyMode = false;
 		cancelOpen = false;
-		// Return focus to the grid (the row the drawer was opened from).
-		tableEl?.focus();
 	}
 
 	// ── Modify (working orders only) ──
@@ -292,35 +271,32 @@
 			</gok-segmented>
 		</section>
 
-		<gok-table
-			selection-mode="single"
-			accessible-label="My orders"
-			{@attach captureTable}
-			{@attach setProps({
-				columns,
-				rows: filtered,
-				getRowId,
-				renderCell,
-				sort,
-				selection: selectedId ? [selectedId] : []
-			})}
-			{@attach on('gok-sort', onSort)}
-			{@attach on('gok-selection-change', onSelection)}
+		<RecordList
+			{columns}
+			rows={filtered}
+			{getRowId}
+			{renderCell}
+			selectionMode="none"
+			{selectedId}
+			onselect={openOrder}
+			accessibleLabel="My orders"
 		>
-			<div slot="empty" class="table-empty">
-				<gok-empty-state>
-					<p class="empty-title gok-headline-6">No {emptyFilterLabel} orders</p>
-					<p class="empty-body">Nothing matches this filter right now.</p>
-					<gok-button
-						slot="actions"
-						variant="secondary"
-						{@attach on('click', () => (filter = 'all'))}
-					>
-						Show all orders
-					</gok-button>
-				</gok-empty-state>
-			</div>
-		</gok-table>
+			{#snippet empty()}
+				<div class="table-empty">
+					<gok-empty-state>
+						<p class="empty-title gok-headline-6">No {emptyFilterLabel} orders</p>
+						<p class="empty-body">Nothing matches this filter right now.</p>
+						<gok-button
+							slot="actions"
+							variant="secondary"
+							{@attach on('click', () => (filter = 'all'))}
+						>
+							Show all orders
+						</gok-button>
+					</gok-empty-state>
+				</div>
+			{/snippet}
+		</RecordList>
 	{/if}
 </div>
 
