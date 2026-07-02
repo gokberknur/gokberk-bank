@@ -1,6 +1,7 @@
 <script lang="ts">
 	// Security activity — the log every action on the other surfaces writes to,
-	// shown as one gok-table (columns/rows handed in as DOM properties via setProps).
+	// shown as a display-only RecordList (a real gok-table on desktop, stacked record-cards on
+	// mobile so no column clips) — no onselect, so rows are inert (this is a log, not a menu).
 	// Cells are formatted STRINGS only (dogfooding #11), so the Result column reads as
 	// rule + icon + text inside the string ("✓ OK" / "⊘ Blocked" / "· Info"), never
 	// colour-alone. When + Event sort (the table owns sorting); a chip row filters by
@@ -11,7 +12,8 @@
 		type SecurityResult
 	} from '$lib/state/security.svelte';
 	import { EVENT_TYPE_LABELS } from '$lib/data/security-data';
-	import { setProps, on } from '$lib/wc.svelte';
+	import RecordList from '$lib/components/layout/RecordList.svelte';
+	import { on } from '$lib/wc.svelte';
 	import { formatRelative } from '$lib/format';
 	import { TODAY } from '$lib/data/time';
 
@@ -95,19 +97,18 @@
 	{/each}
 </div>
 
-<gok-table
-	accessible-label="Security activity"
-	{@attach setProps({ columns, rows, getRowId })}
->
-	<div slot="empty" class="empty">
-		<gok-empty-state>
-			<p class="empty-title gok-headline-6">Nothing to show</p>
-			<p class="empty-body">
-				No security events match this filter. Choose “All” to see the full log.
-			</p>
-		</gok-empty-state>
-	</div>
-</gok-table>
+<RecordList {columns} {rows} {getRowId} accessibleLabel="Security activity">
+	{#snippet empty()}
+		<div class="empty">
+			<gok-empty-state>
+				<p class="empty-title gok-headline-6">Nothing to show</p>
+				<p class="empty-body">
+					No security events match this filter. Choose “All” to see the full log.
+				</p>
+			</gok-empty-state>
+		</div>
+	{/snippet}
+</RecordList>
 
 <style>
 	.area-head {

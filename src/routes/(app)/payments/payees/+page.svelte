@@ -1,13 +1,13 @@
 <script lang="ts">
-	// P10 — the payees directory. The full beneficiary list in a gok-table (the
-	// same DOM-property + single-selection idiom as the ledger grid), plus the one
-	// primary action of the surface: add a payee. Selecting a row seeds the send
-	// draft for that payee and jumps straight to the send flow — there's no payee
-	// detail/edit drawer yet (deferred), so a row is a "pay this person" shortcut.
-	// Cells are formatted **strings** (a known gok-table limit), so type and the
-	// last-paid date are words, not tags.
+	// P10 — the payees directory. The full beneficiary list in a RecordList (a real gok-table
+	// on desktop, stacked record-cards on mobile so no column clips), plus the one primary
+	// action of the surface: add a payee. Opening a row (onselect; full-row click/tap) seeds the
+	// send draft for that payee and jumps straight to the send flow — there's no payee
+	// detail/edit drawer yet (deferred), so a row is a "pay this person" shortcut. No bulk-select
+	// column (PAY-U-05). Cells are formatted **strings** (a known gok-table limit), so type and
+	// the last-paid date are words, not tags.
 	import { goto } from '$app/navigation';
-	import { setProps, on } from '$lib/wc.svelte';
+	import RecordList from '$lib/components/layout/RecordList.svelte';
 	import { payments } from '$lib/state/payments.svelte';
 	import { formatDate } from '$lib/format';
 	import { maskIban } from '$lib/payments/iban';
@@ -53,11 +53,9 @@
 
 	const rows = $derived(payments.payees);
 
-	// Row selection is a "pay this payee" shortcut: seed the draft, then send.
-	function handleSelection(e: Event) {
-		const id = (e as CustomEvent<{ ids: string[] }>).detail.ids?.[0];
-		if (!id) return;
-		payments.setDraft({ payeeId: id, recipientKind: 'payee' });
+	// Opening a payee is a "pay this payee" shortcut: seed the draft, then send.
+	function openPayee(p: Payee) {
+		payments.setDraft({ payeeId: p.id, recipientKind: 'payee' });
 		goto('/payments/transfer');
 	}
 </script>
@@ -74,27 +72,33 @@
 		</gok-link>
 	</header>
 
-	<gok-table
-		selection-mode="single"
-		accessible-label="Payees"
-		{@attach setProps({ columns, rows, getRowId })}
-		{@attach on('gok-selection-change', handleSelection)}
+	<RecordList
+		{columns}
+		{rows}
+		{getRowId}
+		selectionMode="none"
+		onselect={openPayee}
+		accessibleLabel="Payees"
 	>
-		<div slot="caption" class="caption">
-			<p class="caption-eyebrow gok-eyebrow">Directory</p>
-			<h2 class="caption-title gok-headline-5">My payees</h2>
-		</div>
+		{#snippet caption()}
+			<div class="caption">
+				<p class="caption-eyebrow gok-eyebrow">Directory</p>
+				<h2 class="caption-title gok-headline-5">My payees</h2>
+			</div>
+		{/snippet}
 
-		<div slot="empty" class="empty">
-			<gok-empty-state>
-				<p class="empty-title gok-headline-6">No payees yet</p>
-				<p class="empty-body">Add your first payee and they’ll show up here, ready to pay.</p>
-				<gok-link slot="actions" href="/payments/payees/new">
-					<gok-button variant="primary">Add payee</gok-button>
-				</gok-link>
-			</gok-empty-state>
-		</div>
-	</gok-table>
+		{#snippet empty()}
+			<div class="empty">
+				<gok-empty-state>
+					<p class="empty-title gok-headline-6">No payees yet</p>
+					<p class="empty-body">Add your first payee and they’ll show up here, ready to pay.</p>
+					<gok-link slot="actions" href="/payments/payees/new">
+						<gok-button variant="primary">Add payee</gok-button>
+					</gok-link>
+				</gok-empty-state>
+			</div>
+		{/snippet}
+	</RecordList>
 </div>
 
 <style>

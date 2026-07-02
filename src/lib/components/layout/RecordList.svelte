@@ -42,7 +42,10 @@
 		getRowId: (row: T) => string;
 		selectionMode?: 'single' | 'none';
 		selectedId?: string | null;
-		onselect: (row: T) => void;
+		/** Optional. When provided, rows are interactive (a full-row click/tap opens the record via
+		 * onselect). When omitted, the list is display-only: mobile rows render as inert cards, and the
+		 * desktop table drops selection/row-activate wiring and runs selection-mode="none". */
+		onselect?: (row: T) => void;
 		/** Forwarded from gok-table's own gok-sort event; null when sorting is cleared. RecordList stays generic and does not interpret it. */
 		onsort?: (sort: { key: string; direction: 'asc' | 'desc' } | null) => void;
 		paginated?: boolean;
@@ -83,8 +86,13 @@
 		const id = (e as CustomEvent<{ ids?: string[] }>).detail.ids?.[0];
 		if (!id) return;
 		const row = rows.find((r) => getRowId(r) === id);
-		if (row) onselect(row);
+		if (row) onselect?.(row);
 	}
+
+	// A no-op attachment used in place of a listener when the list is display-only — keeps the
+	// row-activate / selection-change listeners genuinely off the element (never attached), so an
+	// inert table has no click handlers to fire.
+	const noEffect = () => {};
 
 	// gok-table fires row-activate on a full-row click or Enter (independent of selection
 	// mode) — this is the "open this record" gesture, matching the mobile card's full-row tap.
@@ -92,7 +100,7 @@
 		const id = (e as CustomEvent<{ id?: string }>).detail?.id;
 		if (!id) return;
 		const row = rows.find((r) => getRowId(r) === id);
-		if (row) onselect(row);
+		if (row) onselect?.(row);
 	}
 
 	// gok-table sorts its own internal copy; we only forward the signal so a consumer
@@ -116,6 +124,26 @@
 	const shownRows = $derived(paginated ? rows.slice(0, pageLimit) : rows);
 </script>
 
+<!-- The mobile card's inner content, shared by the interactive <button> and the inert <div> so the
+	 layout is identical whether or not the row opens a record. -->
+{#snippet recCard(row: T)}
+	<span class="rec-main">
+		{#if primaryCol}
+			<span class="rec-title">{fmt(primaryCol, row)}</span>
+		{/if}
+		{#if metaCols.length}
+			<span class="rec-meta">{metaCols.map((c) => fmt(c, row)).join(' · ')}</span>
+		{/if}
+	</span>
+	{#if numericCols.length}
+		<span class="rec-figures">
+			{#each numericCols as col (col.key)}
+				<span class="rec-fig gok-tabular-nums">{fmt(col, row)}</span>
+			{/each}
+		</span>
+	{/if}
+{/snippet}
+
 {#if mobile.current || alwaysRows}
 	{#if caption}
 		<div class="rec-caption">{@render caption()}</div>
@@ -126,29 +154,21 @@
 	{:else}
 		<div class="rec-list">
 			{#each shownRows as row (getRowId(row))}
-				<button
-					type="button"
-					class="rec"
-					class:is-selected={getRowId(row) === selectedId}
-					aria-label={recordLabel(row)}
-					onclick={() => onselect(row)}
-				>
-					<span class="rec-main">
-						{#if primaryCol}
-							<span class="rec-title">{fmt(primaryCol, row)}</span>
-						{/if}
-						{#if metaCols.length}
-							<span class="rec-meta">{metaCols.map((c) => fmt(c, row)).join(' · ')}</span>
-						{/if}
-					</span>
-					{#if numericCols.length}
-						<span class="rec-figures">
-							{#each numericCols as col (col.key)}
-								<span class="rec-fig gok-tabular-nums">{fmt(col, row)}</span>
-							{/each}
-						</span>
-					{/if}
-				</button>
+				{#if onselect}
+					<button
+						type="button"
+						class="rec"
+						class:is-selected={getRowId(row) === selectedId}
+						aria-label={recordLabel(row)}
+						onclick={() => onselect?.(row)}
+					>
+						{@render recCard(row)}
+					</button>
+				{:else}
+					<div class="rec">
+						{@render recCard(row)}
+					</div>
+				{/if}
 			{/each}
 		</div>
 
@@ -164,14 +184,15 @@
 	{/if}
 {:else}
 	<gok-table
-		selection-mode={selectionMode}
+		selection-mode={onselect ? selectionMode : 'none'}
+		class:is-interactive={!!onselect}
 		paginated={paginated}
 		page-size={pageSize}
 		accessible-label={accessibleLabel}
 		{@attach setProps({ columns, rows, getRowId, selection: selectedId ? [selectedId] : [] })}
-		{@attach on('gok-selection-change', handleSelection)}
+		{@attach onselect ? on('gok-selection-change', handleSelection) : noEffect}
 		{@attach on('gok-sort', handleSort)}
-		{@attach on('row-activate', handleActivate)}
+		{@attach onselect ? on('row-activate', handleActivate) : noEffect}
 	>
 		{#if caption}
 			<div slot="caption">{@render caption()}</div>
@@ -193,9 +214,10 @@
 		border-block-start: var(--gok-border-width-hairline) solid var(--gok-color-border);
 	}
 
-	/* Body rows open a record on click (gok-table row-activate → onselect); signal it with a
+	/* Interactive body rows open a record on click (gok-table row-activate → onselect); signal it
+	   with a pointer. Scoped to the .is-interactive host so an inert (display-only) table shows no
 	   pointer. Uses gok-table's public ::part(row) API — never reaches into its shadow DOM. */
-	gok-table::part(row) {
+	gok-table.is-interactive::part(row) {
 		cursor: pointer;
 	}
 
@@ -212,14 +234,18 @@
 		text-align: start;
 		font-family: var(--gok-font-family-text);
 		color: var(--gok-color-text);
+	}
+
+	/* Only the interactive variant (a <button>) is a pointer target; the inert <div> stays plain. */
+	button.rec {
 		cursor: pointer;
 	}
 
-	.rec:hover {
+	button.rec:hover {
 		background: var(--gok-color-surface);
 	}
 
-	.rec:focus-visible {
+	button.rec:focus-visible {
 		outline: var(--gok-border-width-strong) solid var(--gok-color-focus-ring);
 		outline-offset: calc(-1 * var(--gok-border-width-strong));
 	}

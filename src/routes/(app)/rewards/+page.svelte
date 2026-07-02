@@ -2,18 +2,19 @@
 	// M02 · The rewards hub — a calm, honest loyalty layer, not a gamified coupon
 	// wall. Four quiet blocks: a balance ledger (cashback available is the hero;
 	// pending reads lighter; points alongside), a flat `gok-card` grid of merchant
-	// offers, and an earn/redeem history `gok-table`. One earned accent on the whole
-	// surface: the primary Redeem button (plus the single featured offer's 2px rule).
-	// No confetti, no hype — restraint over noise.
+	// offers, and an earn/redeem history in a display-only RecordList (a real gok-table on
+	// desktop, stacked record-cards on mobile so no column clips; no onselect, so rows are
+	// inert). One earned accent on the whole surface: the primary Redeem button (plus the
+	// single featured offer's 2px rule). No confetti, no hype — restraint over noise.
 	//
 	// The redeem flow is the one real money move: a `gok-drawer` that rides the
 	// money spine (gather → review → forced-decision confirm → success), hosted here
 	// and seeded by `rewards.openRedeem()`. Web-component interop is strictly
-	// `setProps`/`on` from `wc.svelte` — never `bind:` on a gok-* element; the
-	// history table's `columns`/`rows` are handed in as DOM properties.
+	// `setProps`/`on` from `wc.svelte` — never `bind:` on a gok-* element.
 	import { setProps, on } from '$lib/wc.svelte';
 	import { formatMoney, formatNumber, formatDayMonth } from '$lib/format';
 	import { rewards } from '$lib/state/rewards.svelte';
+	import RecordList from '$lib/components/layout/RecordList.svelte';
 	import OfferCard from '$lib/components/money/OfferCard.svelte';
 	import RedeemFlow from '$lib/components/money/RedeemFlow.svelte';
 
@@ -141,10 +142,12 @@
 				<p class="empty-body">Activate an offer and your cashback and points will appear here.</p>
 			</gok-empty-state>
 		{:else}
-			<gok-table
-				accessible-label="Rewards history"
-				{@attach setProps({ columns, rows: historyRows, getRowId })}
-			></gok-table>
+			<RecordList
+				{columns}
+				rows={historyRows}
+				{getRowId}
+				accessibleLabel="Rewards history"
+			/>
 		{/if}
 	</section>
 </div>

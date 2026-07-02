@@ -1,14 +1,15 @@
 <script lang="ts">
 	// V06 (part 2) · The dividend calendar & history — the income half of the invest
 	// loop. An Upcoming / History toggle (a gok-segmented radiogroup) swaps which
-	// gok-table is shown: Upcoming lists the next payment per held payer (ex/pay dates,
-	// per-share, cash amount, yield-on-cost); History lists what I've been paid,
-	// most-recent-first, with a headline total received. Both grids take their
-	// columns/rows as DOM **properties** (setProps) — never attributes, never `bind:`
-	// on a gok-* element — and rows are handed in fresh (dogfooding #36). Cells are
-	// formatted STRINGS only; yield-on-cost reads as a value ("—" when not held).
+	// display-only RecordList is shown (a real gok-table on desktop, stacked record-cards on
+	// mobile so no column clips; no onselect, so rows are inert): Upcoming lists the next
+	// payment per held payer (ex/pay dates, per-share, cash amount, yield-on-cost); History
+	// lists what I've been paid, most-recent-first, with a headline total received. Rows are
+	// handed in fresh (dogfooding #36). Cells are formatted STRINGS only; yield-on-cost reads
+	// as a value ("—" when not held).
 	import { dividends } from '$lib/state/dividends.svelte';
 	import type { DividendView } from '$lib/data/dividends-data';
+	import RecordList from '$lib/components/layout/RecordList.svelte';
 	import { setProps, on } from '$lib/wc.svelte';
 	import { formatMoney, formatDate } from '$lib/format';
 
@@ -76,22 +77,6 @@
 
 	const getRowId = (d: DividendView) => d.id;
 
-	// INV-D-03 — date cells get a `title` fallback so the full formatted date (incl. the
-	// year) is never silently clipped, even if the column is squeezed. Every other cell
-	// falls through to the default (value → col.format → string), unchanged.
-	const DATE_KEYS = new Set(['exDateIso', 'payDateIso']);
-	function renderCell(col: Column, row: DividendView): Node | string {
-		const value = row[col.key as keyof DividendView];
-		const text = col.format ? col.format(value, row) : value == null ? '' : String(value);
-		if (DATE_KEYS.has(col.key)) {
-			const span = document.createElement('span');
-			span.textContent = text;
-			span.title = text;
-			return span;
-		}
-		return text;
-	}
-
 	// Fresh arrays each render — the table re-renders off a new reference (dogfooding #36).
 	const upcomingRows = $derived([...dividends.upcoming]);
 	const historyRows = $derived([...dividends.history]);
@@ -134,29 +119,37 @@
 	</section>
 
 	{#if isHistory}
-		<gok-table
-			accessible-label="Dividends I've been paid"
-			{@attach setProps({ columns: historyColumns, rows: historyRows, getRowId, renderCell })}
+		<RecordList
+			columns={historyColumns}
+			rows={historyRows}
+			{getRowId}
+			accessibleLabel="Dividends I've been paid"
 		>
-			<div slot="empty" class="table-empty">
-				<gok-empty-state>
-					<p class="empty-title gok-headline-6">No dividends paid yet</p>
-					<p class="empty-body">No dividends have landed yet. They'll show here once the first one pays.</p>
-				</gok-empty-state>
-			</div>
-		</gok-table>
+			{#snippet empty()}
+				<div class="table-empty">
+					<gok-empty-state>
+						<p class="empty-title gok-headline-6">No dividends paid yet</p>
+						<p class="empty-body">No dividends have landed yet. They'll show here once the first one pays.</p>
+					</gok-empty-state>
+				</div>
+			{/snippet}
+		</RecordList>
 	{:else}
-		<gok-table
-			accessible-label="Dividends I'm due"
-			{@attach setProps({ columns: upcomingColumns, rows: upcomingRows, getRowId, renderCell })}
+		<RecordList
+			columns={upcomingColumns}
+			rows={upcomingRows}
+			{getRowId}
+			accessibleLabel="Dividends I'm due"
 		>
-			<div slot="empty" class="table-empty">
-				<gok-empty-state>
-					<p class="empty-title gok-headline-6">No upcoming dividends</p>
-					<p class="empty-body">Nothing I hold is scheduled to pay a dividend right now.</p>
-				</gok-empty-state>
-			</div>
-		</gok-table>
+			{#snippet empty()}
+				<div class="table-empty">
+					<gok-empty-state>
+						<p class="empty-title gok-headline-6">No upcoming dividends</p>
+						<p class="empty-body">Nothing I hold is scheduled to pay a dividend right now.</p>
+					</gok-empty-state>
+				</div>
+			{/snippet}
+		</RecordList>
 	{/if}
 </div>
 

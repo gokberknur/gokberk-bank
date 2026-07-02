@@ -2,17 +2,18 @@
 	// D01 documents vault — one home for every statement, agreement, policy,
 	// certificate, and terms pack. Quiet editorial chrome (mono eyebrow + title),
 	// a search field and a row of category chips, then the whole vault as one
-	// gok-table. The one earned accent is spent twice in the same role — the active
-	// category chip (selected) and the Download primary in the viewer.
+	// RecordList (a real gok-table on desktop, stacked record-cards on mobile so no column
+	// clips). Opening a row (onselect; full-row click/tap) opens the viewer. The one earned
+	// accent is spent twice in the same role — the active category chip (selected) and the
+	// Download primary in the viewer.
 	//
-	// gok-table cells are formatted **strings** only (dogfooding #11): `column.format`
-	// returns text, and `columns`/`rows` are handed in as DOM **properties** via
-	// setProps (objects/arrays can't survive attribute stringification). So a signed
-	// document reads as signed through a string "✓ Signed" cell, never a rich tag —
+	// Cells are formatted **strings** only (dogfooding #11): `column.format` returns text. So a
+	// signed document reads as signed through a string "✓ Signed" cell, never a rich tag —
 	// the tag lives in the viewer, where we own the markup.
 	import { documents, type DocCategory } from '$lib/state/documents.svelte';
 	import { DOC_CATEGORY_LABELS, type BankDocument } from '$lib/data/documents-data';
-	import { setProps, on } from '$lib/wc.svelte';
+	import RecordList from '$lib/components/layout/RecordList.svelte';
+	import { on } from '$lib/wc.svelte';
 	import { formatDate } from '$lib/format';
 	import { isSignable } from '$lib/documents/esign';
 	import DocumentViewer from '$lib/components/documents/DocumentViewer.svelte';
@@ -83,9 +84,8 @@
 		documents.setCategory(c);
 	}
 
-	function onSelection(e: Event) {
-		const id = (e as CustomEvent<{ ids: string[] }>).detail.ids?.[0];
-		if (id) selectedId = id;
+	function openDoc(d: BankDocument) {
+		selectedId = d.id;
 	}
 
 	function closeViewer() {
@@ -152,19 +152,24 @@
 		</section>
 	{/if}
 
-	<gok-table
-		selection-mode="single"
-		accessible-label="My documents"
-		{@attach setProps({ columns, rows, getRowId, selection: selectedId ? [selectedId] : [] })}
-		{@attach on('gok-selection-change', onSelection)}
+	<RecordList
+		{columns}
+		{rows}
+		{getRowId}
+		selectionMode="none"
+		{selectedId}
+		onselect={openDoc}
+		accessibleLabel="My documents"
 	>
-		<div slot="empty" class="empty">
-			<gok-empty-state>
-				<p class="empty-title gok-headline-6">No documents match</p>
-				<p class="empty-body">Try another type or search.</p>
-			</gok-empty-state>
-		</div>
-	</gok-table>
+		{#snippet empty()}
+			<div class="empty">
+				<gok-empty-state>
+					<p class="empty-title gok-headline-6">No documents match</p>
+					<p class="empty-body">Try another type or search.</p>
+				</gok-empty-state>
+			</div>
+		{/snippet}
+	</RecordList>
 </div>
 
 <DocumentViewer doc={selectedDoc} open={selectedDoc !== null} onclose={closeViewer} />

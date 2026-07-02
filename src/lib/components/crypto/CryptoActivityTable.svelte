@@ -1,8 +1,8 @@
 <script lang="ts">
-	// V07 · On-chain-style activity ledger. One gok-table whose columns/rows are handed
-	// in as DOM properties (setProps) — never attributes, because objects/arrays can't
-	// survive attribute stringification. Cells are formatted STRINGS only (dogfooding
-	// #11): the table can't host a node, so status reads as rule + mark + text inside
+	// V07 · On-chain-style activity ledger. A display-only RecordList (a real gok-table on
+	// desktop, stacked record-cards on mobile so no column clips) — no onselect, so rows are
+	// inert. Cells are formatted STRINGS only (dogfooding #11): the table can't host a node,
+	// so status reads as rule + mark + text inside
 	// the string ("● Confirmed" / "◐ Confirming" / "○ Pending" / "⊘ Failed"), and the
 	// amount carries its own sign — never colour alone. When + Type sort (the table
 	// owns sorting). Newest-first as the data layer returns it.
@@ -15,7 +15,7 @@
 		type CryptoTxType
 	} from '$lib/data/crypto-data';
 	import { truncate } from '$lib/crypto/address';
-	import { setProps } from '$lib/wc.svelte';
+	import RecordList from '$lib/components/layout/RecordList.svelte';
 	import { formatRelative } from '$lib/format';
 	import { TODAY } from '$lib/data/time';
 
@@ -92,17 +92,19 @@
 	const getRowId = (tx: CryptoTx) => tx.id;
 </script>
 
-<gok-table accessible-label={label} {@attach setProps({ columns, rows, getRowId })}>
-	<div slot="empty" class="empty">
-		<gok-empty-state>
-			<p class="empty-title gok-headline-6">No activity yet</p>
-			<p class="empty-body">
-				My buys, sells, sends, and receives land here — with their status, a tx hash, and
-				confirmations.
-			</p>
-		</gok-empty-state>
-	</div>
-</gok-table>
+<RecordList {columns} {rows} {getRowId} accessibleLabel={label}>
+	{#snippet empty()}
+		<div class="empty">
+			<gok-empty-state>
+				<p class="empty-title gok-headline-6">No activity yet</p>
+				<p class="empty-body">
+					My buys, sells, sends, and receives land here — with their status, a tx hash, and
+					confirmations.
+				</p>
+			</gok-empty-state>
+		</div>
+	{/snippet}
+</RecordList>
 
 <style>
 	.empty {
