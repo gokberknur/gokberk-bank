@@ -87,20 +87,42 @@
 
 <style>
 	.strip {
-		display: flex;
 		gap: var(--gok-space-400);
-		overflow-x: auto;
-		scroll-snap-type: x mandatory;
-		scroll-padding-inline: var(--gok-space-100);
 		padding-block: var(--gok-space-200);
 		/* Room for the focus ring so it isn't clipped by the scroll container. */
 		padding-inline: var(--gok-space-100);
-		-webkit-overflow-scrolling: touch;
+	}
+
+	/* Phone/tablet: a horizontal scroll-snap carousel. */
+	@media (max-width: 63.999rem) {
+		.strip {
+			display: flex;
+			overflow-x: auto;
+			scroll-snap-type: x mandatory;
+			scroll-padding-inline: var(--gok-space-100);
+			-webkit-overflow-scrolling: touch;
+		}
+
+		.item {
+			scroll-snap-align: start;
+		}
+	}
+
+	/* Desktop: a wrapping grid so every card and the "Add a card" tile stay
+	   visible with no horizontal scroll. The track matches the strip card art's
+	   rendered inline-size (CardArt size="strip" → 16rem, same as the add-tile). */
+	@media (min-width: 64rem) {
+		.strip {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, 16rem);
+			justify-content: start;
+			overflow: visible;
+			scroll-snap-type: none;
+		}
 	}
 
 	.item {
 		flex: 0 0 auto;
-		scroll-snap-align: start;
 		border-radius: var(--gok-radius-l);
 	}
 

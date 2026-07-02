@@ -736,6 +736,13 @@
 		color: var(--gok-color-text-muted);
 	}
 
+	/* When a tier is selected, the DS fills the segment with the accent and sets
+	   on-primary text; the slotted price must follow so it stays legible on green
+	   instead of the muted grey the base rule paints (INS-D-01). */
+	gok-segmented-item:global([selected]) .seg-meta {
+		color: var(--gok-color-text-on-primary);
+	}
+
 	/* Add-ons */
 	.addon-list {
 		list-style: none;
