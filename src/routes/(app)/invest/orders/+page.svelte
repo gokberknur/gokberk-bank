@@ -108,7 +108,7 @@
 	};
 
 	const columns: Column[] = [
-		{ key: 'placedAt', label: 'Placed', sortable: true, width: '7.5rem', format: (v) => formatDate(v as string) },
+		{ key: 'placedAt', label: 'Placed', sortable: true, width: '9rem', format: (v) => formatDate(v as string) },
 		{ key: 'symbol', label: 'Symbol', primary: true, sortable: true, width: '6rem' },
 		{ key: 'side', label: 'Side', width: '5rem', format: (v) => sideLabel(v as OrderSide) },
 		{ key: 'kind', label: 'Type', width: '6rem', format: (v) => ORDER_KIND_LABELS[v as OrderKind] },
@@ -124,6 +124,21 @@
 	];
 
 	const getRowId = (o: Order) => o.id;
+
+	// INV-D-03 — the Placed date gets a `title` fallback so the full formatted date (incl.
+	// the year) is never silently clipped, even if the column is squeezed. Every other
+	// cell falls through to the default (value → col.format → string), unchanged.
+	function renderCell(col: Column, row: Order): Node | string {
+		const value = row[col.key as keyof Order];
+		const text = col.format ? col.format(value, row) : value == null ? '' : String(value);
+		if (col.key === 'placedAt') {
+			const span = document.createElement('span');
+			span.textContent = text;
+			span.title = text;
+			return span;
+		}
+		return text;
+	}
 
 	// Controlled sort lives in the route; the table reflects it in the header chevron
 	// and orders the rows. `gok-sort` cycles asc → desc → unsorted (null direction).
@@ -285,6 +300,7 @@
 				columns,
 				rows: filtered,
 				getRowId,
+				renderCell,
 				sort,
 				selection: selectedId ? [selectedId] : []
 			})}

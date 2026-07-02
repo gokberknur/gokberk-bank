@@ -48,9 +48,10 @@
 		<gok-button variant="secondary" {@attach on('click', copy)}>Copy address</gok-button>
 	</div>
 
-	<!-- Caution: a ruled box + words, never colour alone. -->
+	<!-- Caution: a ruled box + a warning glyph + words, never colour alone. -->
 	<p class="caution" role="note">
-		Send only {symbol} on {network} to this address. Anything else is lost.
+		<gok-icon class="caution-icon" name="warning" size="s" aria-hidden="true"></gok-icon>
+		<span>Send only {symbol} on {network} to this address. Anything else is lost.</span>
 	</p>
 </div>
 
@@ -98,6 +99,9 @@
 	}
 
 	.caution {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--gok-space-200);
 		margin: 0;
 		inline-size: 100%;
 		max-inline-size: 26rem;
@@ -108,6 +112,12 @@
 		font-size: var(--gok-type-body-small-size);
 		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text);
-		text-align: center;
+		text-align: start;
+	}
+
+	.caution-icon {
+		flex: none;
+		margin-block-start: 0.1em;
+		--gok-icon-color: var(--gok-color-status-warning);
 	}
 </style>

@@ -1,13 +1,11 @@
 <script lang="ts">
 	// X01 recent activity — the latest five events as a hairline list. Each row is
-	// a real link into that wallet's ledger (/accounts/[walletId]); "See all activity"
-	// deep-links to the unified feed at /activity (X02). Amounts read by sign
+	// a real link into that wallet's ledger (/accounts/[walletId]); the shared "See all →"
+	// gok-link deep-links to the unified feed at /activity (X02). Amounts read by sign
 	// (tabular), pending shown by a text marker.
-	import { goto } from '$app/navigation';
 	import { recentActivity } from '$lib/home/insights';
 	import { formatMoney, formatRelative } from '$lib/format';
 	import { TODAY } from '$lib/data/time';
-	import { on } from '$lib/wc.svelte';
 
 	let rows = $derived(
 		recentActivity(5).map((txn) => ({
@@ -49,11 +47,9 @@
 		<p class="empty">No activity yet.</p>
 	{/if}
 
-	<div class="more">
-		<gok-button variant="secondary" size="s" {@attach on('click', () => goto('/activity'))}
-			>See all activity</gok-button
-		>
-	</div>
+	<p class="more">
+		<gok-link href="/activity">See all &rarr;</gok-link>
+	</p>
 </div>
 
 <style>
@@ -147,9 +143,9 @@
 		color: var(--gok-color-text-muted);
 	}
 
+	/* PLT-D-04 — one shared "See all →" gok-link affordance (matches the wallets strip
+	   and SpendSummary); navigation, lighter than a button. */
 	.more {
-		display: flex;
-		align-items: center;
-		gap: var(--gok-space-200);
+		margin: 0;
 	}
 </style>

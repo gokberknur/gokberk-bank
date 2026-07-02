@@ -44,9 +44,33 @@
 		return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 	}
 
+	/** Year-only tick (e.g. "2031") — for a range that spans several years. */
+	function yearTick(iso: string): string {
+		return String(new Date(iso).getFullYear());
+	}
+
+	/** Full date incl. the year (e.g. "3 Jun 2031") — the tooltip on a multi-year range. */
+	function fullTick(iso: string): string {
+		const d = new Date(iso);
+		return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+	}
+
+	/** True when the series straddles more than one calendar year (e.g. a 25-year
+	 * amortization) — then day+month ticks all collapse to "1 Jan", so the axis reads
+	 * the year instead. LEND-D-03. */
+	function spansMultipleYears(): boolean {
+		if (data.length === 0) return false;
+		const years = data.map((d) => new Date(d.date).getFullYear());
+		return Math.max(...years) !== Math.min(...years);
+	}
+
 	function buildOption(): EChartsOption {
 		const theme = chartTheme();
 		const reduced = prefersReducedMotion();
+		// A multi-year range reads its ticks as years; the tooltip keeps the full date.
+		const multiYear = spansMultipleYears();
+		const axisTick = multiYear ? yearTick : tick;
+		const tipTick = multiYear ? fullTick : tick;
 		return {
 			animation: !reduced,
 			animationDuration: 260,
@@ -64,7 +88,7 @@
 				formatter: (p: unknown) => {
 					const arr = p as AxisParam[];
 					if (!arr.length) return '';
-					return `${tick(arr[0].axisValue)} — ${formatValue(arr[0].value)}`;
+					return `${tipTick(arr[0].axisValue)} — ${formatValue(arr[0].value)}`;
 				}
 			},
 			xAxis: {
@@ -78,7 +102,7 @@
 					fontFamily: theme.fontMono,
 					fontSize: 11,
 					hideOverlap: true,
-					formatter: (v: string) => tick(v)
+					formatter: (v: string) => axisTick(v)
 				}
 			},
 			yAxis: {

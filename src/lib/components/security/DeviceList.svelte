@@ -1,8 +1,9 @@
 <script lang="ts">
 	// The trusted-devices list — one gok-card per device with its name, platform,
 	// location and last-seen, a "This device" tag on the current one, and a Revoke
-	// action rendered as text in the status colour (never a solid red fill). The
-	// component only signals intent: it calls `onRevoke(device)` and the page opens
+	// action carried by an outline + a close glyph + the word in the status colour
+	// (destructive by rule + icon + text, never colour alone; never a solid red fill).
+	// The component only signals intent: it calls `onRevoke(device)` and the page opens
 	// the step-up gate before anything mutates.
 	import { formatRelative } from '$lib/format';
 	import { TODAY } from '$lib/data/time';
@@ -38,6 +39,7 @@
 					</div>
 
 					<button type="button" class="danger-link" onclick={() => onRevoke(device)}>
+						<gok-icon name="close" size="s" aria-hidden="true"></gok-icon>
 						Revoke
 					</button>
 				</div>
@@ -101,11 +103,15 @@
 		color: var(--gok-color-text-muted);
 	}
 
-	/* Destructive action — text in the status colour, not a solid red fill. */
+	/* Destructive action — an outline + a close glyph + the word in the status colour
+	   (rule + icon + text), never colour alone and never a solid red fill. */
 	.danger-link {
 		flex: none;
+		display: inline-flex;
+		align-items: center;
+		gap: var(--gok-space-100);
 		padding: var(--gok-space-100) var(--gok-space-200);
-		border: none;
+		border: var(--gok-border-width-hairline) solid var(--gok-color-status-error);
 		background: transparent;
 		border-radius: var(--gok-radius-s);
 		font-family: var(--gok-font-family-text);
@@ -114,12 +120,10 @@
 		font-weight: var(--gok-font-weight-semibold);
 		color: var(--gok-color-status-error);
 		cursor: pointer;
-		text-decoration: underline;
-		text-underline-offset: 0.2em;
 	}
 
 	.danger-link:hover {
-		text-decoration: none;
+		background: var(--gok-color-surface-strong);
 	}
 
 	.danger-link:focus-visible {

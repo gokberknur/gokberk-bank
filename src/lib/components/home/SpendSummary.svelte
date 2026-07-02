@@ -1,7 +1,7 @@
 <script lang="ts">
 	// X01 this-month spend — a calm total and the top categories as a quiet list
 	// with a neutral proportion bar (the accent is spent in the hero, never here).
-	// "See budgets" deep-links to the live budgets surface at /budgets (M01).
+	// The shared "See all →" gok-link deep-links to the budgets surface at /budgets (M01).
 	import {
 		thisMonthSpendEurMinor,
 		topCategoriesThisMonth,
@@ -10,8 +10,6 @@
 	import { DonutChart, type NamedValue } from '$lib/charts';
 	import { formatMoney } from '$lib/format';
 	import type { Category } from '$lib/data/types';
-	import { goto } from '$app/navigation';
-	import { on } from '$lib/wc.svelte';
 
 	function capitalize(category: Category): string {
 		return category.charAt(0).toUpperCase() + category.slice(1);
@@ -81,11 +79,9 @@
 		<p class="empty">No spending recorded this month.</p>
 	{/if}
 
-	<div class="more">
-		<gok-button variant="secondary" size="s" {@attach on('click', () => goto('/budgets'))}
-			>See budgets</gok-button
-		>
-	</div>
+	<p class="more">
+		<gok-link href="/budgets">See all &rarr;</gok-link>
+	</p>
 </div>
 
 <style>
@@ -185,9 +181,9 @@
 		color: var(--gok-color-text-muted);
 	}
 
+	/* PLT-D-04 — one shared "See all →" gok-link affordance (matches the wallets strip
+	   and RecentActivity); navigation, lighter than a button. */
 	.more {
-		display: flex;
-		align-items: center;
-		gap: var(--gok-space-200);
+		margin: 0;
 	}
 </style>

@@ -273,7 +273,10 @@
 					<dd>{preview.eta}</dd>
 				</div>
 			</dl>
-			<p class="caption">Sends can't be reversed — the address and network must be correct.</p>
+			<p class="caption">
+				<gok-icon class="caption-icon" name="warning" size="s" aria-hidden="true"></gok-icon>
+				<span>Sends can't be reversed — the address and network must be correct.</span>
+			</p>
 		</gok-card>
 	</div>
 
@@ -373,11 +376,20 @@
 	}
 
 	.caption {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--gok-space-200);
 		margin: var(--gok-space-300) 0 0;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
 		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
+	}
+
+	.caption-icon {
+		flex: none;
+		margin-block-start: 0.1em;
+		--gok-icon-color: var(--gok-color-status-warning);
 	}
 
 	/* --- Shared key/value ledger (form card + receipt) --- */

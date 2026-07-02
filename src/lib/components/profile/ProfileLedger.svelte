@@ -105,7 +105,7 @@
 					<dd>
 						<span class="value">{row.value}</span>
 						<span class="managed">
-							<gok-link href="/onboarding">Update via verification</gok-link>
+							<gok-link class="update-link" href="/onboarding">Update via verification</gok-link>
 						</span>
 					</dd>
 				</div>
@@ -293,6 +293,13 @@
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
 		line-height: var(--gok-type-body-small-line);
+	}
+
+	/* IDN-D-06 — the four "Update via verification" links are secondary to the one real
+	   "Edit"; muted (not the earned green accent) so they don't out-emphasize it. Still
+	   underlined, so they read as links beyond colour alone. */
+	.managed :global(.update-link) {
+		--gok-link-color: var(--gok-color-text-muted);
 	}
 
 	/* --- Address block --- */

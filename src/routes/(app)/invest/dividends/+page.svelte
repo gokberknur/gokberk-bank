@@ -41,8 +41,8 @@
 	};
 
 	const upcomingColumns: Column[] = [
-		{ key: 'exDateIso', label: 'Ex-date', width: '7.5rem', format: (v) => formatDate(v as string) },
-		{ key: 'payDateIso', label: 'Pay-date', width: '7.5rem', format: (v) => formatDate(v as string) },
+		{ key: 'exDateIso', label: 'Ex-date', width: '9rem', format: (v) => formatDate(v as string) },
+		{ key: 'payDateIso', label: 'Pay-date', width: '9rem', format: (v) => formatDate(v as string) },
 		{ key: 'name', label: 'Instrument', primary: true, format: (_v, row) => instrumentCell(row) },
 		{
 			key: 'perShareMinor',
@@ -62,7 +62,7 @@
 	];
 
 	const historyColumns: Column[] = [
-		{ key: 'payDateIso', label: 'Pay-date', width: '7.5rem', format: (v) => formatDate(v as string) },
+		{ key: 'payDateIso', label: 'Pay-date', width: '9rem', format: (v) => formatDate(v as string) },
 		{ key: 'name', label: 'Instrument', primary: true, format: (_v, row) => instrumentCell(row) },
 		{
 			key: 'amountMinor',
@@ -75,6 +75,22 @@
 	];
 
 	const getRowId = (d: DividendView) => d.id;
+
+	// INV-D-03 — date cells get a `title` fallback so the full formatted date (incl. the
+	// year) is never silently clipped, even if the column is squeezed. Every other cell
+	// falls through to the default (value → col.format → string), unchanged.
+	const DATE_KEYS = new Set(['exDateIso', 'payDateIso']);
+	function renderCell(col: Column, row: DividendView): Node | string {
+		const value = row[col.key as keyof DividendView];
+		const text = col.format ? col.format(value, row) : value == null ? '' : String(value);
+		if (DATE_KEYS.has(col.key)) {
+			const span = document.createElement('span');
+			span.textContent = text;
+			span.title = text;
+			return span;
+		}
+		return text;
+	}
 
 	// Fresh arrays each render — the table re-renders off a new reference (dogfooding #36).
 	const upcomingRows = $derived([...dividends.upcoming]);
@@ -120,7 +136,7 @@
 	{#if isHistory}
 		<gok-table
 			accessible-label="Dividends I've been paid"
-			{@attach setProps({ columns: historyColumns, rows: historyRows, getRowId })}
+			{@attach setProps({ columns: historyColumns, rows: historyRows, getRowId, renderCell })}
 		>
 			<div slot="empty" class="table-empty">
 				<gok-empty-state>
@@ -132,7 +148,7 @@
 	{:else}
 		<gok-table
 			accessible-label="Dividends I'm due"
-			{@attach setProps({ columns: upcomingColumns, rows: upcomingRows, getRowId })}
+			{@attach setProps({ columns: upcomingColumns, rows: upcomingRows, getRowId, renderCell })}
 		>
 			<div slot="empty" class="table-empty">
 				<gok-empty-state>
