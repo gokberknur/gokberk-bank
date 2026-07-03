@@ -160,6 +160,12 @@
 	function buy() {
 		if (selectedFund) goto(`/invest/instrument/${selectedFund.ticker}`);
 	}
+
+	// Pre-targeted savings plan → the V10 wizard, already pointed at this fund
+	// (skips its target step). Secondary only — Buy keeps the earned accent.
+	function startPlan(ticker: string) {
+		goto(`/invest/plans/new?target=${ticker}&kind=fund`);
+	}
 </script>
 
 <svelte:head>
@@ -315,6 +321,9 @@
 
 		{#if tradeable}
 			<div slot="footer" class="drawer-actions">
+				<gok-button variant="secondary" {@attach on('click', () => startPlan(fund.ticker))}>
+					Start a plan
+				</gok-button>
 				<gok-button variant="primary" {@attach on('click', buy)}>Buy {fund.ticker}</gok-button>
 			</div>
 		{/if}

@@ -159,6 +159,11 @@ function patch(id: string, p: Partial<SavingsPlan>): void {
 	if (i !== -1) items[i] = { ...items[i], ...p };
 }
 
+/** Edit a plan's amount and/or cadence (the two things the detail page can change). */
+export function editPlan(id: string, changes: { amountMinor?: number; cadence?: PlanCadence }): void {
+	patch(id, changes);
+}
+
 export function pausePlan(id: string): void {
 	patch(id, { status: 'paused' });
 }

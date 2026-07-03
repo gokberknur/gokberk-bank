@@ -97,7 +97,7 @@ export interface SubNavItem {
 export const INVEST_NAV: SubNavItem[] = [
 	{ label: 'Overview', href: '/invest', value: 'overview', ready: true },
 	{ label: 'Discover', href: '/invest/discover', value: 'discover', ready: false },
-	{ label: 'Plans', href: '/invest/plans', value: 'plans', ready: false },
+	{ label: 'Plans', href: '/invest/plans', value: 'plans', ready: true },
 	{ label: 'Orders', href: '/invest/orders', value: 'orders', ready: true },
 	{ label: 'Watchlists', href: '/invest/watchlists', value: 'watchlists', ready: true },
 	{ label: 'Funds', href: '/invest/funds', value: 'funds', ready: true },

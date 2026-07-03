@@ -9,8 +9,8 @@ import { revision } from '$lib/state/revision.svelte';
 import { toast } from '$lib/state/toasts.svelte';
 import { getWallets } from '$lib/data';
 import type { Wallet } from '$lib/data';
-import { getPlans, getPlan, createPlan, pausePlan, resumePlan, stopPlan } from '$lib/data/plans-data';
-import type { SavingsPlan, PlanDraft, PlanStatus } from '$lib/data/plans-data';
+import { getPlans, getPlan, createPlan, editPlan, pausePlan, resumePlan, stopPlan } from '$lib/data/plans-data';
+import type { SavingsPlan, PlanDraft, PlanStatus, PlanCadence } from '$lib/data/plans-data';
 import { nextRun, occurrences, projectedBalance, anyOverdraw } from '$lib/payments/schedule';
 import type { ProjectedRun } from '$lib/payments/schedule';
 import { perRunCostMinor as computePerRunCost } from '$lib/invest/plan-run';
@@ -98,6 +98,12 @@ class PlansState {
 		revision.bump();
 		toast(`Started ${p.name}`, { status: 'success' });
 		return p;
+	}
+
+	edit(id: string, changes: { amountMinor?: number; cadence?: PlanCadence }): void {
+		editPlan(id, changes);
+		revision.bump();
+		toast('Plan updated', { status: 'success' });
 	}
 
 	pause(id: string): void {

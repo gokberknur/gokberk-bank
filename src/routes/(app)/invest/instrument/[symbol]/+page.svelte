@@ -12,6 +12,7 @@
 	// and the dividend-history table. Header, chart, stats, about, position, and
 	// related ship now; the rest land in a later pass.
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
 	import { invest } from '$lib/state/invest.svelte';
 	import { dayChangeBps } from '$lib/data/portfolio';
 	import {
@@ -108,6 +109,12 @@
 		invest.openTicket(symbol, side);
 		ticketOpen = true;
 	}
+
+	// Pre-targeted savings plan → the V10 wizard, already pointed at this instrument
+	// (skips its target step). Secondary only — the Buy CTA keeps the earned accent.
+	function startPlan() {
+		goto(`/invest/plans/new?target=${symbol}&kind=instrument`);
+	}
 </script>
 
 <svelte:head>
@@ -167,6 +174,12 @@
 				<gok-tag size="s" readonly>{currency}</gok-tag>
 				<gok-tag size="s" readonly>{inst.type === 'etf' ? 'ETF' : inst.type === 'crypto' ? 'Crypto' : 'Stock'}</gok-tag>
 				<p class="caption">Prices indicative. Past performance doesn't predict future returns.</p>
+			</div>
+
+			<!-- Quiet, pre-targeted plan entry point (secondary only — the primary Buy
+			     CTA in the sticky bar keeps the page's single earned accent). -->
+			<div class="head-plan">
+				<gok-button variant="secondary" {@attach on('click', startPlan)}>Set up a savings plan</gok-button>
 			</div>
 		</header>
 
@@ -409,6 +422,11 @@
 		flex-wrap: wrap;
 		align-items: center;
 		gap: var(--gok-space-200);
+	}
+
+	/* Keep the secondary plan action at content width, not stretched to the header. */
+	.head-plan {
+		display: flex;
 	}
 
 	.caption {
