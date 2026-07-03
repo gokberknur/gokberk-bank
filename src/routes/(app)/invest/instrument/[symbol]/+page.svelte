@@ -1,16 +1,18 @@
 <script lang="ts">
-	// V02 · Instrument detail — the deep-read research surface for one instrument.
-	// A price chart (candlestick/line, range tabs), key statistics, an about blurb,
-	// the held position (when held), and a hairline strip of related names — all
-	// anchored by a persistent Buy / Sell CTA that opens the V03 order ticket.
+	// V02/V09 · Instrument detail — the deep-read research surface for one instrument.
+	// A price chart (candlestick/line, range tabs), a Fundamentals section (the key-stats
+	// ledger + the type-branched fundamentals), the news strip, a simulated depth ladder,
+	// dividend history, an about blurb, the held position (when held), and a hairline strip
+	// of related names — all anchored by a persistent Buy / Sell CTA that opens the V03
+	// order ticket, and made navigable by an in-page jump-nav (CV-LAY-6).
 	//
 	// Brand discipline: the ONE earned accent is the primary Buy CTA + the active
 	// range/type segment. Direction (day change, candles, P&L) is carried by an
 	// icon + an explicit sign + a status role on the number — never hue alone.
 	//
-	// V02 deferreds (not this slice): the depth / order-book ladder, the news feed,
-	// and the dividend-history table. Header, chart, stats, about, position, and
-	// related ship now; the rest land in a later pass.
+	// V09 builds the research CONTENT inline as one Overview scroll; the Overview/
+	// Fundamentals gok-tabs tab-rail + ?tab= URL sync and the V14 live-price overlay are
+	// deferred to the coordinated V08+V09+V11 instrument-page pass.
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { invest } from '$lib/state/invest.svelte';
@@ -29,6 +31,11 @@
 	import { PriceChart } from '$lib/charts';
 	import OrderTicket from '$lib/components/invest/OrderTicket.svelte';
 	import StickyActionBar from '$lib/components/layout/StickyActionBar.svelte';
+	import NewsStrip from '$lib/components/invest/NewsStrip.svelte';
+	import Fundamentals from '$lib/components/invest/Fundamentals.svelte';
+	import DepthLadder from '$lib/components/invest/DepthLadder.svelte';
+	import DividendHistory from '$lib/components/invest/DividendHistory.svelte';
+	import { getNews } from '$lib/invest/news';
 
 	// ── The instrument + its held position (both deterministic from the seed) ──
 	const symbol = $derived(page.params.symbol ?? '');
@@ -102,6 +109,10 @@
 		const others = INSTRUMENTS.filter((i) => i.symbol !== symbol && i.sector !== inst.sector);
 		return [...sameSector, ...others].slice(0, 4);
 	});
+
+	// ── Seeded per-instrument headlines for the News section (NewsStrip owns its own
+	//    "view source" placeholder). Empty until an instrument resolves. ──
+	const news = $derived(inst ? getNews(inst) : []);
 
 	// ── Buy / Sell → the V03 order ticket ──
 	let ticketOpen = $state(false);
@@ -196,8 +207,23 @@
 			{/snippet}
 		</StickyActionBar>
 
+		<!-- In-page jump-nav (CV-LAY-6): calm, mono rail to the Overview research sections,
+		     in on-page order. Real anchors; the Related anchor only when there are related names. -->
+		<nav class="jump-nav" aria-label="On this page">
+			<ul class="jump-list">
+				<li><a class="jump-link" href="#chart">Chart</a></li>
+				<li><a class="jump-link" href="#fundamentals">Fundamentals</a></li>
+				<li><a class="jump-link" href="#news">News</a></li>
+				<li><a class="jump-link" href="#depth">Depth</a></li>
+				<li><a class="jump-link" href="#dividends">Dividends</a></li>
+				{#if related.length > 0}
+					<li><a class="jump-link" href="#related">Related</a></li>
+				{/if}
+			</ul>
+		</nav>
+
 		<!-- Price chart -->
-		<section class="block" aria-labelledby="chart-heading">
+		<section id="chart" class="block" aria-labelledby="chart-heading">
 			<div class="block-head chart-head">
 				<div>
 					<p class="block-eyebrow gok-eyebrow">Price</p>
@@ -233,8 +259,9 @@
 			<PriceChart {candles} kind={chartKind} height="22rem" label={chartLabel} formatValue={formatScale} />
 		</section>
 
-		<!-- Key statistics -->
-		<section class="block" aria-labelledby="stats-heading">
+		<!-- Fundamentals — the shallow key-stats ledger, then the deep type-branched
+		     fundamentals, reading as one section. -->
+		<section id="fundamentals" class="block" aria-labelledby="stats-heading">
 			<div class="block-head">
 				<p class="block-eyebrow gok-eyebrow">Fundamentals</p>
 				<h2 id="stats-heading" class="block-title gok-headline-5">Key statistics</h2>
@@ -258,6 +285,34 @@
 					)}
 				</dl>
 			</gok-card>
+			<Fundamentals {inst} />
+		</section>
+
+		<!-- News -->
+		<section id="news" class="block" aria-labelledby="news-heading">
+			<div class="block-head">
+				<p class="block-eyebrow gok-eyebrow">News</p>
+				<h2 id="news-heading" class="block-title gok-headline-5">Latest headlines</h2>
+			</div>
+			<NewsStrip items={news} />
+		</section>
+
+		<!-- Depth (simulated order book) -->
+		<section id="depth" class="block" aria-labelledby="depth-heading">
+			<div class="block-head">
+				<p class="block-eyebrow gok-eyebrow">Order book</p>
+				<h2 id="depth-heading" class="block-title gok-headline-5">Simulated depth</h2>
+			</div>
+			<DepthLadder {inst} {marketOpen} />
+		</section>
+
+		<!-- Dividends -->
+		<section id="dividends" class="block" aria-labelledby="dividends-heading">
+			<div class="block-head">
+				<p class="block-eyebrow gok-eyebrow">Income</p>
+				<h2 id="dividends-heading" class="block-title gok-headline-5">Dividend history</h2>
+			</div>
+			<DividendHistory {symbol} />
 		</section>
 
 		<!-- About -->
@@ -305,7 +360,7 @@
 
 		<!-- Related (a quiet hairline strip → each instrument's own detail page) -->
 		{#if related.length > 0}
-			<section class="block" aria-labelledby="related-heading">
+			<section id="related" class="block" aria-labelledby="related-heading">
 				<div class="block-head">
 					<p class="block-eyebrow gok-eyebrow">More to explore</p>
 					<h2 id="related-heading" class="block-title gok-headline-5">Related instruments</h2>
@@ -639,6 +694,46 @@
 		color: var(--gok-color-text);
 	}
 
+	/* --- In-page jump-nav (CV-LAY-6) --- */
+	.jump-nav {
+		/* Calm + mono, sentence-case (the eyebrow owns the one uppercase); a hairline rule
+		   below snugs it under the sticky trade bar without competing with it. */
+		margin-block-start: calc(-1 * var(--gok-space-300));
+	}
+
+	.jump-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--gok-space-200) var(--gok-space-400);
+		margin: 0;
+		padding: 0;
+		padding-block-end: var(--gok-space-300);
+		list-style: none;
+		border-block-end: var(--gok-border-width-hairline) solid var(--gok-color-border);
+	}
+
+	.jump-link {
+		font-family: var(--gok-font-family-mono);
+		font-size: var(--gok-type-footnote-size);
+		color: var(--gok-color-text-muted);
+		text-decoration: none;
+	}
+
+	.jump-link:hover {
+		color: var(--gok-color-text);
+	}
+
+	.jump-link:focus-visible {
+		outline: var(--gok-focus-ring-width) solid var(--gok-color-focus-ring);
+		outline-offset: 2px;
+		border-radius: var(--gok-radius-s);
+	}
+
+	/* Each anchored section lands clear of the top when jumped to. */
+	.block[id] {
+		scroll-margin-block-start: var(--gok-space-600);
+	}
+
 	/* --- Mobile (390px): keep the sticky CTA above the bottom tab bar --- */
 	@media (max-width: 39.999rem) {
 		.head-main {
@@ -647,6 +742,13 @@
 
 		.head-price {
 			align-items: flex-start;
+		}
+	}
+
+	/* Smooth jump-scroll only when the user hasn't asked for reduced motion. */
+	@media (prefers-reduced-motion: no-preference) {
+		:global(html) {
+			scroll-behavior: smooth;
 		}
 	}
 </style>
