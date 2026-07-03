@@ -13,7 +13,7 @@ and ADR-004). Building each is a vote for a future DS primitive.
 
 | # | Gap | Hit by | Workaround | Status |
 |---|-----|--------|------------|--------|
-| 1 | **No chart primitive** (line/area/sparkline/donut/bar/candlestick) | Dashboard, accounts, portfolio, budgets, lending | TradingView Lightweight Charts + ECharts + `--gok-*` token bridge (F11, ADR-002) | open |
+| 1 | **No chart primitive** (line/area/sparkline/donut/bar/candlestick) | Dashboard, accounts, portfolio, budgets, lending | **Dashboard charts** (line/area, donut, stacked-bar, payoff) on **LayerChart v2** — SVG, re-themes via the `--gok-*` cascade with no JS observer (F11, ADR-002; branch `feat/layerchart-charts`, ECharts retired); **candlestick/price** on TradingView Lightweight Charts pending the V08 charting-depth migration | open |
 | 2 | **No stepper/wizard** | Every application/transfer flow | Compose `gok-tabs activation="manual"` + `gok-progress format="fraction"` + app step-state (F05) | open |
 | 3 | **No date / date-range picker** (`gok-input` has no `date` type) | Onboarding DOB, scheduled payments, statements, insurance, claims | Calendar popover composite over `gok-input` + `gok-popover` (F06) | open |
 | 4 | **No money/currency input** | Every amount field | `gok-input type=number` + affix slot + locale formatting + minor units (F07) | open |

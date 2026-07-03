@@ -9,15 +9,6 @@ export { default as PriceChart } from './PriceChart.svelte';
 export { default as Sparkline } from './Sparkline.svelte';
 export { default as StackedBar } from './StackedBar.svelte';
 
-// The token bridge + reduced-motion / theme-change helpers + the accent-led ramp.
-export {
-	chartTheme,
-	onThemeChange,
-	prefersReducedMotion,
-	categoricalRamp,
-	type ChartTheme
-} from './theme';
-
 // Pure series helpers + their data shapes.
 export {
 	categoryBreakdown,

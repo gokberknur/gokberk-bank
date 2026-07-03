@@ -34,8 +34,9 @@ components and `--gok-*` tokens.
 - **SvelteKit 2 · Svelte 5** (runes) · TypeScript · Vite
 - `@sveltejs/adapter-static` → a pure client **SPA** (`ssr=false`) — the `gok-*` elements are web
   components that register and render in the browser
-- TradingView Lightweight Charts + Apache ECharts for charts · a token lint
-  (`scripts/check-tokens.mjs`) that fails the build on any off-system `--gok-*` value · Playwright e2e
+- LayerChart v2 (Svelte-native, SVG) for dashboard charts + TradingView Lightweight Charts for the
+  candlestick/price view · a token lint (`scripts/check-tokens.mjs`) that fails the build on any
+  off-system `--gok-*` value · Playwright e2e
 - Deployed to Cloudflare Pages · Node 24
 
 The design-system *source* repo is private — only its built `dist/` is on npm. This app is the public
