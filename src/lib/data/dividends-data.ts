@@ -131,3 +131,17 @@ export function getDividendHistory(): DividendView[] {
 export function getDividendsReceivedEurMinor(): number {
 	return getDividendHistory().reduce((s, d) => s + d.amountEurMinor, 0);
 }
+
+/**
+ * Paid history for ONE instrument (V09 detail page), most recent first. Empty when the
+ * symbol isn't a held dividend-payer — the detail page reads that as "has not paid a
+ * dividend" (accumulating ETFs, non-payers, and un-held names all fall through here).
+ */
+export function getDividendHistoryForSymbol(symbol: string): DividendView[] {
+	return getDividendHistory().filter((d) => d.symbol === symbol);
+}
+
+/** Total dividend cash received for ONE instrument (history), EUR minor units. */
+export function getDividendsReceivedForSymbolEurMinor(symbol: string): number {
+	return getDividendHistoryForSymbol(symbol).reduce((s, d) => s + d.amountEurMinor, 0);
+}
