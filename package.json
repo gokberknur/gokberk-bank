@@ -33,7 +33,6 @@
 	},
 	"dependencies": {
 		"@gokberknur/design-system": "^0.4.8",
-		"echarts": "^6.1.0",
 		"layerchart": "^2.0.1",
 		"lightweight-charts": "^5.2.0",
 		"qrcode-generator": "^1.5.2"
