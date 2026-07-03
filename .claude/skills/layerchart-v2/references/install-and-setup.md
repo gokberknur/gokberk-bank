@@ -39,7 +39,23 @@ import unless a chart is on a hot path and you've measured the bundle.
 - Because charts are compiled into the bundle now (not fetched at runtime), prefer preset imports and
   the `layerchart/svg` subpath on heavy routes to keep chunks lean.
 
-## Verifying API against the docs (do this every time)
+## Verifying API against the local clone (do this first, every time)
+
+A git-ignored, version-exact clone of LayerChart **2.0.1** (matches the installed dep) lives at
+**`.claude/gitrepos/layerchart`** — it's the primary reference-lookup target. Grep the source before
+trusting memory, a blog, or even the docs:
+
+- **Component source & real prop types/defaults:** `packages/layerchart/src/lib/components/<Name>/`.
+  Each component splits into `<Name>.svelte` (layer dispatch) + `<Name>.base.svelte` (render logic) +
+  `<Name>.shared.svelte.ts` (the `*Props` type). Presets are under `components/charts/<Name>/`.
+  Examples that settled real questions: `charts/AreaChart/AreaChart.base.svelte` (the `marks` snippet
+  *replaces* the default — `{#if typeof marks === 'function'}…{:else}<Area/>`); `Area/Area.shared.svelte.ts`
+  (`motion?: MotionProp`, and `defined` only rejects `null`, not `NaN`); `Chart/Chart.shared.svelte.ts`
+  (`context.width`/`height` measured dims, `context.xScale`/`yScale` resolved scales).
+- **Docs + examples:** `docs/src/**` (routes, guides, and example `.svelte` sources).
+- Quick recipes: `grep -rn "export.*motion" packages/layerchart/src/lib/components/<Name>/`.
+
+## Verifying API against the docs (fallback when the clone is missing)
 
 LayerChart's docs site is a client-rendered SPA — a plain fetch of `/docs/...` returns only a
 "Loading…" shell. **Use the `/llms.txt` twin of any page** for clean, reliable markdown:

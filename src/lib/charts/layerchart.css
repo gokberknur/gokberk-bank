@@ -1,0 +1,17 @@
+/* LayerChart v2 ↔ --gok-* token bridge (F11).
+ *
+ * LayerChart renders SVG and themes off five CSS variables on `.lc-root-container`.
+ * Because our `--gok-*` roles are already `light-dark(oklch(…))`, mapping them here makes
+ * every chart follow `data-theme` for free — no dark-mode block, no MutationObserver.
+ *
+ * Non-Tailwind projects must declare the cascade-layer order so LayerChart's own `base`
+ * and `components` layers stay predictably overridable. Keep this before any chart styles. */
+@layer theme, base, components, utilities;
+
+.lc-root-container {
+	--color-primary: var(--gok-color-primary); /* default mark colour (lines / bars / arcs) */
+	--color-surface-100: var(--gok-color-surface); /* canvas / lightest surface */
+	--color-surface-200: var(--gok-color-surface-strong); /* tooltip / hovered surface */
+	--color-surface-300: var(--gok-color-border); /* hairlines / darkest surface */
+	--color-surface-content: var(--gok-color-text); /* text / content ink */
+}

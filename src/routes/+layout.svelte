@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import '@gokberknur/design-system/standalone.css';
+	import '$lib/charts/layerchart.css';
 	import '$lib/gok';
 
 	import favicon from '$lib/assets/favicon.svg';

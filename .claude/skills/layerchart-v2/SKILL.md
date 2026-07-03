@@ -26,6 +26,15 @@ it is *Svelte components* (not a JS lib you `init()` onto a `<div>`), a LayerCha
 smaller than the old ones: no `onMount`/`init`/`ResizeObserver`/`dispose` plumbing, and — the big
 one — **no `data-theme` MutationObserver**, because it renders SVG and re-themes for free (below).
 
+> **You have the full library source on disk.** A git-ignored clone of LayerChart v2.0.1 lives at
+> **`.claude/gitrepos/layerchart`** — the **reference-lookup target**. The component source under
+> `packages/layerchart/src/lib/components/` (props/defaults/behaviour of *this exact version* — e.g.
+> `Area/Area.shared.svelte.ts`, `charts/AreaChart/AreaChart.base.svelte`) is ground truth; grep it
+> before trusting memory or a blog. Docs + examples live under `docs/`. Prefer the clone over the
+> network — it's version-exact and can't drift. (Example lesson it settled: v2's `Area` `defined`
+> guard rejects `null` but **not `NaN`**, so a mark must be gated on measured `context.width`/`height`
+> or the pre-measure frame leaks a transient `MNaN` `<path>` console error — see `chart-recipes.md`.)
+
 ## This skill sits under the two authorities — it does not replace them
 
 1. **Svelte MCP governs how the code is written.** Author/edit every `.svelte` chart wrapper through
@@ -108,6 +117,8 @@ These are app rules `gokberk-design` enforces — LayerChart makes them easy, do
 | `references/chart-recipes.md` | Building a specific chart type — candlestick, line, area, bar, donut, sparkline, gauge |
 | `references/migration-from-echarts.md` | Porting an existing `src/lib/charts/*` wrapper; ECharts/Lightweight → LayerChart mapping + gotchas |
 
-**Always confirm API against the live docs.** Every LayerChart page has a machine-readable twin at
-`<page-url>/llms.txt` (index: `https://www.layerchart.com/llms.txt`) — far more reliable than the
-client-rendered HTML. Verify prop names there before shipping; v2 renamed several v1 props.
+**Confirm API against the local clone first.** `.claude/gitrepos/layerchart` is version-exact
+(2.0.1, matches the installed dep) — grep `packages/layerchart/src/lib/components/**` for the real
+prop names, defaults, and rendering logic. As a secondary source, every LayerChart docs page has a
+machine-readable twin at `<page-url>/llms.txt` (index: `https://www.layerchart.com/llms.txt`) — far
+more reliable than the client-rendered HTML. Verify before shipping; v2 renamed several v1 props.
