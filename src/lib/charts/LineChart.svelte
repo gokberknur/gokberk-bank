@@ -22,6 +22,10 @@
 		label: string;
 		/** Soft accent area fill under the line. */
 		area?: boolean;
+		/** An optional second series drawn as a comparison line (e.g. a rebased benchmark). */
+		compare?: SeriesPoint[];
+		/** Accessible name fragment for the compare line (appended to the chart's aria description). */
+		compareLabel?: string;
 	}
 
 	let {
@@ -29,11 +33,36 @@
 		formatValue = (n: number) => String(n),
 		height = '16rem',
 		label,
-		area = true
+		area = true,
+		compare,
+		compareLabel
 	}: Props = $props();
 
 	// LayerChart wants Date x-values on a UTC time scale; convert the ISO points once.
 	const points = $derived(data.map((d) => ({ date: new Date(d.date), value: d.value })));
+
+	// Optional benchmark overlay — the same Date-x conversion as the primary. A non-empty result
+	// gates the second line, the combined y-domain and the line-only rendering (both series read as
+	// plain lines). Absent/empty `compare` leaves every path below byte-for-byte unchanged.
+	const comparePoints = $derived(
+		compare && compare.length ? compare.map((d) => ({ date: new Date(d.date), value: d.value })) : []
+	);
+	const comparing = $derived(comparePoints.length > 0);
+
+	// The primary's auto y-domain is computed from `data` alone, so a benchmark that runs above or
+	// below the portfolio would clip. When comparing, span BOTH series; `yNice` still rounds it, so
+	// it keeps the same calm padding feel as the single-series auto domain. Undefined ⇒ auto (today's
+	// behaviour, so the no-compare path is unchanged).
+	const yDomain = $derived.by(() => {
+		if (!comparing) return undefined;
+		const values = [...points, ...comparePoints].map((p) => p.value);
+		return [Math.min(...values), Math.max(...values)];
+	});
+
+	// Name the benchmark in the chart's text alternative only when a compare line is actually drawn.
+	const ariaLabel = $derived(
+		comparing && compareLabel ? `${label} Compared with ${compareLabel}.` : label
+	);
 
 	/** Whole-series span in days — drives x-tick granularity so labels never collapse. A short
 	 *  balance history reads day + month ("3 Jun"); anything spanning more than ~10 months (a
@@ -92,13 +121,14 @@
 	});
 </script>
 
-<div class="line" style:height role="img" aria-label={label}>
+<div class="line" style:height role="img" aria-label={ariaLabel}>
 	<AreaChart
 		data={points}
 		x="date"
 		y="value"
 		xScale={scaleUtc()}
 		yBaseline={null}
+		{yDomain}
 		grid={false}
 		rule={false}
 		padding={{ top: 8, right: 12, bottom: 22, left: 48 }}
@@ -106,16 +136,31 @@
 		{motion}
 	>
 		{#snippet marks({ context })}
+			{#if comparing}
+				<!-- The benchmark: a muted, dashed reference line sharing the chart's x/y scales (via its
+				     own `data` + the combined yDomain above), so it reads as distinct from the accent
+				     portfolio line drawn on top. Same finite-coord guard as the primary drops transient
+				     pre-measure NaN points; `fill="none"` collapses its area to a plain line. -->
+				<Area
+					data={comparePoints}
+					line={{ stroke: chartTokens.muted, 'stroke-width': 2, 'stroke-dasharray': '4 4' }}
+					fill="none"
+					motion="none"
+					defined={(d: { date: Date; value: number }) =>
+						Number.isFinite(context.xScale?.(d.date)) && Number.isFinite(context.yScale?.(d.value))}
+				/>
+			{/if}
 			<!-- Drop any point whose SCALED coord isn't finite. On LayerChart's pre-measure frame the
 			     scales briefly return NaN for valid data (raw-value paths like "MNaN,1156442"), and
 			     Area's built-in `defined` guard only rejects null, not NaN — so it leaks a transient
 			     "MNaN" <path> console error. Re-deriving finiteness from context.xScale/yScale
 			     excludes those points until the scales are ready; post-measure all points are finite
 			     so nothing is dropped. The fill is a colour WITH alpha (accentFill), not fill-opacity
-			     which doesn't bind at runtime; `fill="none"` collapses the area to a plain line. -->
+			     which doesn't bind at runtime; `fill="none"` collapses the area to a plain line — which
+			     is also what a compare overlay forces, so both series then read as plain lines. -->
 			<Area
 				line={{ stroke: chartTokens.accent, 'stroke-width': 2 }}
-				fill={area ? accentFill : 'none'}
+				fill={area && !comparing ? accentFill : 'none'}
 				motion="none"
 				defined={(d: { date: Date; value: number }) =>
 					Number.isFinite(context.xScale?.(d.date)) && Number.isFinite(context.yScale?.(d.value))}

@@ -9,14 +9,25 @@
 	// a gain. Gains/losses read by rule + ▲/▼ + sign + the status role on the number.
 	import { goto } from '$app/navigation';
 	import { invest } from '$lib/state/invest.svelte';
-	import { dayChangeBps, priceSparkline } from '$lib/data/portfolio';
+	import {
+		dayChangeBps,
+		priceSparkline,
+		twrBps,
+		benchmarkSeries,
+		rebaseTo100,
+		positionContributions,
+		realizedPlEurMinor
+	} from '$lib/data/portfolio';
 	import type { Position } from '$lib/data/portfolio';
-	import { RANGES } from '$lib/data/market';
+	import { RANGES, BENCHMARK } from '$lib/data/market';
 	import type { Range } from '$lib/data/market';
-	import { formatMoney, formatPercent } from '$lib/format';
+	import { formatMoney, formatPercent, formatDate } from '$lib/format';
 	import { LineChart, DonutChart, Sparkline } from '$lib/charts';
 	import { setProps, on } from '$lib/wc.svelte';
 	import OrderTicket from '$lib/components/invest/OrderTicket.svelte';
+	import PlSplitCard from '$lib/components/invest/PlSplitCard.svelte';
+	import ContributionList from '$lib/components/invest/ContributionList.svelte';
+	import ProjectionCalculator from '$lib/components/invest/ProjectionCalculator.svelte';
 	import StickyActionBar from '$lib/components/layout/StickyActionBar.svelte';
 
 	// ── Portfolio reads (all derived fresh from the seed) ──
@@ -43,6 +54,49 @@
 		const value = (e as CustomEvent<{ value: string }>).detail.value;
 		invest.setRange(value as Range);
 	}
+
+	// ── Benchmark overlay (V12): compare the portfolio to a seeded index. Availability
+	//    is guarded even though the seed always resolves — a future live feed could
+	//    return an empty series, in which case the switch disables with a neutral note. ──
+	let comparing = $state(false);
+
+	const benchmark = $derived(benchmarkSeries(invest.range));
+	const benchmarkAvailable = $derived(benchmark.length > 0);
+	// Only overlay when the user asked AND a benchmark exists for the range.
+	const showCompare = $derived(comparing && benchmarkAvailable);
+
+	// Rebased display transforms (first point = 100) so the two series share a scale —
+	// used by the overlay chart, the text legend and the data-table fallback. Never stored.
+	const rebasedPortfolio = $derived(rebaseTo100(performance));
+	const rebasedBenchmark = $derived(rebaseTo100(benchmark));
+	const latestPortfolioRebased = $derived(rebasedPortfolio.at(-1)?.value ?? 100);
+	const latestBenchmarkRebased = $derived(rebasedBenchmark.at(-1)?.value ?? 100);
+
+	// The plotted series as accessible table rows — Date + Portfolio, plus a Benchmark
+	// column (rebased) when comparing. Satisfies "every chart carries a data-table
+	// fallback"; the visible chart itself stays decorative (role="img").
+	const perfTableRows = $derived.by(() =>
+		showCompare
+			? rebasedPortfolio.map((pt, idx) => ({
+					date: pt.date,
+					portfolio: pt.value.toFixed(1),
+					benchmark: rebasedBenchmark[idx] ? rebasedBenchmark[idx].value.toFixed(1) : '—'
+				}))
+			: performance.map((pt) => ({
+					date: pt.date,
+					portfolio: formatMoney(pt.value, 'EUR'),
+					benchmark: ''
+				}))
+	);
+
+	function onCompareToggle(e: Event) {
+		comparing = (e.target as HTMLElement & { checked: boolean }).checked;
+	}
+
+	// ── Return figures (V12): simple vs time-weighted return over the active range.
+	//    `allTimeRatio` above is the total (vs-cost) return; TWR removes the timing of
+	//    contributions. Neither figure spends the accent (status role on the number only). ──
+	const twrRatio = $derived(twrBps(invest.range) / 10000);
 
 	// ── Allocation legend (text + value + weight; never colour-only) ──
 	const allocTotal = $derived(allocation.reduce((sum, a) => sum + a.value, 0));
@@ -148,6 +202,19 @@
 	</span>
 {/snippet}
 
+<!-- A percent return figure carried by rule + ▲/▼ + sign, with the status role on the
+     number only. Reuses .delta-value so the return pair reads like the header deltas. -->
+{#snippet returnFigure(ratio: number)}
+	{@const sign = signOf(ratio)}
+	<span class="delta-value gok-tabular-nums" data-sign={sign}>
+		<span class="delta-icon" aria-hidden="true"
+			>{sign === 'pos' ? '▲' : sign === 'neg' ? '▼' : '—'}</span
+		>
+		<span class="visually-hidden">{sign === 'pos' ? 'up' : sign === 'neg' ? 'down' : 'flat'}</span>
+		{formatPercent(ratio)}
+	</span>
+{/snippet}
+
 <div class="page">
 	<header class="head">
 		<p class="head-eyebrow gok-eyebrow">Portfolio</p>
@@ -171,29 +238,149 @@
 			</gok-empty-state>
 		</section>
 	{:else}
-		<!-- Performance -->
-		<section class="block" aria-labelledby="perf-heading">
+		<!-- In-page jump-nav (CV-LAY-6): calm, mono, secondary to the V16 sub-nav above.
+		     Real anchors to the analytics sections, in on-page order. -->
+		<nav class="jump-nav" aria-label="On this page">
+			<ul class="jump-list">
+				<li><a class="jump-link" href="#benchmark">Performance</a></li>
+				<li><a class="jump-link" href="#return">Return</a></li>
+				<li><a class="jump-link" href="#pl">P/L</a></li>
+				<li><a class="jump-link" href="#contribution">Contribution</a></li>
+				<li><a class="jump-link" href="#projection">Projection</a></li>
+			</ul>
+		</nav>
+
+		<!-- Performance (with the V12 benchmark overlay) -->
+		<section id="benchmark" class="block" aria-labelledby="perf-heading">
 			<div class="block-head">
 				<div class="block-titles">
 					<p class="block-eyebrow gok-eyebrow">Performance</p>
 					<h2 id="perf-heading" class="block-title gok-headline-5">How it's doing</h2>
 				</div>
-				<gok-segmented
-					label="Performance range"
-					{@attach setProps({ value: invest.range })}
-					{@attach on('change', onRange)}
-				>
-					{#each RANGES as range (range)}
-						<gok-segmented-item value={range}>{range}</gok-segmented-item>
-					{/each}
-				</gok-segmented>
+				<div class="perf-controls">
+					<gok-segmented
+						label="Performance range"
+						{@attach setProps({ value: invest.range })}
+						{@attach on('change', onRange)}
+					>
+						{#each RANGES as range (range)}
+							<gok-segmented-item value={range}>{range}</gok-segmented-item>
+						{/each}
+					</gok-segmented>
+					<div class="compare-control">
+						<gok-switch
+							{@attach setProps({ checked: comparing, disabled: !benchmarkAvailable })}
+							{@attach on('change', onCompareToggle)}
+						>
+							Compare to index
+						</gok-switch>
+						{#if !benchmarkAvailable}
+							<p class="compare-note">Benchmark unavailable</p>
+						{/if}
+					</div>
+				</div>
 			</div>
-			<LineChart
-				data={performance}
-				formatValue={(m) => formatMoney(m, 'EUR')}
-				label={perfLabel}
-				area
-				height="18rem"
+
+			{#if showCompare}
+				<LineChart
+					data={rebasedPortfolio}
+					compare={rebasedBenchmark}
+					compareLabel={BENCHMARK.name}
+					formatValue={(v) => v.toFixed(1)}
+					label={perfLabel}
+					height="18rem"
+				/>
+				<!-- Text legend — never colour-only: the line STYLE is named in words and each
+				     row carries its latest rebased value. -->
+				<ul class="chart-legend">
+					<li class="chart-legend-row">
+						<span class="chart-legend-swatch chart-legend-swatch-solid" aria-hidden="true"></span>
+						<span class="chart-legend-label">Portfolio · rebased 100 (solid line)</span>
+						<span class="chart-legend-value gok-tabular-nums">{latestPortfolioRebased.toFixed(1)}</span>
+					</li>
+					<li class="chart-legend-row">
+						<span class="chart-legend-swatch chart-legend-swatch-dashed" aria-hidden="true"></span>
+						<span class="chart-legend-label">{BENCHMARK.name} · rebased 100 (dashed line)</span>
+						<span class="chart-legend-value gok-tabular-nums">{latestBenchmarkRebased.toFixed(1)}</span>
+					</li>
+				</ul>
+			{:else}
+				<LineChart
+					data={performance}
+					formatValue={(m) => formatMoney(m, 'EUR')}
+					label={perfLabel}
+					area
+					height="18rem"
+				/>
+			{/if}
+
+			<!-- Data-table fallback for the chart (visually hidden). -->
+			<table class="visually-hidden">
+				<caption>
+					{showCompare
+						? `Portfolio and ${BENCHMARK.name}, rebased to 100, across ${invest.range}.`
+						: `Portfolio value across ${invest.range}.`}
+				</caption>
+				<thead>
+					<tr>
+						<th scope="col">Date</th>
+						<th scope="col">{showCompare ? 'Portfolio (rebased 100)' : 'Portfolio value'}</th>
+						{#if showCompare}
+							<th scope="col">{BENCHMARK.name} (rebased 100)</th>
+						{/if}
+					</tr>
+				</thead>
+				<tbody>
+					{#each perfTableRows as row (row.date)}
+						<tr>
+							<th scope="row">{formatDate(row.date)}</th>
+							<td>{row.portfolio}</td>
+							{#if showCompare}
+								<td>{row.benchmark}</td>
+							{/if}
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</section>
+
+		<!-- Return pair (V12): total vs time-weighted return -->
+		<section id="return" class="block" aria-labelledby="return-heading">
+			<div class="block-titles">
+				<p class="block-eyebrow gok-eyebrow">Return</p>
+				<h2 id="return-heading" class="block-title gok-headline-5">How the money did</h2>
+			</div>
+			<div class="return-pair">
+				<div class="return-item">
+					<span class="delta-label">Total return</span>
+					{@render returnFigure(allTimeRatio)}
+				</div>
+				<div class="return-item">
+					<span class="delta-label return-label-tip">
+						Time-weighted return
+						<gok-tooltip>
+							<button type="button" class="info-btn" aria-label="What time-weighted return means">
+								<span aria-hidden="true">i</span>
+							</button>
+							<span slot="content"
+								>Time-weighted — removes the effect of when you added money.</span
+							>
+						</gok-tooltip>
+					</span>
+					{@render returnFigure(twrRatio)}
+				</div>
+			</div>
+		</section>
+
+		<!-- P/L split (V12): realised vs unrealised -->
+		<section id="pl" class="block" aria-labelledby="pl-heading">
+			<div class="block-titles">
+				<p class="block-eyebrow gok-eyebrow">Profit &amp; loss</p>
+				<h2 id="pl-heading" class="block-title gok-headline-5">Realised and unrealised</h2>
+			</div>
+			<PlSplitCard
+				unrealizedMinor={summary.totalPlEurMinor}
+				realizedMinor={realizedPlEurMinor(invest.orders)}
 			/>
 		</section>
 
@@ -339,6 +526,26 @@
 					</tbody>
 				</table>
 			</div>
+		</section>
+
+		<!-- Contribution (V12): what drove the return, per holding -->
+		<section id="contribution" class="block" aria-labelledby="contribution-heading">
+			<div class="block-titles">
+				<p class="block-eyebrow gok-eyebrow">Analytics</p>
+				<h2 id="contribution-heading" class="block-title gok-headline-5">What drove it</h2>
+			</div>
+			<ContributionList items={positionContributions()} />
+		</section>
+
+		<!-- Projection (V12): a neutral what-if illustration -->
+		<section id="projection" class="block" aria-labelledby="projection-heading">
+			<div class="block-titles">
+				<p class="block-eyebrow gok-eyebrow">Illustration</p>
+				<h2 id="projection-heading" class="block-title gok-headline-5">
+					What a plan could look like
+				</h2>
+			</div>
+			<ProjectionCalculator startMinor={summary.totalValueEurMinor} />
 		</section>
 
 		<!-- Quick actions -->
@@ -722,11 +929,173 @@
 		overflow: hidden;
 	}
 
+	/* ── In-page jump-nav (CV-LAY-6) ── */
+	.jump-nav {
+		/* Calm + mono, sentence-case (the eyebrow owns the one uppercase), hairline rule
+		   below so it reads lighter than the V16 sub-nav above and doesn't compete. */
+		margin-block-start: calc(-1 * var(--gok-space-300));
+	}
+
+	.jump-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--gok-space-200) var(--gok-space-400);
+		margin: 0;
+		padding: 0;
+		padding-block-end: var(--gok-space-300);
+		list-style: none;
+		border-block-end: var(--gok-border-width-hairline) solid var(--gok-color-border);
+	}
+
+	.jump-link {
+		font-family: var(--gok-font-family-mono);
+		font-size: var(--gok-type-footnote-size);
+		color: var(--gok-color-text-muted);
+		text-decoration: none;
+	}
+
+	.jump-link:hover {
+		color: var(--gok-color-text);
+	}
+
+	.jump-link:focus-visible {
+		outline: var(--gok-focus-ring-width) solid var(--gok-color-focus-ring);
+		outline-offset: 2px;
+		border-radius: var(--gok-radius-s);
+	}
+
+	/* ── Performance controls (range + compare switch) ── */
+	.perf-controls {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--gok-space-300);
+	}
+
+	.compare-control {
+		display: flex;
+		flex-direction: column;
+		gap: var(--gok-space-100);
+	}
+
+	.compare-note {
+		margin: 0;
+		font-family: var(--gok-font-family-text);
+		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
+		color: var(--gok-color-text-muted);
+	}
+
+	/* ── Benchmark legend (text carries meaning; swatch is decorative style-only ink) ── */
+	.chart-legend {
+		display: flex;
+		flex-direction: column;
+		gap: var(--gok-space-200);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.chart-legend-row {
+		display: flex;
+		align-items: center;
+		gap: var(--gok-space-300);
+	}
+
+	.chart-legend-swatch {
+		flex: none;
+		inline-size: 1.5rem;
+		block-size: 0;
+	}
+
+	.chart-legend-swatch-solid {
+		border-block-start: var(--gok-border-width-strong) solid var(--gok-color-text);
+	}
+
+	.chart-legend-swatch-dashed {
+		border-block-start: var(--gok-border-width-strong) dashed var(--gok-color-text-muted);
+	}
+
+	.chart-legend-label {
+		flex: 1 1 auto;
+		font-family: var(--gok-font-family-text);
+		font-size: var(--gok-type-body-small-size);
+		color: var(--gok-color-text);
+	}
+
+	.chart-legend-value {
+		font-family: var(--gok-font-family-mono);
+		font-size: var(--gok-type-body-small-size);
+		color: var(--gok-color-text-muted);
+	}
+
+	/* ── Return pair ── */
+	.return-pair {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--gok-space-400) var(--gok-space-700);
+	}
+
+	.return-item {
+		display: flex;
+		flex-direction: column;
+		gap: var(--gok-space-100);
+	}
+
+	.return-label-tip {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--gok-space-200);
+	}
+
+	.info-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		inline-size: 1.1rem;
+		block-size: 1.1rem;
+		padding: 0;
+		border: var(--gok-border-width-hairline) solid var(--gok-color-border);
+		border-radius: var(--gok-radius-pill);
+		background: none;
+		color: var(--gok-color-text-muted);
+		font-family: var(--gok-font-family-mono);
+		font-size: var(--gok-type-caption-size);
+		line-height: 1;
+		cursor: pointer;
+	}
+
+	.info-btn:hover {
+		color: var(--gok-color-text);
+		border-color: var(--gok-color-border-strong);
+	}
+
+	.info-btn:focus-visible {
+		outline: var(--gok-focus-ring-width) solid var(--gok-color-focus-ring);
+		outline-offset: 2px;
+	}
+
+	/* Each analytics anchor lands clear of the top when jumped to. */
+	.block[id] {
+		scroll-margin-block-start: var(--gok-space-600);
+	}
+
 	/* ── Two-column allocation + breathing room at desktop ── */
 	@media (min-width: 48rem) {
 		.alloc-layout {
 			grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 			gap: var(--gok-space-700);
+		}
+
+		.perf-controls {
+			align-items: flex-end;
+		}
+	}
+
+	/* Smooth jump-scroll only when the user hasn't asked for reduced motion. */
+	@media (prefers-reduced-motion: no-preference) {
+		:global(html) {
+			scroll-behavior: smooth;
 		}
 	}
 </style>
