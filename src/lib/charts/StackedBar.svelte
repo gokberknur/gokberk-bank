@@ -1,13 +1,12 @@
 <script lang="ts">
-	// Stacked bar (F11) — spend by category, cashflow in/out. Accent-led
+	// Stacked bar (F11) — spend by category, cashflow in/out. Neutral-ink
 	// `categoricalRamp` segments, no gridlines (space over rules), muted mono axis
-	// labels, and a quiet per-segment tooltip. Vertical by default; `horizontal`
-	// swaps the axes. Reads only `--gok-*` via `chartTheme()`, re-themes live on
-	// `data-theme`, lazy-loads ECharts.
-	import { onMount } from 'svelte';
-	import type { EChartsOption, EChartsType } from 'echarts';
-	import { chartTheme, onThemeChange, prefersReducedMotion, categoricalRamp } from './theme';
-	import { resolveColors } from './util';
+	// labels, and a quiet per-category tooltip. Vertical by default; `horizontal`
+	// swaps the axes. Built on LayerChart v2: SVG colours are live `var(--gok-*)`
+	// strings that re-theme on `data-theme` through the CSS cascade — no probe
+	// canvas, no MutationObserver.
+	import { BarChart, Tooltip } from 'layerchart';
+	import { chartTokens, categoricalRamp } from './tokens';
 
 	interface BarSeries {
 		name: string;
@@ -38,127 +37,89 @@
 		horizontal = false
 	}: Props = $props();
 
-	let el: HTMLDivElement;
-	let chart: EChartsType | null = null;
+	// Neutral-ink ramp, one swatch per series — the accent is spent elsewhere, never a
+	// chart category (CV-VIS-1).
+	const ramp = $derived(categoricalRamp(series.length));
 
-	interface AxisParam {
-		seriesName: string;
-		value: number;
-		axisValueLabel: string;
-		marker: string;
-	}
+	// LayerChart wants row-objects keyed by field name: one row per category, each
+	// series' value keyed by its own name.
+	const rows = $derived(
+		categories.map((cat, i) => {
+			const row: Record<string, string | number> = { category: cat };
+			for (const s of series) row[s.name] = s.values[i] ?? 0;
+			return row;
+		})
+	);
+	const barSeries = $derived(series.map((s, i) => ({ key: s.name, color: ramp[i] })));
 
-	function buildOption(): EChartsOption {
-		const theme = chartTheme();
-		const reduced = prefersReducedMotion();
-		const colors = resolveColors(categoricalRamp(theme, series.length));
-
-		const labelAxis = {
-			type: 'category' as const,
-			data: categories,
-			axisLine: { lineStyle: { color: theme.border } },
-			axisTick: { show: false },
-			axisLabel: { color: theme.muted, fontFamily: theme.fontMono, fontSize: 11, hideOverlap: true }
-		};
-		const valueAxis = {
-			type: 'value' as const,
-			axisLine: { show: false },
-			axisTick: { show: false },
-			splitLine: { show: false },
-			axisLabel: {
-				color: theme.muted,
-				fontFamily: theme.fontMono,
-				fontSize: 11,
-				formatter: (v: number) => formatValue(v)
-			}
-		};
-
-		return {
-			animation: !reduced,
-			animationDuration: 260,
-			animationEasing: 'cubicOut',
-			color: colors,
-			grid: { left: 8, right: 12, top: 12, bottom: 4, containLabel: true },
-			tooltip: {
-				trigger: 'axis',
-				backgroundColor: theme.surfaceStrong,
-				borderColor: theme.border,
-				borderWidth: 1,
-				padding: [6, 10],
-				textStyle: { color: theme.text, fontFamily: theme.fontMono, fontSize: 12 },
-				extraCssText: 'box-shadow: none;',
-				axisPointer: { type: 'shadow', shadowStyle: { color: theme.surfaceStrong, opacity: 0.4 } },
-				formatter: (p: unknown) => {
-					const arr = p as AxisParam[];
-					if (!arr.length) return '';
-					const head = arr[0].axisValueLabel;
-					const rows = arr
-						.map((r) => `${r.marker}${r.seriesName}: ${formatValue(r.value)}`)
-						.join('<br>');
-					return `${head}<br>${rows}`;
-				}
-			},
-			xAxis: horizontal ? valueAxis : labelAxis,
-			yAxis: horizontal ? labelAxis : valueAxis,
-			series: series.map((s) => ({
-				name: s.name,
-				type: 'bar' as const,
-				stack: 'total',
-				data: s.values,
-				barMaxWidth: 28,
-				itemStyle: { borderColor: theme.surface, borderWidth: 1 }
-			}))
-		};
-	}
-
-	function reapply() {
-		chart?.setOption(buildOption(), true);
-	}
-
-	onMount(() => {
-		let disposed = false;
-		let ro: ResizeObserver | undefined;
-		let stopTheme: (() => void) | undefined;
-
-		(async () => {
-			const echarts = await import('echarts');
-			if (disposed) return;
-			chart = echarts.init(el, null, { renderer: 'canvas' });
-			reapply();
-			ro = new ResizeObserver(() => chart?.resize());
-			ro.observe(el);
-			stopTheme = onThemeChange(reapply);
-		})();
-
-		return () => {
-			disposed = true;
-			ro?.disconnect();
-			stopTheme?.();
-			chart?.dispose();
-			chart = null;
-		};
-	});
-
-	$effect(() => {
-		void categories;
-		void series;
-		void formatValue;
-		void horizontal;
-		if (chart) reapply();
-	});
+	// LayerChart uses fixed padding (no ECharts `containLabel` auto-fit), so reserve left room
+	// for the widest tick label or it clips when the chart sits flush at its container's edge:
+	// money ticks on the value axis (vertical) or category text on the band axis (horizontal).
+	// ~8px per mono glyph at the axis size, plus the tick gap.
+	const stackTotals = $derived(
+		categories.map((_, i) => series.reduce((sum, s) => sum + (s.values[i] ?? 0), 0))
+	);
+	const axisMax = $derived(stackTotals.length ? Math.max(0, ...stackTotals.map((t) => Math.abs(t))) : 0);
+	const leftPad = $derived(
+		horizontal
+			? Math.max(48, Math.max(0, ...categories.map((c) => c.length)) * 8 + 14)
+			: Math.max(48, formatValue(axisMax).length * 8 + 14)
+	);
 </script>
 
 <div class="bar" style:height role="img" aria-label={label}>
-	<div class="canvas" bind:this={el}></div>
+	<BarChart
+		data={rows}
+		x={horizontal ? undefined : 'category'}
+		y={horizontal ? 'category' : undefined}
+		orientation={horizontal ? 'horizontal' : 'vertical'}
+		series={barSeries}
+		seriesLayout="stack"
+		grid={false}
+		rule={false}
+		padding={{ top: 8, right: 12, bottom: 22, left: leftPad }}
+		props={{
+			xAxis: {
+				format: horizontal ? (v: number) => formatValue(v) : 'none',
+				rule: false,
+				tickMarks: false,
+				fill: chartTokens.muted
+			},
+			yAxis: {
+				format: horizontal ? 'none' : (v: number) => formatValue(v),
+				rule: false,
+				tickMarks: false,
+				fill: chartTokens.muted
+			}
+		}}
+	>
+		{#snippet tooltip({ context })}
+			<Tooltip.Root {context} class="lc-tip-quiet">
+				{#snippet children({ data: d })}
+					<Tooltip.Header value={d.category} />
+					<Tooltip.List>
+						{#each series as s (s.name)}
+							<Tooltip.Item label={s.name} value={formatValue(Number(d[s.name] ?? 0))} />
+						{/each}
+					</Tooltip.List>
+				{/snippet}
+			</Tooltip.Root>
+		{/snippet}
+	</BarChart>
 </div>
 
 <style>
 	.bar {
 		inline-size: 100%;
+		/* Mono numerals for axis ticks (and the tooltip, via the global rule below). */
+		font-family: var(--gok-font-family-mono);
 	}
 
-	.canvas {
-		inline-size: 100%;
-		block-size: 100%;
+	/* The tooltip is calm, flat surface-strong (bridged) — strip LayerChart's default drop
+	   shadow + blur, and keep numerals mono even though it can portal out of `.bar`. */
+	:global(.lc-tooltip-container.lc-tip-quiet) {
+		box-shadow: none;
+		backdrop-filter: none;
+		font-family: var(--gok-font-family-mono);
 	}
 </style>
