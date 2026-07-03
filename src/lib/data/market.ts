@@ -5,7 +5,7 @@
 // units in the INSTRUMENT's own currency; the portfolio math converts to EUR.
 
 import { mulberry32 } from './prng';
-import { TODAY, isoDate } from './time';
+import { TODAY, isoDate, daysBeforeToday } from './time';
 import type { Currency } from './money';
 
 export type InstrumentType = 'stock' | 'etf' | 'crypto';
@@ -86,6 +86,9 @@ export interface Order {
 	totalEurMinor: number;
 	/** ISO date placed. */
 	placedAt: string;
+	/** Realized P/L on an executed SELL (EUR minor, average-cost basis) — V12's P/L
+	 *  split reads this; absent on buys/working orders. Display-only, no lot engine. */
+	realizedPlEurMinor?: number;
 }
 
 export const INSTRUMENTS: readonly Instrument[] = [
@@ -209,3 +212,59 @@ export function isMarketOpen(): boolean {
 	const h = TODAY.getHours();
 	return h >= 9 && h < 18;
 }
+
+// ── V12 · Portfolio analytics depth ─────────────────────────────────────────────
+
+/** The seeded reference index the V12 benchmark overlay rebases against. Broad
+ *  European equity (net-return), EUR-denominated — no live feed (V14 may later
+ *  overlay it; until then it's seeded and degrades to "unavailable"). */
+export interface BenchmarkMeta {
+	symbol: string;
+	name: string;
+}
+
+export const BENCHMARK: BenchmarkMeta = { symbol: 'SXXR', name: 'STOXX Europe 600 (net return)' };
+
+/**
+ * A deterministic daily close history for {@link BENCHMARK} — the SAME backward walk
+ * and date scheme as {@link priceHistory} (levels end TODAY, walk into the past from a
+ * base level), so it aligns by index to `performanceSeries` for a rebased overlay.
+ * Levels are index points ×100 (minor units), EUR — no FX. A gentle long-run uptrend
+ * so a rebased comparison reads meaningfully. Stable across runs.
+ */
+export function benchmarkHistory(days = 365): { time: string; closeMinor: number }[] {
+	const rng = mulberry32(symbolSeed(BENCHMARK.symbol));
+	const lastMinor = 52340; // 523.40 pts
+	const priorMinor = 52210;
+	const vol = 0.008;
+
+	const closes: number[] = new Array(days);
+	closes[days - 1] = lastMinor;
+	if (days >= 2) closes[days - 2] = priorMinor;
+	for (let i = days - 3; i >= 0; i--) {
+		// Positive drift means earlier levels sit below today's → the forward series rises.
+		const shock = (rng() - 0.5) * 2 * vol + 0.0005;
+		closes[i] = Math.max(Math.round(closes[i + 1] / (1 + shock)), 1);
+	}
+
+	const out: { time: string; closeMinor: number }[] = [];
+	for (let i = 0; i < days; i++) {
+		const d = new Date(TODAY);
+		d.setDate(d.getDate() - (days - 1 - i));
+		out.push({ time: isoDate(d), closeMinor: closes[i] });
+	}
+	return out;
+}
+
+/**
+ * Executed SELL orders that realized a P/L — merged into the orders seed so V12's
+ * realized figure is backed by real V04 blotter rows, never fabricated. Two closed
+ * trades: a SAP trim taken at a gain, and a fully-exited LVMH (MC) position closed at
+ * a loss (MC isn't in HOLDINGS, so it reads as a closed-out name). `realizedPlEurMinor`
+ * is the average-cost realized result (display-only; no lot reconstruction). Ids
+ * namespaced `ord-seed-sell-*` so a freshly placed `ord-<n>` can't collide.
+ */
+export const REALIZED_SEED_ORDERS: Order[] = [
+	{ id: 'ord-seed-sell-1', symbol: 'SAP', side: 'sell', kind: 'market', quantity: 3, priceMinor: null, tif: 'day', status: 'filled', totalEurMinor: 73_590, placedAt: isoDate(daysBeforeToday(26)), realizedPlEurMinor: 12_180 },
+	{ id: 'ord-seed-sell-2', symbol: 'MC', side: 'sell', kind: 'market', quantity: 1, priceMinor: null, tif: 'day', status: 'filled', totalEurMinor: 68_120, placedAt: isoDate(daysBeforeToday(40)), realizedPlEurMinor: -4_300 }
+];
