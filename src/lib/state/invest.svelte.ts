@@ -33,6 +33,8 @@ import type {
 import { accounts } from '$lib/state/accounts.svelte';
 import { toEur, midRateEur } from '$lib/data/money';
 import { TODAY, isoDate, daysBeforeToday } from '$lib/data/time';
+import { PLAN_SEED_ORDERS } from '$lib/data/plans-data';
+import { REALIZED_SEED_ORDERS } from '$lib/data/market';
 import { toast } from '$lib/state/toasts.svelte';
 
 /** Whether the amount is entered as a share count or a cash (notional) figure. */
@@ -116,6 +118,8 @@ const FAR_FROM_MARKET_BPS = 0.2;
  */
 function seedOrders(): Order[] {
 	return [
+		...PLAN_SEED_ORDERS,
+		...REALIZED_SEED_ORDERS,
 		// Rejected — a limit buy the exchange bounced; terminal, nothing traded.
 		{ id: 'ord-seed-1', symbol: 'SIE', side: 'buy', kind: 'limit', quantity: 12, priceMinor: 17500, tif: 'gtc', status: 'rejected', totalEurMinor: 210000, placedAt: isoDate(daysBeforeToday(14)) },
 		// Cancelled — a resting limit buy I pulled before it filled.

@@ -73,6 +73,38 @@ export const BOTTOM_TABS: NavItem[] = [
 /** The mobile tab `value`s that are first-class tabs; anything else lives under "More". */
 export const PRIMARY_TAB_VALUES: readonly string[] = ['home', 'accounts', 'payments', 'invest'];
 
+/**
+ * A section sub-nav item (V16). Like {@link NavItem} but icon-less — the invest
+ * sub-nav is a text rail (the SettingsHeader precedent), so it carries no glyph.
+ * `external` marks a cross-section link that points outside `/invest` (Crypto).
+ */
+export interface SubNavItem {
+	label: string;
+	href: string;
+	value: string;
+	/** Whether the destination surface exists yet — `false` renders disabled ("Soon"). */
+	ready: boolean;
+	/** A cross-section link (e.g. Crypto → /crypto), lit only on an exact section match. */
+	external?: boolean;
+}
+
+/**
+ * The invest section sub-nav (V16) — rendered by `(app)/invest/+layout.svelte`, not the
+ * shell rail. Lists every invest surface in a sensible order so each is one tap; unbuilt
+ * sections (`ready: false`) render disabled "Soon" until their feature ships (flip the flag
+ * in the same change as the surface). Crypto is a cross-section link out to `/crypto`.
+ */
+export const INVEST_NAV: SubNavItem[] = [
+	{ label: 'Overview', href: '/invest', value: 'overview', ready: true },
+	{ label: 'Discover', href: '/invest/discover', value: 'discover', ready: false },
+	{ label: 'Plans', href: '/invest/plans', value: 'plans', ready: true },
+	{ label: 'Orders', href: '/invest/orders', value: 'orders', ready: true },
+	{ label: 'Watchlists', href: '/invest/watchlists', value: 'watchlists', ready: true },
+	{ label: 'Funds', href: '/invest/funds', value: 'funds', ready: true },
+	{ label: 'Dividends', href: '/invest/dividends', value: 'dividends', ready: true },
+	{ label: 'Crypto', href: '/crypto', value: 'crypto', ready: true, external: true }
+];
+
 /** Flat list of every nav item (both groupings deduped by value). */
 const ALL_ITEMS: NavItem[] = NAV.flatMap((s) => s.items);
 
@@ -87,6 +119,23 @@ export function activeValue(pathname: string): string {
 	for (const item of ALL_ITEMS) {
 		if ((pathname === item.href || pathname.startsWith(item.href + '/')) && item.href.length > bestLen) {
 			best = item.value;
+			bestLen = item.href.length;
+		}
+	}
+	return best;
+}
+
+/**
+ * The active invest sub-nav item's `href` for a pathname, by longest matching prefix —
+ * so `/invest/plans/x` lights "Plans" and `/invest/instrument/x` lights "Overview".
+ * Returns '' when nothing matches. Crypto (`/crypto`) lights only under `/crypto`.
+ */
+export function activeInvestHref(pathname: string): string {
+	let best = '';
+	let bestLen = -1;
+	for (const item of INVEST_NAV) {
+		if ((pathname === item.href || pathname.startsWith(item.href + '/')) && item.href.length > bestLen) {
+			best = item.href;
 			bestLen = item.href.length;
 		}
 	}

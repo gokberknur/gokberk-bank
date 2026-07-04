@@ -235,6 +235,9 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-400);
+		/* Cap the step fields at the form measure (CV-FRM-1) — the rail stays at the
+		   wider read measure, but labelled inputs shouldn't stretch past 32rem. */
+		max-inline-size: var(--measure-form);
 		padding-block-start: var(--gok-space-400);
 		border-block-start: var(--gok-border-width-hairline) solid var(--gok-color-border);
 	}

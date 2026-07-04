@@ -1,0 +1,24 @@
+{
+  "skill_name": "plotly-js",
+  "notes": "Test prompts for the plotly-js skill. Assertions intentionally omitted — this is a knowledge/reference skill with subjective output (like layerchart-v2), so it's evaluated qualitatively against the SKILL.md guidance. Run via skill-creator's eval loop if a quantitative pass is wanted.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Add a Plotly candlestick chart for an instrument's price history to /invest, with a volume pane below it. It has to match our brand — monochrome, forest-green accent, and it must re-theme when the user flips light/dark.",
+      "expected_output": "A client-only Svelte wrapper in src/lib/charts/ using plotly.js/lib/core + register(candlestick/ohlc/bar), newPlot-once/react-on-update, increasing/decreasing re-mapped to resolved --gok up/down tokens (not Plotly green/red) paired with shape+number, a bar volume trace on a second y-axis, config displayModeBar:false/displaylogo:false, and onThemeChange -> react with a rebuilt token-resolved template (uirevision kept). Purge on teardown. role=img + label.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Why is my Plotly chart showing gray axes and a white background instead of our --gok-* colors? I passed layout.font.color = 'var(--gok-color-text)' and paper_bgcolor = 'var(--gok-color-surface)'.",
+      "expected_output": "Explains that Plotly validates colors through tinycolor2 (src/lib/coerce.js:173-178), which rejects var(--x) and silently reverts to defaults (#444 ink, #fff paper) — there is no CSS-var path, even inside a template. Fix: resolve --gok-* to concrete rgb() via the existing src/lib/charts/theme.ts chartTheme(), feed resolved strings, and re-theme on data-theme via onThemeChange -> Plotly.react.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "We want to use Plotly for a couple of charts but I'm worried about bundle size in our SvelteKit SPA. What's the smallest way to import just line, bar and donut charts?",
+      "expected_output": "Explains plotly.js does NOT tree-shake (no module/sideEffects field) so size is controlled by the entry, not the bundler. Recommends import Plotly from 'plotly.js/lib/core' (scatter only) + Plotly.register([bar, pie]) (~366 kB gzip class), dynamically imported client-side (ssr=false), avoiding gl/map/geo. Mentions the plotly.js-basic-dist-min alternative and custom-bundle, and flags that layerchart-v2 is already the repo standard (confirm Plotly is actually needed).",
+      "files": []
+    }
+  ]
+}

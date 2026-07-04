@@ -18,6 +18,13 @@
 	import { PriceChart } from '$lib/charts';
 	import CryptoTicket from '$lib/components/crypto/CryptoTicket.svelte';
 	import StickyActionBar from '$lib/components/layout/StickyActionBar.svelte';
+	// V14 · live market-data overlay (ADR-006). The adapter calls NEVER throw — they
+	// return the seed on any error/offline — so the seed path is automatic and the
+	// page degrades silently. `candles` is aliased to avoid the local `candles` const.
+	import { quote, candles as fetchCandles } from '$lib/market/adapter';
+	import type { Quote, CandleResult } from '$lib/market/types';
+	import { labelFor } from '$lib/market/labels';
+	import IndicativeTag from '$lib/components/invest/IndicativeTag.svelte';
 
 	type Sign = 'pos' | 'neg' | 'flat';
 	function signOf(n: number): Sign {
@@ -33,37 +40,65 @@
 	// the page owns the minor → major conversion (÷100) and the scale formatter.
 	const MINOR_PER_MAJOR = 100;
 
+	// ── Live overlay (V14 · ADR-006) ──────────────────────────────────────────
+	// The seed above is the system of record and paints synchronously; live data
+	// hydrates AFTER mount (via the effects further down, once `range` exists) and
+	// merely overlays it. These start null; on any miss the adapter returns a `seed`
+	// provenance, so the derivations below transparently fall back to the seed asset.
+	let liveQuote = $state<Quote | null>(null);
+	let liveCandles = $state<CandleResult | null>(null);
+
+	// Prefer the adapter's figure ONLY when it actually went live/delayed; a `seed`
+	// provenance (USDC, offline, unknown pair, still hydrating) uses the seed asset.
+	const lastPriceMinor = $derived(
+		liveQuote && liveQuote.source !== 'seed'
+			? liveQuote.lastPriceMinor
+			: (asset?.lastPriceMinor ?? 0)
+	);
+	const priorCloseMinor = $derived(
+		liveQuote && liveQuote.source !== 'seed'
+			? liveQuote.priorCloseMinor
+			: (asset?.priorCloseMinor ?? 0)
+	);
+	// The one shared indicative affordance — shown only on the live/delayed path.
+	const priceLabel = $derived(labelFor(liveQuote?.source ?? 'seed', liveQuote?.asOf ?? null));
+
 	// ── Day change (rule + sign + icon + status role on the number) ──
-	const priceDeltaMinor = $derived(asset ? asset.lastPriceMinor - asset.priorCloseMinor : 0);
+	// Derived from the live-preferred price/close, so the header + key-facts day
+	// change track live when available and fall back to the seed otherwise.
+	const priceDeltaMinor = $derived(lastPriceMinor - priorCloseMinor);
 	const dayBps = $derived(
-		asset && asset.priorCloseMinor > 0
-			? Math.round((priceDeltaMinor / asset.priorCloseMinor) * 10000)
-			: 0
+		priorCloseMinor > 0 ? Math.round((priceDeltaMinor / priorCloseMinor) * 10000) : 0
 	);
 	const daySign = $derived(signOf(dayBps));
 
-	// ── My position ──
+	// ── My position (valued at the live-preferred price) ──
 	const heldUnits = $derived(crypto.balanceUnits(symbol));
-	const positionValueMinor = $derived(asset ? Math.round(heldUnits * asset.lastPriceMinor) : 0);
-	const positionDayMinor = $derived(
-		asset ? Math.round(heldUnits * priceDeltaMinor) : 0
-	);
+	const positionValueMinor = $derived(Math.round(heldUnits * lastPriceMinor));
+	const positionDayMinor = $derived(Math.round(heldUnits * priceDeltaMinor));
 
 	// ── Chart range (the active segment is the earned accent) ──
 	let range = $state<Range>('1M');
 
+	// Prefer the live candle series when the adapter served one; else the seed
+	// history. Both share the seed `Candle` shape (minor units) → the same ÷100
+	// major-unit mapping the chart wants, so only the source array differs.
 	const candles = $derived(
-		priceHistory(symbol, rangeDays(range)).map((c) => ({
+		(liveCandles && liveCandles.source !== 'seed'
+			? liveCandles.candles
+			: priceHistory(symbol, rangeDays(range))
+		).map((c) => ({
 			time: c.time,
 			open: c.openMinor / MINOR_PER_MAJOR,
 			high: c.highMinor / MINOR_PER_MAJOR,
 			low: c.lowMinor / MINOR_PER_MAJOR,
-			close: c.closeMinor / MINOR_PER_MAJOR
+			close: c.closeMinor / MINOR_PER_MAJOR,
+			volume: c.volume
 		}))
 	);
 	const chartLabel = $derived(
 		asset
-			? `${asset.name} ${range} price — last ${formatMoney(asset.lastPriceMinor, 'EUR')}.`
+			? `${asset.name} ${range} price — last ${formatMoney(lastPriceMinor, 'EUR')}.`
 			: 'Price chart'
 	);
 	const formatScale = (v: number) => formatMoney(Math.round(v * MINOR_PER_MAJOR), 'EUR');
@@ -71,6 +106,38 @@
 	function onRange(e: Event) {
 		range = (e as CustomEvent<{ value: string }>).detail.value as Range;
 	}
+
+	// ── Live fetches — one-shot per key, stale-guarded ────────────────────────
+	// Quote hydrates on symbol change. Reset to null first so a superseded asset's
+	// price never lingers; the `cancelled` flag drops a response that resolves after
+	// this effect was torn down or re-keyed (e.g. navigating to another asset), so a
+	// stale quote never lands on the wrong page.
+	$effect(() => {
+		const sym = symbol;
+		liveQuote = null;
+		let cancelled = false;
+		quote(sym).then((q) => {
+			if (!cancelled) liveQuote = q;
+		});
+		return () => {
+			cancelled = true;
+		};
+	});
+
+	// Candles hydrate on symbol OR range change. Same guard; reset to null so a stale
+	// series never renders for the wrong asset/range while the new one is in flight.
+	$effect(() => {
+		const sym = symbol;
+		const rng = range;
+		liveCandles = null;
+		let cancelled = false;
+		fetchCandles(sym, rng).then((c) => {
+			if (!cancelled) liveCandles = c;
+		});
+		return () => {
+			cancelled = true;
+		};
+	});
 
 	// 52-week range, from the (chart) history extremes — a deterministic read.
 	const yearLow = $derived(Math.min(...priceHistory(symbol, 365).map((c) => c.lowMinor)));
@@ -136,7 +203,7 @@
 
 				<div class="head-price">
 					<p class="price gok-headline-4 gok-tabular-nums">
-						{formatMoney(asset.lastPriceMinor, 'EUR')}
+						{formatMoney(lastPriceMinor, 'EUR')}
 					</p>
 					<p class="price-change">
 						{@render delta(
@@ -145,6 +212,9 @@
 						)}
 						<span class="price-window">today</span>
 					</p>
+					{#if priceLabel.show}
+						<IndicativeTag label={priceLabel.text} detail={priceLabel.detail} />
+					{/if}
 				</div>
 			</div>
 
@@ -155,7 +225,7 @@
 		<StickyActionBar label="Trade {symbol}">
 			{#snippet context()}
 				<span class="cta-symbol gok-tabular-nums">{symbol}</span>
-				<span class="cta-price gok-tabular-nums">{formatMoney(asset.lastPriceMinor, 'EUR')}</span>
+				<span class="cta-price gok-tabular-nums">{formatMoney(lastPriceMinor, 'EUR')}</span>
 			{/snippet}
 			{#snippet actions()}
 				<gok-button variant="primary" {@attach on('click', () => trade('buy'))}>Buy</gok-button>
@@ -205,7 +275,7 @@
 			</div>
 			<gok-card>
 				<dl class="stats">
-					{@render stat('Last price', formatMoney(asset.lastPriceMinor, 'EUR'))}
+					{@render stat('Last price', formatMoney(lastPriceMinor, 'EUR'))}
 					<div class="stat">
 						<dt class="stat-term">Day change</dt>
 						<dd class="stat-value">

@@ -134,9 +134,13 @@ the design-system backlog.
   **date / date-range picker** · **money/currency input** · **OTP input** · **file-upload/dropzone** ·
   **combobox/autocomplete** (free-text filter) + **multi-select** (native `gok-select` already does
   type-to-jump typeahead for small single-value sets — only filtering/multi need composites).
-- **Charts:** **TradingView Lightweight Charts** (candlestick/price) + **Apache ECharts** (everything else),
-  thin wrappers under `src/lib/charts/`, sharing one `--gok-*` **token-bridge** (`charts/theme.ts`) that
-  re-themes on a `data-theme` MutationObserver. No chart logic in routes.
+- **Charts:** **LayerChart v2** (Svelte-native, SVG) for the dashboard charts (line/area, donut, stacked-bar,
+  payoff) — themed by mapping its `.lc-root-container` vars to `--gok-*` in `charts/layerchart.css` plus live
+  `var(--gok-*)` roles in `charts/tokens.ts`, so it re-themes on `data-theme` through the pure CSS cascade
+  with **no JS observer**. **TradingView Lightweight Charts** stays for the candlestick/price view
+  (`PriceChart`) until the **V08** charting-depth migration; it keeps the canvas token-bridge
+  (`charts/theme.ts`, `data-theme` MutationObserver). (Apache **ECharts** has been removed.) Thin wrappers
+  under `src/lib/charts/`; no chart logic in routes.
 
 ## Market model
 

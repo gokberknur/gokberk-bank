@@ -1,13 +1,12 @@
 <script lang="ts">
-	// Allocation / spend donut (F11). A thin ECharts wrapper: a ring (never a full
-	// pie), accent-led `categoricalRamp` segments separated by hairline gaps, labels
+	// Allocation / spend donut (F11) — a thin LayerChart `PieChart` ring (never a full
+	// pie), neutral-ink `categoricalRamp` segments separated by hairline gaps, labels
 	// kept off the chart (legend is the caller's job), a quiet tooltip with name +
-	// formatted value + percent, and an optional mono readout in the hole. Reads only
-	// `--gok-*` via `chartTheme()`, re-themes live on `data-theme`, lazy-loads ECharts.
-	import { onMount } from 'svelte';
-	import type { EChartsOption, EChartsType } from 'echarts';
-	import { chartTheme, onThemeChange, prefersReducedMotion, categoricalRamp } from './theme';
-	import { resolveColors } from './util';
+	// formatted value + percent, and an optional mono readout in the hole. Because
+	// LayerChart renders SVG, every colour is a live `var(--gok-*)` string that re-themes
+	// on `data-theme` through the CSS cascade — no probe canvas, no MutationObserver.
+	import { PieChart, Tooltip } from 'layerchart';
+	import { categoricalRamp } from './tokens';
 	import type { NamedValue } from './series';
 
 	interface Props {
@@ -34,91 +33,33 @@
 		centerValue
 	}: Props = $props();
 
-	let el: HTMLDivElement;
-	let chart: EChartsType | null = null;
-
-	interface PieParam {
-		name: string;
-		value: number;
-		percent: number;
-	}
-
-	function buildOption(): EChartsOption {
-		const theme = chartTheme();
-		const reduced = prefersReducedMotion();
-		const colors = resolveColors(categoricalRamp(theme, data.length));
-		return {
-			animation: !reduced,
-			animationDuration: 240,
-			animationEasing: 'cubicOut',
-			color: colors,
-			tooltip: {
-				trigger: 'item',
-				backgroundColor: theme.surfaceStrong,
-				borderColor: theme.border,
-				borderWidth: 1,
-				padding: [6, 10],
-				textStyle: { color: theme.text, fontFamily: theme.fontMono, fontSize: 12 },
-				extraCssText: 'box-shadow: none;',
-				formatter: (p: unknown) => {
-					const d = p as PieParam;
-					return `${d.name}: ${formatValue(d.value)} (${d.percent}%)`;
-				}
-			},
-			series: [
-				{
-					type: 'pie',
-					radius: ['62%', '86%'],
-					avoidLabelOverlap: false,
-					label: { show: false },
-					labelLine: { show: false },
-					itemStyle: { borderColor: theme.surface, borderWidth: 2 },
-					emphasis: { scale: false },
-					data: data.map((d) => ({ name: d.name, value: d.value }))
-				}
-			]
-		};
-	}
-
-	function reapply() {
-		chart?.setOption(buildOption(), true);
-	}
-
-	onMount(() => {
-		let disposed = false;
-		let ro: ResizeObserver | undefined;
-		let stopTheme: (() => void) | undefined;
-
-		(async () => {
-			const echarts = await import('echarts');
-			if (disposed) return;
-			chart = echarts.init(el, null, { renderer: 'canvas' });
-			reapply();
-			ro = new ResizeObserver(() => chart?.resize());
-			ro.observe(el);
-			stopTheme = onThemeChange(reapply);
-		})();
-
-		return () => {
-			disposed = true;
-			ro?.disconnect();
-			stopTheme?.();
-			chart?.dispose();
-			chart = null;
-		};
-	});
-
-	// Re-render when the data / formatter change (guarded until the instance exists).
-	$effect(() => {
-		// Touch reactive inputs so the effect tracks them.
-		void data;
-		void formatValue;
-		if (chart) reapply();
-	});
+	// Neutral-ink ramp, one swatch per slice — the accent is spent elsewhere, never a
+	// chart category (CV-VIS-1).
+	const ramp = $derived(categoricalRamp(data.length));
+	const total = $derived(data.reduce((s, d) => s + d.value, 0));
+	const pct = (v: number) => (total > 0 ? Math.round((v / total) * 100) : 0);
 </script>
 
 <div class="donut" style:height role="img" aria-label={label}>
-	<div class="canvas" bind:this={el}></div>
+	<PieChart
+		{data}
+		key="name"
+		value="value"
+		cRange={ramp}
+		innerRadius={-24}
+		cornerRadius={1}
+		padAngle={0.01}
+	>
+		{#snippet tooltip({ context })}
+			<Tooltip.Root {context} class="lc-tip-quiet">
+				{#snippet children({ data: d })}
+					<Tooltip.List>
+						<Tooltip.Item label={d.name} value={`${formatValue(d.value)} (${pct(d.value)}%)`} />
+					</Tooltip.List>
+				{/snippet}
+			</Tooltip.Root>
+		{/snippet}
+	</PieChart>
 	{#if centerTitle || centerValue}
 		<div class="hole" aria-hidden="true">
 			{#if centerTitle}<span class="title">{centerTitle}</span>{/if}
@@ -131,11 +72,6 @@
 	.donut {
 		position: relative;
 		inline-size: 100%;
-	}
-
-	.canvas {
-		inline-size: 100%;
-		block-size: 100%;
 	}
 
 	.hole {
@@ -163,5 +99,13 @@
 		font-weight: 600;
 		color: var(--gok-color-text);
 		font-variant-numeric: tabular-nums;
+	}
+
+	/* The tooltip is calm, flat surface-strong (bridged) — strip LayerChart's default drop
+	   shadow + blur, and keep numerals mono even though it can portal out of `.donut`. */
+	:global(.lc-tooltip-container.lc-tip-quiet) {
+		box-shadow: none;
+		backdrop-filter: none;
+		font-family: var(--gok-font-family-mono);
 	}
 </style>

@@ -24,6 +24,24 @@ Verify any prop against `<page-url>/llms.txt` before shipping.
 - **The default tooltip shows the RAW value**, not your axis `format` — it ignores `props.yAxis.format`.
   Format the tooltip separately (a custom `Tooltip.Root`/`Tooltip.Item` with `formatValue`, or
   `props={{ tooltip: … }}`), or money renders as unformatted minor units.
+- **Pre-measure frame leaks a transient `MNaN` `<path>` console error — gate the mark with `defined`.**
+  On the first render frame `<Chart>` hasn't measured yet, so its `xScale`/`yScale` briefly return `NaN`
+  for perfectly valid data → the `<Area>`/`<Spline>` `d` attribute becomes `"MNaN,NaN…"` and the browser
+  logs an *Error parsing path data* console error. `Area`'s built-in `defined` guard only rejects `null`,
+  **not `NaN`**, so it doesn't catch this. The fix (confirmed against the clone: `defined` propagates to
+  **both** the fill `Path` and the line `Spline`) is a custom `defined` that re-derives finiteness from the
+  live scales inside the `marks` snippet — `{#snippet marks({ context })}` gives you `context.xScale` /
+  `context.yScale`:
+  ```svelte
+  <Area
+    defined={(d) => Number.isFinite(context.xScale?.(d.date)) && Number.isFinite(context.yScale?.(d.value))}
+    … />
+  ```
+  Post-measure every scaled coord is finite, so nothing is dropped in steady state — this only suppresses
+  the transient frame. **Do not** try to gate on `context.width > 0`: width goes positive *before* the
+  scales are ready, so that check doesn't stop the NaN. (Setting `motion="none"` on the `Area` is a
+  separate, complementary choice — it stops the path from *tweening* through NaN intermediates — but it
+  does **not** fix the pre-measure frame on its own; the `defined` guard is what actually clears it.)
 
 ---
 
@@ -118,15 +136,20 @@ For the two-series **payoff glide** (`PayoffChart`): focal `afterAction` = accen
 ## 3. Area over time (soft fill) — `LineChart.svelte` with `area=true`, net-worth hero
 
 The current app fill is a **flat low-opacity accent tint, not a gradient slab** (`opacity: 0.12`). Match
-it directly — simplest and on-brand:
+it directly — simplest and on-brand. This is the **shipped `LineChart.svelte` pattern**: take the `context`
+off the `marks` snippet and use it to `defined`-gate the pre-measure NaN frame (see gotchas above), and set
+`motion="none"` so the path never tweens through NaN:
 
 ```svelte
 <AreaChart {data} x="date" y="value" props={{ yAxis: { format: (v) => formatValue(v) } }} height={260}>
-	{#snippet marks()}
-		<!-- soft fill via a color WITH alpha — do NOT use fill-opacity (doesn't bind); see gotchas above -->
+	{#snippet marks({ context })}
+		<!-- soft fill via a color WITH alpha (accentFill) — do NOT use fill-opacity (doesn't bind).
+		     defined drops any point whose scaled coord is NaN on the pre-measure frame. -->
 		<Area
 			line={{ stroke: chartTokens.accent, 'stroke-width': 2 }}
-			fill="color-mix(in oklab, var(--gok-color-primary) 12%, transparent)"
+			fill={accentFill}
+			motion="none"
+			defined={(d) => Number.isFinite(context.xScale?.(d.date)) && Number.isFinite(context.yScale?.(d.value))}
 		/>
 	{/snippet}
 </AreaChart>

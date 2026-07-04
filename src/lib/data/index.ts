@@ -351,15 +351,15 @@ export function deletePot(id: string): void {
 	if (i !== -1) pots.splice(i, 1);
 }
 
-/** Round-ups accrued for a pot — the spare change (to the nearest €1) on the
- *  owning wallet's recent card spend. Deterministic; 0 if round-ups are off. */
-export function potRoundUpAccruedMinor(id: string): number {
-	const pot = pots.find((p) => p.id === id);
-	if (!pot || !pot.roundUps) return 0;
+/** The spare-change accrual on a wallet's recent card spend — the round-up "engine"
+ *  core (A04): the change to the next whole unit on the last 40 settled card debits.
+ *  Deterministic. Shared by savings pots and, as a round-up *destination*, by invest
+ *  savings-plans (V10) — one engine, two destinations, never a second basis. */
+export function spareChangeAccruedMinor(walletId: string): number {
 	return allTxns
 		.filter(
 			(t) =>
-				t.walletId === pot.walletId &&
+				t.walletId === walletId &&
 				t.type === 'card' &&
 				t.status === 'settled' &&
 				t.amountMinor < 0
@@ -370,6 +370,14 @@ export function potRoundUpAccruedMinor(id: string): number {
 			const up = (100 - (abs % 100)) % 100; // change to the next whole unit
 			return sum + up;
 		}, 0);
+}
+
+/** Round-ups accrued for a pot — the spare change (to the nearest €1) on the
+ *  owning wallet's recent card spend. Deterministic; 0 if round-ups are off. */
+export function potRoundUpAccruedMinor(id: string): number {
+	const pot = pots.find((p) => p.id === id);
+	if (!pot || !pot.roundUps) return 0;
+	return spareChangeAccruedMinor(pot.walletId);
 }
 
 // ---- Top-up (P09) --------------------------------------------------------

@@ -2,8 +2,8 @@
 // and the performance series are all REDUCED from the market seed + FX — never
 // stored pre-rounded. Everything resolves to EUR minor units (the home currency).
 
-import { INSTRUMENTS, HOLDINGS, priceHistory, rangeDays } from './market';
-import type { Instrument, Range } from './market';
+import { INSTRUMENTS, HOLDINGS, priceHistory, rangeDays, benchmarkHistory } from './market';
+import type { Instrument, Range, Order } from './market';
 import { toEur } from './money';
 
 export interface Position {
@@ -135,4 +135,77 @@ export function dayChangeBps(i: Instrument): number {
 /** Closing prices (instrument-ccy minor) over the last `days` for a row sparkline. */
 export function priceSparkline(symbol: string, days = 30): number[] {
 	return priceHistory(symbol, days).map((c) => c.closeMinor);
+}
+
+// ── V12 · Portfolio analytics depth (pure, on top of the derivations above) ──────
+
+/**
+ * Realized P/L (EUR minor) — summed from executed SELL orders' seeded average-cost
+ * realized figures. Display-only; never reconstructs lots, never fabricates a figure
+ * (only sells that actually carry a realized result count). Reads the live orders list
+ * so it re-flows as the blotter grows.
+ */
+export function realizedPlEurMinor(orders: Order[]): number {
+	return orders
+		.filter((o) => o.side === 'sell' && o.status === 'filled' && typeof o.realizedPlEurMinor === 'number')
+		.reduce((sum, o) => sum + (o.realizedPlEurMinor ?? 0), 0);
+}
+
+/**
+ * Time-weighted return over the range, basis points — a geometric chain of the
+ * performance series' per-session returns. Splitting at cash-flow markers would remove
+ * the effect of deposits; the seed carries no flow markers, so it reduces exactly to
+ * the series' cumulative return (last ÷ first − 1). Differs from the simple vs-cost
+ * return, which is the point of showing it alongside.
+ */
+export function twrBps(range: Range): number {
+	const s = performanceSeries(range);
+	if (s.length < 2 || s[0].value <= 0) return 0;
+	let factor = 1;
+	for (let t = 1; t < s.length; t++) {
+		const prev = s[t - 1].value;
+		if (prev > 0) factor *= s[t].value / prev;
+	}
+	return Math.round((factor - 1) * 10000);
+}
+
+/** The seeded benchmark index over the range, aligned by date to `performanceSeries`
+ *  (both walk back from TODAY over the same session count). Values are index points. */
+export function benchmarkSeries(range: Range): SeriesPoint[] {
+	return benchmarkHistory(rangeDays(range)).map((c) => ({ date: c.time, value: c.closeMinor }));
+}
+
+/** Rebase a series so its first point reads 100 — a pure display transform for the
+ *  overlay compare, never stored (each point ÷ start × 100). A zero/empty start
+ *  collapses to a flat 100 line. */
+export function rebaseTo100(series: SeriesPoint[]): SeriesPoint[] {
+	const base = series[0]?.value ?? 0;
+	if (!base) return series.map((p) => ({ date: p.date, value: 100 }));
+	return series.map((p) => ({ date: p.date, value: (p.value / base) * 100 }));
+}
+
+export interface PositionContribution {
+	symbol: string;
+	name: string;
+	/** Contribution to total return, basis points of total cost (signed). */
+	contributionBps: number;
+	plEurMinor: number;
+}
+
+/**
+ * Each holding's contribution to the portfolio's unrealized return, in basis points of
+ * total cost — the shares sum to the portfolio's total-return bps. Sorted by magnitude
+ * (biggest drivers and drags first). A row opens the instrument.
+ */
+export function positionContributions(): PositionContribution[] {
+	const pos = getPositions();
+	const totalCost = pos.reduce((s, p) => s + p.costEurMinor, 0);
+	return pos
+		.map((p) => ({
+			symbol: p.instrument.symbol,
+			name: p.instrument.name,
+			contributionBps: totalCost ? Math.round((p.unrealizedPlEurMinor / totalCost) * 10000) : 0,
+			plEurMinor: p.unrealizedPlEurMinor
+		}))
+		.sort((a, b) => Math.abs(b.contributionBps) - Math.abs(a.contributionBps));
 }

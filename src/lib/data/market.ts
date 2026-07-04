@@ -5,7 +5,7 @@
 // units in the INSTRUMENT's own currency; the portfolio math converts to EUR.
 
 import { mulberry32 } from './prng';
-import { TODAY, isoDate } from './time';
+import { TODAY, isoDate, daysBeforeToday } from './time';
 import type { Currency } from './money';
 
 export type InstrumentType = 'stock' | 'etf' | 'crypto';
@@ -86,6 +86,9 @@ export interface Order {
 	totalEurMinor: number;
 	/** ISO date placed. */
 	placedAt: string;
+	/** Realized P/L on an executed SELL (EUR minor, average-cost basis) — V12's P/L
+	 *  split reads this; absent on buys/working orders. Display-only, no lot engine. */
+	realizedPlEurMinor?: number;
 }
 
 export const INSTRUMENTS: readonly Instrument[] = [
@@ -147,6 +150,12 @@ export function priceHistory(symbol: string, days = 365): Candle[] {
 	const rng = mulberry32(symbolSeed(symbol));
 	const vol = inst.type === 'crypto' ? 0.035 : (inst.betaX100 ?? 100) > 130 ? 0.022 : 0.013;
 
+	// The walk's floor. Within a year, 0.6×52w-low keeps the series realistically
+	// bounded; over the multi-year ranges (V08's 5Y/Max) that clamp would flatten the
+	// deep past into a straight line, so a lower floor lets the walk descend naturally
+	// into a plausible "years ago" base. Same value across a call → deterministic.
+	const floor = Math.round(inst.low52wMinor * (days > 400 ? 0.15 : 0.6));
+
 	// Walk closes backward from last → prior → random walk into the past.
 	const closes: number[] = new Array(days);
 	closes[days - 1] = inst.lastPriceMinor;
@@ -157,7 +166,7 @@ export function priceHistory(symbol: string, days = 365): Candle[] {
 		// (markets trend up over the year), so the forward-read series rises toward
 		// the last price — consistent with positions being up vs cost.
 		const shock = (rng() - 0.5) * 2 * vol + 0.0006;
-		closes[i] = Math.max(Math.round(next / (1 + shock)), Math.round(inst.low52wMinor * 0.6));
+		closes[i] = Math.max(Math.round(next / (1 + shock)), floor);
 	}
 
 	const candles: Candle[] = [];
@@ -182,8 +191,11 @@ export function priceHistory(symbol: string, days = 365): Candle[] {
 	return candles;
 }
 
-/** Range presets → trailing session count. `max` returns the full history. */
-export const RANGES = ['1W', '1M', '1Y', 'Max'] as const;
+/** Range presets → trailing session count. The finer V08 timeframes all serve from the
+ *  same deterministic daily seed (more/fewer sessions); `Max` returns the full generated
+ *  history. Intraday **1D** is deliberately absent here — it rides V08 Phase C alongside
+ *  the live crypto klines + the intraday seed, so every range listed re-renders today. */
+export const RANGES = ['1W', '1M', '3M', '6M', 'YTD', '1Y', '5Y', 'Max'] as const;
 export type Range = (typeof RANGES)[number];
 
 export function rangeDays(range: Range): number {
@@ -192,10 +204,22 @@ export function rangeDays(range: Range): number {
 			return 7;
 		case '1M':
 			return 30;
+		case '3M':
+			return 90;
+		case '6M':
+			return 182;
+		case 'YTD': {
+			// Sessions since Jan 1 of TODAY's year (deterministic; ≥2 so a chart always draws).
+			const jan1 = new Date(TODAY.getFullYear(), 0, 1);
+			const days = Math.round((TODAY.getTime() - jan1.getTime()) / 86_400_000) + 1;
+			return Math.max(2, days);
+		}
 		case '1Y':
 			return 365;
+		case '5Y':
+			return 1825;
 		case 'Max':
-			return 365;
+			return 3650;
 	}
 }
 
@@ -209,3 +233,59 @@ export function isMarketOpen(): boolean {
 	const h = TODAY.getHours();
 	return h >= 9 && h < 18;
 }
+
+// ── V12 · Portfolio analytics depth ─────────────────────────────────────────────
+
+/** The seeded reference index the V12 benchmark overlay rebases against. Broad
+ *  European equity (net-return), EUR-denominated — no live feed (V14 may later
+ *  overlay it; until then it's seeded and degrades to "unavailable"). */
+export interface BenchmarkMeta {
+	symbol: string;
+	name: string;
+}
+
+export const BENCHMARK: BenchmarkMeta = { symbol: 'SXXR', name: 'STOXX Europe 600 (net return)' };
+
+/**
+ * A deterministic daily close history for {@link BENCHMARK} — the SAME backward walk
+ * and date scheme as {@link priceHistory} (levels end TODAY, walk into the past from a
+ * base level), so it aligns by index to `performanceSeries` for a rebased overlay.
+ * Levels are index points ×100 (minor units), EUR — no FX. A gentle long-run uptrend
+ * so a rebased comparison reads meaningfully. Stable across runs.
+ */
+export function benchmarkHistory(days = 365): { time: string; closeMinor: number }[] {
+	const rng = mulberry32(symbolSeed(BENCHMARK.symbol));
+	const lastMinor = 52340; // 523.40 pts
+	const priorMinor = 52210;
+	const vol = 0.008;
+
+	const closes: number[] = new Array(days);
+	closes[days - 1] = lastMinor;
+	if (days >= 2) closes[days - 2] = priorMinor;
+	for (let i = days - 3; i >= 0; i--) {
+		// Positive drift means earlier levels sit below today's → the forward series rises.
+		const shock = (rng() - 0.5) * 2 * vol + 0.0005;
+		closes[i] = Math.max(Math.round(closes[i + 1] / (1 + shock)), 1);
+	}
+
+	const out: { time: string; closeMinor: number }[] = [];
+	for (let i = 0; i < days; i++) {
+		const d = new Date(TODAY);
+		d.setDate(d.getDate() - (days - 1 - i));
+		out.push({ time: isoDate(d), closeMinor: closes[i] });
+	}
+	return out;
+}
+
+/**
+ * Executed SELL orders that realized a P/L — merged into the orders seed so V12's
+ * realized figure is backed by real V04 blotter rows, never fabricated. Two closed
+ * trades: a SAP trim taken at a gain, and a fully-exited LVMH (MC) position closed at
+ * a loss (MC isn't in HOLDINGS, so it reads as a closed-out name). `realizedPlEurMinor`
+ * is the average-cost realized result (display-only; no lot reconstruction). Ids
+ * namespaced `ord-seed-sell-*` so a freshly placed `ord-<n>` can't collide.
+ */
+export const REALIZED_SEED_ORDERS: Order[] = [
+	{ id: 'ord-seed-sell-1', symbol: 'SAP', side: 'sell', kind: 'market', quantity: 3, priceMinor: null, tif: 'day', status: 'filled', totalEurMinor: 73_590, placedAt: isoDate(daysBeforeToday(26)), realizedPlEurMinor: 12_180 },
+	{ id: 'ord-seed-sell-2', symbol: 'MC', side: 'sell', kind: 'market', quantity: 1, priceMinor: null, tif: 'day', status: 'filled', totalEurMinor: 68_120, placedAt: isoDate(daysBeforeToday(40)), realizedPlEurMinor: -4_300 }
+];

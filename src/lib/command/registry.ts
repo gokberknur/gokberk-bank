@@ -105,6 +105,9 @@ const STATIC: Command[] = [
 	// Invest
 	nav('nav-invest', 'Investments', 'Invest', '/invest', { icon: 'circle-dot', keywords: ['portfolio', 'holdings'] }),
 	nav('act-order', 'Place an order', 'Invest', '/invest', { icon: 'circle-dot', keywords: ['buy', 'sell', 'trade'] }),
+	nav('nav-plans', 'Savings plans', 'Invest', '/invest/plans', { keywords: ['recurring', 'auto-invest', 'plans', 'dca'] }),
+	nav('act-plan', 'Start a savings plan', 'Invest', '/invest/plans/new', { icon: 'plus', keywords: ['recurring', 'auto-invest', 'monthly', 'dca', 'round-up'] }),
+	nav('act-alert', 'Set a price alert', 'Invest', '/invest?alerts', { keywords: ['alert', 'price', 'above', 'below', 'notify', 'watch', 'trigger', 'target'] }),
 	nav('nav-orders', 'Orders', 'Invest', '/invest/orders', { keywords: ['order history', 'blotter'] }),
 	nav('nav-watchlists', 'Watchlists', 'Invest', '/invest/watchlists', { keywords: ['follow', 'track'] }),
 	nav('nav-funds', 'Funds & ETFs', 'Invest', '/invest/funds', { keywords: ['etf', 'index', 'research'] }),
