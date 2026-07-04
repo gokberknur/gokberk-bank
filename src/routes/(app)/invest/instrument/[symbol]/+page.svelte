@@ -30,6 +30,8 @@
 	import { formatMoney, formatNumber, formatPercent } from '$lib/format';
 	import { setProps, on } from '$lib/wc.svelte';
 	import { PriceChart } from '$lib/charts';
+	import { overlayLines } from '$lib/charts/indicator-series';
+	import { chartPrefs } from '$lib/invest/chart-prefs.svelte';
 	import OrderTicket from '$lib/components/invest/OrderTicket.svelte';
 	import StickyActionBar from '$lib/components/layout/StickyActionBar.svelte';
 	import NewsStrip from '$lib/components/invest/NewsStrip.svelte';
@@ -37,6 +39,7 @@
 	import DepthLadder from '$lib/components/invest/DepthLadder.svelte';
 	import DividendHistory from '$lib/components/invest/DividendHistory.svelte';
 	import ChartDataTable from '$lib/components/invest/ChartDataTable.svelte';
+	import IndicatorMenu from '$lib/components/invest/IndicatorMenu.svelte';
 	import { getNews } from '$lib/invest/news';
 
 	// ── The instrument + its held position (both deterministic from the seed) ──
@@ -81,6 +84,25 @@
 			: 'Price chart'
 	);
 	const formatScale = (v: number) => formatMoney(Math.round(v * minorPerMajor), currency);
+
+	// ── Technical indicators (V08 Phase C) — ONE derivation feeds BOTH consumers so a chart line can
+	//    never disagree with its table column. `indicatorLines` is the active set turned into plottable
+	//    lines (minor units); the chart gets them as major-unit overlays (null points dropped), the
+	//    "View data" table gets them raw as `lines`. Reacts to chartPrefs.active (the persisted set). ──
+	const closesMinor = $derived(rawCandles.map((c) => c.closeMinor));
+	const indicatorLines = $derived(overlayLines(closesMinor, chartPrefs.active));
+	// Overlay line data for the chart, in MAJOR units, null points filtered out.
+	const overlays = $derived(
+		indicatorLines.map((l) => ({
+			id: l.id,
+			dash: l.dash,
+			inkStep: l.inkStep,
+			data: rawCandles
+				.map((c, i) => ({ time: c.time, value: l.valuesMinor[i] }))
+				.filter((p) => p.value !== null)
+				.map((p) => ({ time: p.time, value: (p.value as number) / minorPerMajor }))
+		}))
+	);
 
 	const marketOpen = isMarketOpen();
 
@@ -294,6 +316,9 @@
 										<gok-segmented-item value={r}>{r}</gok-segmented-item>
 									{/each}
 								</gok-segmented>
+								<!-- Toggleable technical indicators — sits with the other chart controls in the
+								     thumb zone; writes chartPrefs, which re-derives the overlays + table columns. -->
+								<IndicatorMenu />
 							</div>
 						</div>
 
@@ -301,11 +326,11 @@
 							<p class="market-note">Market closed — showing the last close.</p>
 						{/if}
 
-						<PriceChart {candles} kind={chartKind} height="22rem" label={chartLabel} formatValue={formatScale} />
+						<PriceChart {candles} kind={chartKind} height="22rem" label={chartLabel} formatValue={formatScale} {overlays} />
 
-						<!-- V08 Phase B: the honest "View data" fallback — the price series + a calm default
-						     indicator set as a table, computed live from the same bars the chart plots. -->
-						<ChartDataTable candles={rawCandles} {currency} />
+						<!-- V08 Phase B/C: the honest "View data" fallback — the price series plus one column per
+						     active indicator, from the SAME lines the chart draws (so they can never disagree). -->
+						<ChartDataTable candles={rawCandles} {currency} lines={indicatorLines} />
 					</section>
 
 					<!-- Key statistics — the shallow key-stats ledger. The deep, type-branched

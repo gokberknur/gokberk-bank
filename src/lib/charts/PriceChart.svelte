@@ -30,6 +30,17 @@
 		volume?: number;
 	}
 
+	interface Overlay {
+		/** Stable id (`'sma20'`, `'bb-upper'`, …) — keyed for teardown/rebuild. */
+		id: string;
+		/** Points in the SAME MAJOR price units as the candles, already null-filtered. */
+		data: { time: string; value: number }[];
+		/** Line shape: `[]` solid · `[6, 3]` dashed · anything else dotted. */
+		dash?: number[];
+		/** Neutral-ramp position: 0 = darkest (theme.text) → 1 = lightest (theme.muted). */
+		inkStep?: number;
+	}
+
 	interface Props {
 		/** OHLC candles, values already in MAJOR units (the page converts minor→major). */
 		candles: Candle[];
@@ -41,6 +52,10 @@
 		label: string;
 		/** Price-scale + crosshair formatter (default: two decimals). */
 		formatValue?: (v: number) => string;
+		/** Indicator lines drawn ON the price pane (pane 0), sharing the right price
+		 *  scale — moving averages / Bollinger bands. Differentiated by dash + label,
+		 *  never hue: each is a neutral-ramp ink, never the accent or up/down colour. */
+		overlays?: Overlay[];
 	}
 
 	let {
@@ -48,15 +63,31 @@
 		kind = 'candlestick',
 		height = '20rem',
 		label,
-		formatValue = (v: number) => v.toFixed(2)
+		formatValue = (v: number) => v.toFixed(2),
+		overlays = []
 	}: Props = $props();
 
 	let el: HTMLDivElement;
 	let chart: IChartApi | null = null;
 	let series: ISeriesApi<'Candlestick'> | ISeriesApi<'Area'> | null = null;
 	let volumeSeries: ISeriesApi<'Histogram'> | null = null;
+	// Indicator overlay lines on pane 0 (moving averages / Bollinger). Held in a plain
+	// array (like `series`/`volumeSeries`) and rebuilt wholesale on any overlay change,
+	// so a toggle never leaves a stale line behind.
+	let overlaySeries: ISeriesApi<'Line'>[] = [];
 	let lib: typeof import('lightweight-charts') | null = null;
 	let builtKind: 'candlestick' | 'line' | null = null;
+
+	/** Lerp two concrete `rgb(r, g, b)` strings to a concrete `rgb()` at `t` ∈ [0, 1].
+	 *  Both ends come from the token bridge already collapsed to sRGB bytes, so the
+	 *  result stays a plain `rgb()` Lightweight can parse — never `color-mix()`/`color(srgb …)`,
+	 *  which the library rejects (the volume-bar bug). */
+	function lerpInk(a: string, b: string, t: number): string {
+		const pa = a.match(/\d+/g)?.map(Number) ?? [0, 0, 0];
+		const pb = b.match(/\d+/g)?.map(Number) ?? [0, 0, 0];
+		const c = pa.map((v, i) => Math.round(v + (pb[i] - v) * t));
+		return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
+	}
 
 	// The bar shown in the reserved OHLC readout above the canvas. It DERIVES to the
 	// latest bar at rest — so it's never blank and a range/data switch refreshes it for
@@ -173,6 +204,50 @@
 			color: volumeColor,
 			priceFormat: { type: 'volume' }
 		});
+		applyOverlayTheme(theme);
+	}
+
+	/** Tear down every existing overlay line and re-add one `lib.LineSeries` per current
+	 *  overlay ON pane 0, so it shares the candles' right price scale (a moving average
+	 *  sits among the candles). Overlays are QUIET: hairline, no price-line, no last-value
+	 *  tag, no crosshair marker — they add no price-axis chrome. Differentiation is dash +
+	 *  the table label, never hue. Colour is applied by `applyOverlayTheme` from live tokens. */
+	function rebuildOverlays() {
+		if (!chart || !lib) return;
+		for (const s of overlaySeries) chart.removeSeries(s);
+		overlaySeries = [];
+		const { LineStyle } = lib;
+		for (const ov of overlays) {
+			// `[]` → solid · `[6, 3]` (length-2, first ≥ 5) → dashed · anything else → dotted.
+			const lineStyle =
+				!ov.dash || ov.dash.length === 0
+					? LineStyle.Solid
+					: ov.dash.length === 2 && ov.dash[0] >= 5
+						? LineStyle.Dashed
+						: LineStyle.Dotted;
+			const s = chart.addSeries(
+				lib.LineSeries,
+				{
+					lineWidth: 1 as LineWidth,
+					lineStyle,
+					priceLineVisible: false,
+					lastValueVisible: false,
+					crosshairMarkerVisible: false
+				},
+				0
+			);
+			s.setData(ov.data.map((p) => ({ time: p.time as Time, value: p.value })));
+			overlaySeries.push(s);
+		}
+	}
+
+	/** Colour each overlay a concrete neutral-ramp `rgb()` lerped between the muted and
+	 *  text inks by its `inkStep` — NEVER the accent or up/down, so a rising MA never reads
+	 *  green (CV-A11Y-1). Both ends are concrete rgb from the bridge; the result is too. */
+	function applyOverlayTheme(theme: ChartTheme) {
+		overlaySeries.forEach((s, i) => {
+			s.applyOptions({ color: lerpInk(theme.muted, theme.text, overlays[i]?.inkStep ?? 0.3) });
+		});
 	}
 
 	/** Re-apply the monochrome chrome + series colours from the live tokens. */
@@ -219,6 +294,9 @@
 	function render() {
 		if (!chart) return;
 		if (kind !== builtKind || !series) buildSeries();
+		// Overlays draw on pane 0 alongside the price series — rebuild AFTER it exists so
+		// a toggle re-renders with no stale lines; `reapply()` then colours them in.
+		rebuildOverlays();
 		reapply();
 		applyData();
 		chart.timeScale().fitContent();
@@ -237,6 +315,7 @@
 			if (disposed) return;
 			chart = lib.createChart(el, { width: el.clientWidth, height: el.clientHeight });
 			buildSeries();
+			rebuildOverlays();
 			reapply();
 			applyData();
 			chart.timeScale().fitContent();
@@ -263,6 +342,8 @@
 			ro?.disconnect();
 			stopTheme?.();
 			if (chart && onCrosshair) chart.unsubscribeCrosshairMove(onCrosshair);
+			if (chart) for (const s of overlaySeries) chart.removeSeries(s);
+			overlaySeries = [];
 			chart?.remove();
 			chart = null;
 			series = null;
@@ -275,6 +356,7 @@
 		void candles;
 		void kind;
 		void formatValue;
+		void overlays;
 		if (chart) render();
 	});
 </script>

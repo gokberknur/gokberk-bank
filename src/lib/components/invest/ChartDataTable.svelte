@@ -4,46 +4,46 @@
 	// <details> disclosure (the DS ships no gok-disclosure; single-toggle reveals are the native
 	// <details> pattern used across the app — see support + plans/new), collapsed by default.
 	//
-	// Purely presentational + prop-driven: every indicator is DERIVED live from the bars via the
-	// pure indicators module, so a table cell can never disagree with the candle it sits under.
-	// `null` (insufficient window) renders as "—" — never a fabricated number. SMA is integer minor
-	// units (money-formatted); RSI is a ×100 scaled integer (5423 = 54.23), so it divides by 100.
+	// Purely presentational + prop-driven: the indicator columns come straight from the `lines`
+	// prop — the SAME IndicatorLine[] the chart plots as overlays — so a table cell can never
+	// disagree with the line the chart draws (one source, two consumers). `null` (insufficient
+	// window) renders as "—" — never a fabricated number. Every overlay line is a price-unit minor
+	// value → money-formatted.
 	//
-	// Rows are NEWEST-FIRST and pre-formatted to STRINGS (dogfooding #11: gok-table cells are text),
-	// with a fresh array built each derive so the grid re-renders on a new reference. Interop is
-	// strictly setProps (DOM properties) — never bind:, never object props as attributes.
+	// Columns are Date/OHLCV plus one numeric column per active line (keyed by `line.id`, labelled
+	// `line.label`); with no indicators on, `lines` is empty and the table is just Date/OHLCV. Rows
+	// are NEWEST-FIRST and pre-formatted to STRINGS (dogfooding #11: gok-table cells are text), with
+	// a fresh array built each derive so the grid re-renders on a new reference. Interop is strictly
+	// setProps (DOM properties) — never bind:, never object props as attributes.
 	import type { Candle } from '$lib/data/market';
 	import type { Currency } from '$lib/data/money';
 	import type { GokTableColumn } from '@gokberknur/design-system';
-	import { sma, rsi } from '$lib/charts/indicators';
+	import type { IndicatorLine } from '$lib/charts/indicator-series';
 	import { formatMoney, formatNumber, formatDate } from '$lib/format';
 	import { setProps } from '$lib/wc.svelte';
 
-	let { candles, currency }: { candles: Candle[]; currency: Currency } = $props();
-
-	// ── Indicators, computed live from the close series (integer minor units). Each returns an
-	//    array the SAME length as `closes`; `null` = window too short → the cell shows "—". ──
-	const closes = $derived(candles.map((c) => c.closeMinor));
-	const sma20 = $derived(sma(closes, 20));
-	const sma50 = $derived(sma(closes, 50));
-	const rsi14 = $derived(rsi(closes, 14));
+	let {
+		candles,
+		currency,
+		lines = []
+	}: { candles: Candle[]; currency: Currency; lines?: IndicatorLine[] } = $props();
 
 	// ── Columns: a chronological data export, so nothing is sortable. Numeric columns right-align
-	//    and render tabular figures. Every value column is numeric bar the leading Date. ──
-	const columns: GokTableColumn[] = [
+	//    and render tabular figures. Date/OHLCV are fixed; one numeric column follows per active
+	//    indicator line (keyed by its id, labelled by its label) so the table mirrors the chart. ──
+	const columns = $derived<GokTableColumn[]>([
 		{ key: 'date', label: 'Date' },
 		{ key: 'open', label: 'Open', numeric: true },
 		{ key: 'high', label: 'High', numeric: true },
 		{ key: 'low', label: 'Low', numeric: true },
 		{ key: 'close', label: 'Close', numeric: true },
 		{ key: 'volume', label: 'Volume', numeric: true },
-		{ key: 'sma20', label: 'SMA 20', numeric: true },
-		{ key: 'sma50', label: 'SMA 50', numeric: true },
-		{ key: 'rsi', label: 'RSI 14', numeric: true }
-	];
+		...lines.map((line) => ({ key: line.id, label: line.label, numeric: true }))
+	]);
 
-	// ── Rows, NEWEST-FIRST. Index BEFORE reversing so each indicator value stays aligned to its own
-	//    bar; a fresh array each derive so gok-table re-renders on the new reference. ──
+	// ── Rows, NEWEST-FIRST. Index BEFORE reversing so each line value stays aligned to its own bar;
+	//    a fresh array each derive so gok-table re-renders on the new reference. Each line's cell is
+	//    its minor value money-formatted, or "—" when the window was too short (null). ──
 	const rows = $derived(
 		candles
 			.map((c, i) => ({
@@ -54,9 +54,12 @@
 				low: formatMoney(c.lowMinor, currency),
 				close: formatMoney(c.closeMinor, currency),
 				volume: formatNumber(c.volume),
-				sma20: sma20[i] === null ? '—' : formatMoney(sma20[i] as number, currency),
-				sma50: sma50[i] === null ? '—' : formatMoney(sma50[i] as number, currency),
-				rsi: rsi14[i] === null ? '—' : formatNumber((rsi14[i] as number) / 100)
+				...Object.fromEntries(
+					lines.map((line) => {
+						const v = line.valuesMinor[i];
+						return [line.id, v === null ? '—' : formatMoney(v, currency)];
+					})
+				)
 			}))
 			.reverse()
 	);
@@ -70,8 +73,8 @@
 		<p class="view-data-caption">
 			Every value the chart plots, as a table — computed live from the price series.
 		</p>
-		<!-- 9 numeric columns: a dense, secondary data-export fallback, so it scrolls horizontally on
-		     narrow screens rather than recomposing to record-cards — a deliberate choice for this view. -->
+		<!-- A dense, secondary data-export fallback (Date/OHLCV + one column per active indicator), so
+		     it scrolls horizontally on narrow screens rather than recomposing to record-cards. -->
 		<div class="table-scroll">
 			<gok-table
 				{@attach setProps({
