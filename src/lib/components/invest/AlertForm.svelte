@@ -138,8 +138,9 @@
 		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
-	/* Reserved so the button never jumps as the message toggles. Guard reads with the error role;
-	   the neutral note reads muted. Never colour-alone — the guard also disables the button. */
+	/* Reserved so the button never jumps as the message toggles. The blocking guard reads full-ink
+	   (the disabled button carries the block); the neutral already-past note reads muted. Never
+	   colour-as-status. */
 	.status-line {
 		margin: 0;
 		min-block-size: var(--gok-type-body-small-line);
@@ -149,6 +150,6 @@
 		color: var(--gok-color-text-muted);
 	}
 	.status-line.is-guard {
-		color: var(--gok-color-status-error);
+		color: var(--gok-color-text);
 	}
 </style>
