@@ -99,6 +99,8 @@
 				</ul>
 			{/if}
 		</section>
+
+		<p class="disclosure">Prices are indicative. You’ll be notified in-app when a level is crossed.</p>
 	</div>
 
 	<div slot="footer" class="footer">
@@ -188,5 +190,12 @@
 		display: flex;
 		justify-content: flex-end;
 		gap: var(--gok-space-200);
+	}
+	.disclosure {
+		margin: 0;
+		font-family: var(--gok-font-family-text);
+		font-size: var(--gok-type-footnote-size);
+		line-height: var(--gok-type-footnote-line);
+		color: var(--gok-color-text-muted);
 	}
 </style>
