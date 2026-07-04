@@ -263,6 +263,11 @@
 		};
 	});
 
+	// The chart grows with its panes so oscillators aren't crushed on a phone: price + volume is 22rem,
+	// each opted-in oscillator (RSI / MACD) adds ~7rem so it keeps a legible height and the panes stack
+	// (the page scrolls) rather than all squeezing into one viewport. Comparison is a single rebased pane.
+	const chartHeight = $derived(comparison ? '22rem' : `${22 + oscillators.length * 7}rem`);
+
 	// The chart's aria-label: rebased-comparison mode when comparing, else the single-series
 	// price summary. Declared after `comparison`/`compareShort` so it reads them in scope.
 	const chartLabel = $derived(
@@ -423,16 +428,18 @@
 										<gok-segmented-item value="line">Line</gok-segmented-item>
 									</gok-segmented>
 								{/if}
-								<gok-segmented
-									label="Range"
-									size="s"
-									{@attach setProps({ value: range })}
-									{@attach on('change', onRange)}
-								>
-									{#each RANGES as r (r)}
-										<gok-segmented-item value={r}>{r}</gok-segmented-item>
-									{/each}
-								</gok-segmented>
+								<div class="range-scroll">
+									<gok-segmented
+										label="Range"
+										size="s"
+										{@attach setProps({ value: range })}
+										{@attach on('change', onRange)}
+									>
+										{#each RANGES as r (r)}
+											<gok-segmented-item value={r}>{r}</gok-segmented-item>
+										{/each}
+									</gok-segmented>
+								</div>
 								<!-- Toggleable technical indicators — sits with the other chart controls in the
 								     thumb zone; writes chartPrefs, which re-derives the overlays + table columns. -->
 								<IndicatorMenu />
@@ -460,7 +467,7 @@
 							</p>
 						{/if}
 
-						<PriceChart {candles} kind={chartKind} height="22rem" label={chartLabel} formatValue={formatScale} {overlays} {oscillators} {comparison} />
+						<PriceChart {candles} kind={chartKind} height={chartHeight} label={chartLabel} formatValue={formatScale} {overlays} {oscillators} {comparison} />
 
 						<!-- V08 Phase B/C: the honest "View data" fallback — the price series plus one column per
 						     active indicator, from the SAME lines the chart draws (so they can never disagree). -->
@@ -798,6 +805,21 @@
 		flex-wrap: wrap;
 		align-items: center;
 		gap: var(--gok-space-300);
+	}
+
+	/* The timeframe scrolls horizontally on a narrow screen rather than wrapping into a tall block or
+	   forcing a page-wide horizontal scroll. min-inline-size:0 lets the flex item shrink below its
+	   content so the overflow actually scrolls; the scrollbar is hidden (a thumb-drag affordance). */
+	.range-scroll {
+		min-inline-size: 0;
+		max-inline-size: 100%;
+		overflow-x: auto;
+		overscroll-behavior-x: contain;
+		scrollbar-width: none;
+	}
+
+	.range-scroll::-webkit-scrollbar {
+		display: none;
 	}
 
 	.market-note {
