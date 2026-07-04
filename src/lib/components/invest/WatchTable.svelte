@@ -8,10 +8,12 @@
 	// trailing Remove. Reads the ACTIVE list's rows straight off the reactive state; the
 	// remove control is optimistic (the state toasts "Removed {symbol}").
 	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import { watchlists } from '$lib/state/watchlists.svelte';
 	import type { WatchRow } from '$lib/state/watchlists.svelte';
 	import { formatMoney, formatPercent } from '$lib/format';
 	import { Sparkline } from '$lib/charts';
+	import NavIcon from '$lib/components/shell/NavIcon.svelte';
 
 	const rows = $derived(watchlists.rows());
 	const listName = $derived(watchlists.active()?.name ?? 'my watchlist');
@@ -76,6 +78,13 @@
 	function removeRow(symbol: string) {
 		watchlists.removeFromActive(symbol);
 	}
+
+	function setAlert(symbol: string) {
+		// Open the ?alerts drawer scoped to this row's instrument, preserving any current params.
+		const url = new URL(page.url);
+		url.searchParams.set('alerts', symbol);
+		goto(url, { noScroll: true, keepFocus: true });
+	}
 </script>
 
 <div class="grid-scroll">
@@ -110,7 +119,7 @@
 					</button>
 				</th>
 				<th scope="col" class="col-spark">30 days</th>
-				<th scope="col" class="col-remove"><span class="visually-hidden">Remove</span></th>
+				<th scope="col" class="col-actions"><span class="visually-hidden">Actions</span></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -146,18 +155,31 @@
 							height="2rem"
 						/>
 					</td>
-					<td class="col-remove">
-						<button
-							type="button"
-							class="remove-btn"
-							aria-label={`Remove ${row.symbol} from ${listName}`}
-							onclick={(e) => {
-								e.stopPropagation();
-								removeRow(row.symbol);
-							}}
-						>
-							<span aria-hidden="true">×</span>
-						</button>
+					<td class="col-actions">
+						<div class="row-actions">
+							<button
+								type="button"
+								class="action-btn"
+								aria-label={`Set a price alert for ${row.symbol}`}
+								onclick={(e) => {
+									e.stopPropagation();
+									setAlert(row.symbol);
+								}}
+							>
+								<NavIcon name="bell" />
+							</button>
+							<button
+								type="button"
+								class="action-btn"
+								aria-label={`Remove ${row.symbol} from ${listName}`}
+								onclick={(e) => {
+									e.stopPropagation();
+									removeRow(row.symbol);
+								}}
+							>
+								<span aria-hidden="true">×</span>
+							</button>
+						</div>
 					</td>
 				</tr>
 			{/each}
@@ -237,9 +259,15 @@
 		inline-size: 5rem;
 	}
 
-	.col-remove {
-		inline-size: 2.5rem;
+	.col-actions {
+		inline-size: 4.5rem;
 		text-align: end;
+	}
+
+	.row-actions {
+		display: inline-flex;
+		gap: var(--gok-space-100);
+		justify-content: flex-end;
 	}
 
 	.row {
@@ -310,7 +338,7 @@
 		color: inherit;
 	}
 
-	.remove-btn {
+	.action-btn {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
@@ -326,13 +354,13 @@
 		cursor: pointer;
 	}
 
-	.remove-btn:hover {
+	.action-btn:hover {
 		color: var(--gok-color-text);
 		border-color: var(--gok-color-border);
 		background: var(--gok-color-surface-strong);
 	}
 
-	.remove-btn:focus-visible {
+	.action-btn:focus-visible {
 		outline: var(--gok-focus-ring-width) solid var(--gok-color-focus-ring);
 		outline-offset: 2px;
 	}

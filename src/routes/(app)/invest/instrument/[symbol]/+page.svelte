@@ -12,8 +12,8 @@
 	//
 	// V08 Phase A wraps the research content in an Overview / Fundamentals gok-tabs sub-nav
 	// with ?tab= URL sync (deep-linkable, back-button clean); the sticky Buy/Sell CTA lives
-	// above the tabs so it survives both. The V11 "Set alert" affordance (needs F13) and the
-	// V14 live-price overlay are still deferred.
+	// above the tabs so it survives both. A secondary "Set price alert" affordance opens the ?alerts
+	// drawer (V11, coexists with ?tab); the V14 live-price overlay is still deferred.
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { invest } from '$lib/state/invest.svelte';
@@ -294,6 +294,15 @@
 	function startPlan() {
 		goto(`/invest/plans/new?target=${symbol}&kind=instrument`);
 	}
+
+	// Open the V11 price-alert drawer pointed at this instrument, without leaving the page — the
+	// ?alerts overlay coexists with ?tab (we build from the current URL, not a bare href). Secondary
+	// only; the Buy CTA keeps the page's single earned accent.
+	function setAlert() {
+		const url = new URL(page.url);
+		url.searchParams.set('alerts', symbol);
+		goto(url, { noScroll: true, keepFocus: true });
+	}
 </script>
 
 <svelte:head>
@@ -359,6 +368,7 @@
 			     CTA in the sticky bar keeps the page's single earned accent). -->
 			<div class="head-plan">
 				<gok-button variant="secondary" {@attach on('click', startPlan)}>Set up a savings plan</gok-button>
+				<gok-button variant="secondary" {@attach on('click', setAlert)}>Set price alert</gok-button>
 			</div>
 		</header>
 
@@ -374,8 +384,6 @@
 				<gok-button variant="secondary" {@attach on('click', () => trade('sell'))}>Sell</gok-button>
 			{/snippet}
 		</StickyActionBar>
-
-		<!-- V11: "Set alert" affordance mounts here once F13 notifications land -->
 
 		<!-- Overview / Fundamentals sub-nav (V09). The sticky trade bar above stays outside the
 		     tabs so it survives both; the jump-nav lives inside the Overview panel since it targets
@@ -717,9 +725,11 @@
 		gap: var(--gok-space-200);
 	}
 
-	/* Keep the secondary plan action at content width, not stretched to the header. */
+	/* Keep the secondary actions (plan · alert) at content width, not stretched; wrap on narrow. */
 	.head-plan {
 		display: flex;
+		flex-wrap: wrap;
+		gap: var(--gok-space-200);
 	}
 
 	.caption {

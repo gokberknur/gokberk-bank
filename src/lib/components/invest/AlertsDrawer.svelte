@@ -48,7 +48,13 @@
 	{@attach on('gok-cancel', onclose)}
 >
 	<div class="wrap">
-		<AlertForm {symbol} />
+		<!-- The drawer is mounted once in the shell and reused (only `open` toggles), while AlertForm
+		     seeds its `symbol` state once. Key on scope + open so every open remounts a fresh form
+		     pointed at the current `?alerts=SYMBOL`. Creating an alert keeps the drawer open (open
+		     stays true → key unchanged → no remount), so in-progress input is never disrupted. -->
+		{#key `${symbol ?? ''}:${open}`}
+			<AlertForm {symbol} />
+		{/key}
 
 		<section class="manage">
 			<p class="manage-label gok-eyebrow">Your alerts</p>
