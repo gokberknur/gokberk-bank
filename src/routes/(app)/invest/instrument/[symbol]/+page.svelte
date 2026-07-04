@@ -30,7 +30,7 @@
 	import { formatMoney, formatNumber, formatPercent } from '$lib/format';
 	import { setProps, on } from '$lib/wc.svelte';
 	import { PriceChart } from '$lib/charts';
-	import { overlayLines } from '$lib/charts/indicator-series';
+	import { overlayLines, oscillatorPanes, chartTableSeries } from '$lib/charts/indicator-series';
 	import { chartPrefs } from '$lib/invest/chart-prefs.svelte';
 	import OrderTicket from '$lib/components/invest/OrderTicket.svelte';
 	import StickyActionBar from '$lib/components/layout/StickyActionBar.svelte';
@@ -85,10 +85,11 @@
 	);
 	const formatScale = (v: number) => formatMoney(Math.round(v * minorPerMajor), currency);
 
-	// ── Technical indicators (V08 Phase C) — ONE derivation feeds BOTH consumers so a chart line can
-	//    never disagree with its table column. `indicatorLines` is the active set turned into plottable
-	//    lines (minor units); the chart gets them as major-unit overlays (null points dropped), the
-	//    "View data" table gets them raw as `lines`. Reacts to chartPrefs.active (the persisted set). ──
+	// ── Technical indicators (V08 Phase C) — derived from ONE window so a chart line can never
+	//    disagree with its table column. `indicatorLines` is the active set turned into plottable
+	//    overlay lines (minor units); the chart gets them as major-unit overlays (null points
+	//    dropped), the "View data" table gets the oscillator-aware `chartTableSeries` (which reuses
+	//    the same overlays). Both react to chartPrefs.active (the persisted set). ──
 	const closesMinor = $derived(rawCandles.map((c) => c.closeMinor));
 	const indicatorLines = $derived(overlayLines(closesMinor, chartPrefs.active));
 	// Overlay line data for the chart, in MAJOR units, null points filtered out.
@@ -103,6 +104,51 @@
 				.map((p) => ({ time: p.time, value: (p.value as number) / minorPerMajor }))
 		}))
 	);
+
+	// A pane's scaled value → the chart's plottable unit: an index pane is ×100-scaled 0–100 (÷100),
+	// a money/signed pane is price minor units (÷ minorPerMajor). RSI reads on a 0–100 axis; MACD on
+	// the price-spread axis.
+	function paneToMajor(format: 'index' | 'signed' | 'money', scaled: number): number {
+		return format === 'index' ? scaled / 100 : scaled / minorPerMajor;
+	}
+
+	// Oscillator sub-panes (RSI/MACD) for the chart — the active oscillators turned into plottable
+	// panes: null points dropped, each value converted to its pane's scale, guide levels converted the
+	// same way. Built from the SAME oscillatorPanes() the table's oscillator columns come from (via
+	// chartTableSeries), so a pane can never disagree with its table rows. Reacts to chartPrefs.active.
+	const oscillators = $derived(
+		oscillatorPanes(closesMinor, chartPrefs.active).map((pane) => ({
+			key: pane.key,
+			label: pane.label,
+			format: pane.format,
+			lines: pane.lines.map((l) => ({
+				id: l.id,
+				dash: l.dash,
+				inkStep: l.inkStep,
+				data: rawCandles
+					.map((c, i) => ({ time: c.time, value: l.valuesMinor[i] }))
+					.filter((p) => p.value !== null)
+					.map((p) => ({ time: p.time, value: paneToMajor(pane.format, p.value as number) }))
+			})),
+			histogram: pane.histogram
+				? {
+						id: pane.histogram.id,
+						data: rawCandles
+							.map((c, i) => ({ time: c.time, value: pane.histogram!.valuesMinor[i] }))
+							.filter((p) => p.value !== null)
+							.map((p) => ({ time: p.time, value: paneToMajor(pane.format, p.value as number) }))
+					}
+				: undefined,
+			references: pane.references.map((r) => ({
+				value: paneToMajor(pane.format, r.valueScaled),
+				label: r.label
+			}))
+		}))
+	);
+
+	// The "View data" table gets the full oscillator-aware series (overlays reused from the same
+	// window, plus each oscillator pane's lines/histogram), each tagged with its `format`.
+	const tableSeries = $derived(chartTableSeries(closesMinor, chartPrefs.active));
 
 	const marketOpen = isMarketOpen();
 
@@ -326,11 +372,11 @@
 							<p class="market-note">Market closed — showing the last close.</p>
 						{/if}
 
-						<PriceChart {candles} kind={chartKind} height="22rem" label={chartLabel} formatValue={formatScale} {overlays} />
+						<PriceChart {candles} kind={chartKind} height="22rem" label={chartLabel} formatValue={formatScale} {overlays} {oscillators} />
 
 						<!-- V08 Phase B/C: the honest "View data" fallback — the price series plus one column per
 						     active indicator, from the SAME lines the chart draws (so they can never disagree). -->
-						<ChartDataTable candles={rawCandles} {currency} lines={indicatorLines} />
+						<ChartDataTable candles={rawCandles} {currency} lines={tableSeries} />
 					</section>
 
 					<!-- Key statistics — the shallow key-stats ledger. The deep, type-branched

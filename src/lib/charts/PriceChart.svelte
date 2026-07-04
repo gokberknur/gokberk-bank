@@ -13,7 +13,8 @@
 		ISeriesApi,
 		Time,
 		LineWidth,
-		MouseEventParams
+		MouseEventParams,
+		IPriceLine
 	} from 'lightweight-charts';
 	import { chartTheme, onThemeChange, prefersReducedMotion, type ChartTheme } from './theme';
 	import { resolveColor } from './util';
@@ -41,6 +42,21 @@
 		inkStep?: number;
 	}
 
+	interface OscillatorPaneData {
+		/** 'rsi' | 'macd' — the pane's indicator key. */
+		key: string;
+		/** 'RSI 14' | 'MACD' — accessible pane label (unused visually; for future). */
+		label: string;
+		/** Pane scale: 'index' (0–100, whole-number axis) or 'signed'/'money' (a price spread). */
+		format: 'index' | 'signed' | 'money';
+		/** 1–2 lines (RSI line; MACD line + signal). Values ALREADY in plottable pane units. */
+		lines: { id: string; dash: number[]; inkStep: number; data: { time: string; value: number }[] }[];
+		/** Optional zero-centred histogram (MACD). Values already in plottable units. */
+		histogram?: { id: string; data: { time: string; value: number }[] };
+		/** Flat guide levels (RSI 30/70, MACD 0), already in plottable pane units. */
+		references: { value: number; label: string }[];
+	}
+
 	interface Props {
 		/** OHLC candles, values already in MAJOR units (the page converts minor→major). */
 		candles: Candle[];
@@ -56,6 +72,10 @@
 		 *  scale — moving averages / Bollinger bands. Differentiated by dash + label,
 		 *  never hue: each is a neutral-ramp ink, never the accent or up/down colour. */
 		overlays?: Overlay[];
+		/** Oscillator sub-panes — RSI/MACD — each drawn BELOW the price+volume panes, on its
+		 *  own vertical scale. Values arrive already converted to plottable units (the page owns
+		 *  minor→major / ×100→index). Differentiated by dash + label + pane, never hue. */
+		oscillators?: OscillatorPaneData[];
 	}
 
 	let {
@@ -64,7 +84,8 @@
 		height = '20rem',
 		label,
 		formatValue = (v: number) => v.toFixed(2),
-		overlays = []
+		overlays = [],
+		oscillators = []
 	}: Props = $props();
 
 	let el: HTMLDivElement;
@@ -75,6 +96,12 @@
 	// array (like `series`/`volumeSeries`) and rebuilt wholesale on any overlay change,
 	// so a toggle never leaves a stale line behind.
 	let overlaySeries: ISeriesApi<'Line'>[] = [];
+	// Oscillator sub-panes (RSI/MACD). Held flat and rebuilt wholesale on any change — like the
+	// overlays — with the extra panes pruned so they never accumulate. `IPriceLine`s (the 30/70/0
+	// guide levels) are tracked so a theme toggle can recolour them.
+	let oscSeries: ISeriesApi<'Line'>[] = [];
+	let oscHistograms: ISeriesApi<'Histogram'>[] = [];
+	let oscPriceLines: IPriceLine[] = [];
 	let lib: typeof import('lightweight-charts') | null = null;
 	let builtKind: 'candlestick' | 'line' | null = null;
 
@@ -205,6 +232,7 @@
 			priceFormat: { type: 'volume' }
 		});
 		applyOverlayTheme(theme);
+		applyOscillatorTheme(theme);
 	}
 
 	/** Tear down every existing overlay line and re-add one `lib.LineSeries` per current
@@ -248,6 +276,120 @@
 		overlaySeries.forEach((s, i) => {
 			s.applyOptions({ color: lerpInk(theme.muted, theme.text, overlays[i]?.inkStep ?? 0.3) });
 		});
+	}
+
+	/** The oscillator pane count baseline: pane 0 = price; pane 1 = volume when present. */
+	function oscBasePane(): number {
+		return volumeSeries ? 2 : 1;
+	}
+
+	/** Tear down every oscillator series + guide line and rebuild one sub-pane per active oscillator,
+	 *  BELOW price+volume. RSI is a single index line with 70/30 guides; MACD is a line + dashed
+	 *  signal + a zero-centred histogram with a zero guide. Lines keep their axis value tag + crosshair
+	 *  marker (the pane exists to READ that value); the histogram is neutral (sign by side of zero, not
+	 *  hue). Colour is applied by applyOscillatorTheme from live tokens. Extra panes from a previous,
+	 *  larger set are pruned so panes never accumulate. */
+	function rebuildOscillators() {
+		if (!chart || !lib) return;
+		for (const s of oscSeries) chart.removeSeries(s);
+		for (const h of oscHistograms) chart.removeSeries(h);
+		oscSeries = [];
+		oscHistograms = [];
+		oscPriceLines = [];
+		const { LineStyle } = lib;
+		const base = oscBasePane();
+		oscillators.forEach((pane, idx) => {
+			const paneIndex = base + idx;
+			// Histogram first, so the lines draw above it.
+			if (pane.histogram) {
+				const h = chart!.addSeries(
+					lib!.HistogramSeries,
+					{ priceLineVisible: false, lastValueVisible: false },
+					paneIndex
+				);
+				h.setData(pane.histogram.data.map((p) => ({ time: p.time as Time, value: p.value })));
+				oscHistograms.push(h);
+			}
+			let firstLine: ISeriesApi<'Line'> | null = null;
+			for (const ln of pane.lines) {
+				const lineStyle =
+					!ln.dash || ln.dash.length === 0
+						? LineStyle.Solid
+						: ln.dash.length === 2 && ln.dash[0] >= 5
+							? LineStyle.Dashed
+							: LineStyle.Dotted;
+				const s = chart!.addSeries(
+					lib!.LineSeries,
+					{
+						lineWidth: 1 as LineWidth,
+						lineStyle,
+						priceLineVisible: false,
+						lastValueVisible: true,
+						crosshairMarkerVisible: true,
+						// index panes show a whole-number 0–100 axis; spread panes format like the price.
+						priceFormat:
+							pane.format === 'index'
+								? { type: 'custom' as const, minMove: 1, formatter: (v: number) => v.toFixed(0) }
+								: { type: 'custom' as const, minMove: 0.01, formatter: (v: number) => formatValue(v) }
+					},
+					paneIndex
+				);
+				s.setData(ln.data.map((p) => ({ time: p.time as Time, value: p.value })));
+				if (!firstLine) firstLine = s;
+				oscSeries.push(s);
+			}
+			// Flat guide levels on the pane's first line series (created with a placeholder colour;
+			// applyOscillatorTheme recolours them from live tokens).
+			for (const ref of pane.references) {
+				const pl = firstLine?.createPriceLine({
+					price: ref.value,
+					color: 'rgb(128, 128, 128)',
+					lineStyle: LineStyle.Dashed,
+					lineWidth: 1 as LineWidth,
+					axisLabelVisible: true,
+					title: ref.label
+				});
+				if (pl) oscPriceLines.push(pl);
+			}
+		});
+		// Prune panes left over from a previous (larger) oscillator set.
+		const want = base + oscillators.length;
+		let panes = chart.panes();
+		while (panes.length > want) {
+			chart.removePane(panes.length - 1);
+			panes = chart.panes();
+		}
+		applyPaneStretch();
+	}
+
+	/** Price ~3 · volume ~1 · each oscillator ~1.5 of the vertical space (price stays dominant). */
+	function applyPaneStretch() {
+		if (!chart) return;
+		const panes = chart.panes();
+		panes[0]?.setStretchFactor(3);
+		let i = 1;
+		if (volumeSeries) {
+			panes[i]?.setStretchFactor(1);
+			i++;
+		}
+		for (; i < panes.length; i++) panes[i]?.setStretchFactor(1.5);
+	}
+
+	/** Colour the oscillator lines a concrete neutral-ramp rgb() (lerpInk by inkStep — never accent
+	 *  or up/down), the histogram the same muted ink at reduced alpha as the volume bars (magnitude +
+	 *  side-of-zero, never hue), and the guide lines the border ink. All concrete rgb/rgba the chart
+	 *  can parse — never color-mix()/color(srgb …). */
+	function applyOscillatorTheme(theme: ChartTheme) {
+		let li = 0;
+		for (const pane of oscillators) {
+			for (const ln of pane.lines) {
+				oscSeries[li]?.applyOptions({ color: lerpInk(theme.muted, theme.text, ln.inkStep) });
+				li++;
+			}
+		}
+		const histColor = theme.muted.replace(/^rgb\((.+)\)$/, 'rgba($1, 0.45)');
+		for (const h of oscHistograms) h.applyOptions({ color: histColor });
+		for (const pl of oscPriceLines) pl.applyOptions({ color: theme.muted });
 	}
 
 	/** Re-apply the monochrome chrome + series colours from the live tokens. */
@@ -297,6 +439,7 @@
 		// Overlays draw on pane 0 alongside the price series — rebuild AFTER it exists so
 		// a toggle re-renders with no stale lines; `reapply()` then colours them in.
 		rebuildOverlays();
+		rebuildOscillators();
 		reapply();
 		applyData();
 		chart.timeScale().fitContent();
@@ -316,6 +459,7 @@
 			chart = lib.createChart(el, { width: el.clientWidth, height: el.clientHeight });
 			buildSeries();
 			rebuildOverlays();
+			rebuildOscillators();
 			reapply();
 			applyData();
 			chart.timeScale().fitContent();
@@ -342,8 +486,15 @@
 			ro?.disconnect();
 			stopTheme?.();
 			if (chart && onCrosshair) chart.unsubscribeCrosshairMove(onCrosshair);
-			if (chart) for (const s of overlaySeries) chart.removeSeries(s);
+			if (chart) {
+				for (const s of overlaySeries) chart.removeSeries(s);
+				for (const s of oscSeries) chart.removeSeries(s);
+				for (const h of oscHistograms) chart.removeSeries(h);
+			}
 			overlaySeries = [];
+			oscSeries = [];
+			oscHistograms = [];
+			oscPriceLines = [];
 			chart?.remove();
 			chart = null;
 			series = null;
@@ -357,6 +508,7 @@
 		void kind;
 		void formatValue;
 		void overlays;
+		void oscillators;
 		if (chart) render();
 	});
 </script>

@@ -18,7 +18,7 @@
 	import type { Candle } from '$lib/data/market';
 	import type { Currency } from '$lib/data/money';
 	import type { GokTableColumn } from '@gokberknur/design-system';
-	import type { IndicatorLine } from '$lib/charts/indicator-series';
+	import type { TableSeries } from '$lib/charts/indicator-series';
 	import { formatMoney, formatNumber, formatDate } from '$lib/format';
 	import { setProps } from '$lib/wc.svelte';
 
@@ -26,7 +26,17 @@
 		candles,
 		currency,
 		lines = []
-	}: { candles: Candle[]; currency: Currency; lines?: IndicatorLine[] } = $props();
+	}: { candles: Candle[]; currency: Currency; lines?: TableSeries[] } = $props();
+
+	/** Format one indicator/oscillator cell by its series' unit. `null` (insufficient window) is the
+	 *  honest em-dash. `money` = price minor units; `signed` = the same with a forced +/− (a spread, e.g.
+	 *  MACD); `index` = a ×100-scaled 0–100 index shown as two decimals (RSI 5254 → "52.54"). */
+	function formatCell(series: TableSeries, v: number | null): string {
+		if (v === null) return '—';
+		if (series.format === 'index') return (v / 100).toFixed(2);
+		if (series.format === 'signed') return formatMoney(v, currency, { signDisplay: true });
+		return formatMoney(v, currency);
+	}
 
 	// ── Columns: a chronological data export, so nothing is sortable. Numeric columns right-align
 	//    and render tabular figures. Date/OHLCV are fixed; one numeric column follows per active
@@ -54,12 +64,7 @@
 				low: formatMoney(c.lowMinor, currency),
 				close: formatMoney(c.closeMinor, currency),
 				volume: formatNumber(c.volume),
-				...Object.fromEntries(
-					lines.map((line) => {
-						const v = line.valuesMinor[i];
-						return [line.id, v === null ? '—' : formatMoney(v, currency)];
-					})
-				)
+				...Object.fromEntries(lines.map((line) => [line.id, formatCell(line, line.valuesMinor[i])]))
 			}))
 			.reverse()
 	);
