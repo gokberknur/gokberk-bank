@@ -15,9 +15,15 @@ import {
 	unreadCount,
 	markRead,
 	markAllRead,
+	pushEvent,
 	ACTIVITY_TYPE_LABELS
 } from '$lib/data/activity-data';
-import type { ActivityEvent, ActivityType, ActivityStatus } from '$lib/data/activity-data';
+import type {
+	ActivityEvent,
+	ActivityType,
+	ActivityStatus,
+	SourceRef
+} from '$lib/data/activity-data';
 import { TODAY } from '$lib/data/time';
 import { formatDate } from '$lib/format';
 import { revision } from './revision.svelte';
@@ -26,7 +32,7 @@ import { toast } from './toasts.svelte';
 // Re-expose the data surface so screens import everything feed-related from the
 // state layer, never reaching into the data layer directly.
 export { ACTIVITY_TYPE_LABELS };
-export type { ActivityEvent, ActivityType, ActivityStatus };
+export type { ActivityEvent, ActivityType, ActivityStatus, SourceRef };
 
 /** One filter chip — a type present in the stream, with its display label. */
 export interface ActivityTypeChip {
@@ -170,6 +176,41 @@ class FeedState {
 	}
 
 	// ---- Mutations (optimistic — the mock data layer is synchronous) ----------
+
+	// Monotonic id source for runtime notifications — never Date.now()/Math.random(),
+	// so ids stay deterministic across the session.
+	#seq = 0;
+
+	/**
+	 * Surface a runtime notification — the SINGLE firing path for e.g. a crossed price alert.
+	 * Appends a market-type event to the stream (newest-first), bumps the shared revision so the
+	 * feed + the bell's unread badge re-flow at once, and (by default) shows one polite toast. No
+	 * parallel notification store: everything that "notifies" goes through here. Returns the id.
+	 */
+	notify(input: {
+		type?: ActivityType;
+		status?: ActivityStatus;
+		title: string;
+		body: string;
+		source?: SourceRef;
+		toast?: boolean;
+	}): string {
+		const id = `act-notify-${++this.#seq}`;
+		const event: ActivityEvent = {
+			id,
+			type: input.type ?? 'market',
+			status: input.status ?? 'info',
+			title: input.title,
+			body: input.body,
+			timestamp: TODAY.toISOString(),
+			read: false,
+			source: input.source
+		};
+		pushEvent(event);
+		revision.bump();
+		if (input.toast ?? true) toast(input.title, { status: 'info' });
+		return id;
+	}
 
 	/**
 	 * Open one event: mark it read and bump so the feed/badge re-flow. No toast —

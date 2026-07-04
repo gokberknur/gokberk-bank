@@ -160,4 +160,12 @@ export function markAllRead(): void {
 	events = events.map((e) => (e.read ? e : { ...e, read: true }));
 }
 
+/** Prepend a runtime event (e.g. a fired price alert routed through `feed.notify()`) to the
+ *  stream. The stream is kept newest-first and `getActivity()` returns it as-is (no re-sort on
+ *  read), so a prepend surfaces the event at the top of the feed and the bell. Immutable
+ *  replacement so rune reads re-flow. This is the single append path — there is no second store. */
+export function pushEvent(e: ActivityEvent): void {
+	events = [e, ...events];
+}
+
 export { TODAY };

@@ -7,9 +7,11 @@
 	// its own view-transition-name, so only <main> animates between routes.
 	import { MediaQuery } from 'svelte/reactivity';
 	import { afterNavigate, goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import AppSidenav from '$lib/components/shell/AppSidenav.svelte';
 	import AppNavbar from '$lib/components/shell/AppNavbar.svelte';
 	import BottomTabBar from '$lib/components/shell/BottomTabBar.svelte';
+	import NotificationsDrawer from '$lib/components/shell/NotificationsDrawer.svelte';
 	import { toasts } from '$lib/state/toasts.svelte';
 	import { auth } from '$lib/state/auth.svelte';
 	import { on } from '$lib/wc.svelte';
@@ -36,6 +38,15 @@
 		if (nav.to?.url.hash) return;
 		document.getElementById('main')?.scrollTo({ top: 0 });
 	});
+
+	// The notifications drawer (F13) is a URL overlay: the navbar bell sets ?notif, this shell
+	// renders the drawer off it, and closing strips the param (consistent with the app's ?tab/?target idiom).
+	const notifOpen = $derived(page.url.searchParams.has('notif'));
+	function closeNotif() {
+		const url = new URL(page.url);
+		url.searchParams.delete('notif');
+		goto(url, { noScroll: true, keepFocus: true });
+	}
 </script>
 
 <a href="#main" class="skip">Skip to content</a>
@@ -57,6 +68,8 @@
 </div>
 
 <BottomTabBar />
+
+<NotificationsDrawer open={notifOpen} onclose={closeNotif} />
 
 <gok-toast-region placement="bottom-end">
 	{#each toasts.items as t (t.id)}

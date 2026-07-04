@@ -7,10 +7,12 @@
 	// setProps. Notifications/most menu items are deliberate no-ops for now (their
 	// surfaces land in later features) — never a 404.
 	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import { session } from '$lib/state/session.svelte';
 	import { density } from '$lib/state/density.svelte';
 	import { auth } from '$lib/state/auth.svelte';
 	import { command } from '$lib/state/command.svelte';
+	import { feed } from '$lib/state/feed.svelte';
 	import { setProps, on } from '$lib/wc.svelte';
 	import NavIcon from './NavIcon.svelte';
 
@@ -26,8 +28,16 @@
 	}
 
 	function openNotifications() {
-		// TODO: ?notif drawer (F13)
+		// Open the notifications drawer via the URL (the shell layout renders it off ?notif),
+		// consistent with the app's query-param overlay idiom (?tab / ?target).
+		const url = new URL(page.url);
+		url.searchParams.set('notif', 'open');
+		goto(url, { noScroll: true, keepFocus: true });
 	}
+
+	// Unread notifications drive the bell badge (reads feed.unread — revision-reactive).
+	const unread = $derived(feed.unread);
+	const unreadLabel = $derived(unread > 9 ? '9+' : String(unread));
 
 	function onAccountSelect(event: Event) {
 		const value = (event as CustomEvent<{ value?: string }>).detail?.value;
@@ -86,13 +96,18 @@
 			<NavIcon slot="icon" name="search" />
 		</gok-button>
 
-		<gok-button
-			variant="secondary"
-			accessible-label="Notifications"
-			{@attach on('click', openNotifications)}
-		>
-			<NavIcon slot="icon" name="bell" />
-		</gok-button>
+		<div class="bell">
+			<gok-button
+				variant="secondary"
+				accessible-label={unread > 0 ? `Notifications, ${unread} unread` : 'Notifications'}
+				{@attach on('click', openNotifications)}
+			>
+				<NavIcon slot="icon" name="bell" />
+			</gok-button>
+			{#if unread > 0}
+				<span class="bell-badge gok-tabular-nums" aria-hidden="true">{unreadLabel}</span>
+			{/if}
+		</div>
 
 		<gok-menu accessible-label="Account menu" {@attach on('gok-select', onAccountSelect)}>
 			<gok-button slot="trigger" variant="secondary" accessible-label="Account menu">
@@ -210,6 +225,37 @@
 		gap: var(--gok-space-200);
 		padding-inline: var(--gok-space-500);
 		padding-block: var(--gok-space-300);
+	}
+
+	/* Positioning context for the unread count badge sitting on the bell's corner. */
+	.bell {
+		position: relative;
+		display: inline-flex;
+	}
+
+	/* The unread count — a small mono pill anchored to the bell's top-inline-end corner.
+	   The primary green is the ONE earned accent for the notifications context (an unread
+	   count is a legitimate accent spend). Single digits render as a circle (min-inline-size
+	   matches block-size); it's decorative — the button's accessible-label announces the count. */
+	.bell-badge {
+		position: absolute;
+		inset-block-start: 0;
+		inset-inline-end: 0;
+		transform: translate(40%, -40%);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-inline-size: var(--gok-space-400);
+		block-size: var(--gok-space-400);
+		padding-inline: var(--gok-space-100);
+		border-radius: var(--gok-radius-pill);
+		background: var(--gok-color-primary);
+		color: var(--gok-color-text-on-primary);
+		font-family: var(--gok-font-family-mono);
+		font-size: var(--gok-type-footnote-size);
+		font-weight: var(--gok-font-weight-medium);
+		line-height: 1;
+		pointer-events: none;
 	}
 
 	/* Tablet (40–64rem): the rail is a collapsed icon rail, so the brand block shrinks with
