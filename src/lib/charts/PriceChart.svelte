@@ -18,6 +18,7 @@
 	} from 'lightweight-charts';
 	import { chartTheme, onThemeChange, prefersReducedMotion, type ChartTheme } from './theme';
 	import { resolveColor } from './util';
+	import { formatDate } from '$lib/format';
 	import CrosshairReadout from '$lib/components/invest/CrosshairReadout.svelte';
 
 	interface Candle {
@@ -57,6 +58,17 @@
 		references: { value: number; label: string }[];
 	}
 
+	interface ComparisonData {
+		/** Focal series label (e.g. its ticker). */
+		baseLabel: string;
+		/** Compare series label (benchmark or ticker). */
+		compareLabel: string;
+		/** Focal rebased to a common start, index units (100 = start), aligned by time. */
+		base: { time: string; value: number }[];
+		/** Compare rebased to the SAME start, index units. */
+		compare: { time: string; value: number }[];
+	}
+
 	interface Props {
 		/** OHLC candles, values already in MAJOR units (the page converts minor→major). */
 		candles: Candle[];
@@ -76,6 +88,10 @@
 		 *  own vertical scale. Values arrive already converted to plottable units (the page owns
 		 *  minor→major / ×100→index). Differentiated by dash + label + pane, never hue. */
 		oscillators?: OscillatorPaneData[];
+		/** When set, the chart enters rebased-comparison mode: candles/volume/overlays/oscillators
+		 *  are replaced by two neutral rebased lines on an index axis; `null` restores the normal
+		 *  view. The two lines separate by weight + dash + label, NEVER hue — and never the accent. */
+		comparison?: ComparisonData | null;
 	}
 
 	let {
@@ -85,7 +101,8 @@
 		label,
 		formatValue = (v: number) => v.toFixed(2),
 		overlays = [],
-		oscillators = []
+		oscillators = [],
+		comparison = null
 	}: Props = $props();
 
 	let el: HTMLDivElement;
@@ -104,6 +121,10 @@
 	let oscPriceLines: IPriceLine[] = [];
 	let lib: typeof import('lightweight-charts') | null = null;
 	let builtKind: 'candlestick' | 'line' | null = null;
+	// The two rebased comparison lines ([base, compare]) — present only in comparison mode.
+	let compareSeries: ISeriesApi<'Line'>[] = [];
+	/** Format a rebased index value for the axis/readout (100.0 = the common start). */
+	const formatIndex = (v: number) => v.toFixed(1);
 
 	/** Lerp two concrete `rgb(r, g, b)` strings to a concrete `rgb()` at `t` ∈ [0, 1].
 	 *  Both ends come from the token bridge already collapsed to sRGB bytes, so the
@@ -122,6 +143,21 @@
 	// overridable-derived pattern; the override clears when `candles` next changes).
 	// Carries full OHLC+volume in BOTH candlestick and line mode, since `candles` always does.
 	let hoveredBar = $derived<Candle | null>(candles.at(-1) ?? null);
+
+	// The comparison readout line: DERIVES to the latest rebased pair at rest (never blank), and the
+	// crosshair handler OVERRIDES it to the hovered session on move — the same overridable-derived
+	// pattern as `hoveredBar`. Null unless in comparison mode. Values pre-formatted (index, 1 dp).
+	let hoveredCompare = $derived(
+		comparison
+			? {
+					date: formatDate(comparison.base.at(-1)?.time ?? ''),
+					baseLabel: comparison.baseLabel,
+					baseValue: formatIndex(comparison.base.at(-1)?.value ?? 0),
+					compareLabel: comparison.compareLabel,
+					compareValue: formatIndex(comparison.compare.at(-1)?.value ?? 0)
+				}
+			: null
+	);
 
 	/** Whether any candle carries a numeric volume — gates the volume pane. */
 	function hasVolume(): boolean {
@@ -392,6 +428,81 @@
 		for (const pl of oscPriceLines) pl.applyOptions({ color: theme.muted });
 	}
 
+	/** Remove the entire normal view — price series, volume, overlays, oscillators — and prune every
+	 *  pane back to a single pane 0. Used when entering comparison mode. */
+	function teardownNormal() {
+		if (!chart) return;
+		if (series) {
+			chart.removeSeries(series);
+			series = null;
+		}
+		if (volumeSeries) {
+			chart.removeSeries(volumeSeries);
+			volumeSeries = null;
+		}
+		for (const s of overlaySeries) chart.removeSeries(s);
+		for (const s of oscSeries) chart.removeSeries(s);
+		for (const h of oscHistograms) chart.removeSeries(h);
+		overlaySeries = [];
+		oscSeries = [];
+		oscHistograms = [];
+		oscPriceLines = [];
+		builtKind = null;
+		let panes = chart.panes();
+		while (panes.length > 1) {
+			chart.removePane(panes.length - 1);
+			panes = chart.panes();
+		}
+	}
+
+	/** Draw the two rebased comparison lines on pane 0 (index axis). Base = heavier solid ink, compare
+	 *  = lighter dashed ink — separated by weight + dash + label, never hue, never the accent. Both
+	 *  carry their axis value tag (the pane exists to read relative performance). Colour by the theme pass. */
+	function renderComparison() {
+		if (!chart || !lib || !comparison) return;
+		teardownNormal();
+		for (const s of compareSeries) chart.removeSeries(s);
+		compareSeries = [];
+		const { LineStyle } = lib;
+		const priceFormat = { type: 'custom' as const, minMove: 0.1, formatter: formatIndex };
+		const baseS = chart.addSeries(
+			lib.LineSeries,
+			{
+				lineWidth: 2 as LineWidth,
+				lineStyle: LineStyle.Solid,
+				priceLineVisible: false,
+				lastValueVisible: true,
+				crosshairMarkerVisible: true,
+				priceFormat
+			},
+			0
+		);
+		baseS.setData(comparison.base.map((p) => ({ time: p.time as Time, value: p.value })));
+		const compareS = chart.addSeries(
+			lib.LineSeries,
+			{
+				lineWidth: 1 as LineWidth,
+				lineStyle: LineStyle.Dashed,
+				priceLineVisible: false,
+				lastValueVisible: true,
+				crosshairMarkerVisible: true,
+				priceFormat
+			},
+			0
+		);
+		compareS.setData(comparison.compare.map((p) => ({ time: p.time as Time, value: p.value })));
+		compareSeries = [baseS, compareS];
+		reapply();
+		chart.timeScale().fitContent();
+	}
+
+	/** Colour the comparison lines concrete neutral-ramp rgb — base darker (heavier), compare lighter.
+	 *  Never accent, never up/down. */
+	function applyComparisonTheme(theme: ChartTheme) {
+		compareSeries[0]?.applyOptions({ color: lerpInk(theme.muted, theme.text, 0.1) });
+		compareSeries[1]?.applyOptions({ color: lerpInk(theme.muted, theme.text, 0.55) });
+	}
+
 	/** Re-apply the monochrome chrome + series colours from the live tokens. */
 	function reapply() {
 		if (!chart || !lib) return;
@@ -430,11 +541,21 @@
 			kineticScroll: { mouse: false, touch: !reduced }
 		});
 		applySeriesTheme(theme);
+		if (compareSeries.length) applyComparisonTheme(theme);
 	}
 
 	/** Full render: ensure the right series exists, theme it, set data, fit the view. */
 	function render() {
 		if (!chart) return;
+		if (comparison) {
+			renderComparison();
+			return;
+		}
+		// Leaving comparison mode: drop the compare lines, then rebuild the normal view.
+		if (compareSeries.length) {
+			for (const s of compareSeries) chart.removeSeries(s);
+			compareSeries = [];
+		}
 		if (kind !== builtKind || !series) buildSeries();
 		// Overlays draw on pane 0 alongside the price series — rebuild AFTER it exists so
 		// a toggle re-renders with no stale lines; `reapply()` then colours them in.
@@ -457,22 +578,38 @@
 			lib = await import('lightweight-charts');
 			if (disposed) return;
 			chart = lib.createChart(el, { width: el.clientWidth, height: el.clientHeight });
-			buildSeries();
-			rebuildOverlays();
-			rebuildOscillators();
-			reapply();
-			applyData();
-			chart.timeScale().fitContent();
+			// Single entry point so comparison mode is honoured from first paint and the
+			// build/theme/data sequence isn't duplicated here and in `render`.
+			render();
 
-			// Override the readout with the hovered bar. On the data → that bar; off the
-			// data (crosshair left, or between points) → the latest bar, so the line holds
-			// rather than blanks. The override clears when `candles` next changes, so a
-			// range switch snaps back to the derived latest. Works in both candlestick and
-			// line mode because `candles` always carries full OHLC+volume.
+			// Override the readout with the hovered bar (or the hovered comparison pair). On the
+			// data → that point; off the data (crosshair left, or between points) → the latest, so
+			// the line holds rather than blanks. The override clears when the data next changes, so
+			// a range switch snaps back to the derived latest. In comparison mode this narrates the
+			// two rebased index values instead; otherwise full OHLC+volume (`candles` always carries it).
 			onCrosshair = (param) => {
-				const match =
-					param.time !== undefined ? candles.find((c) => c.time === param.time) : undefined;
-				hoveredBar = match ?? candles.at(-1) ?? null;
+				if (comparison) {
+					const b =
+						param.time !== undefined
+							? comparison.base.find((p) => p.time === param.time)
+							: undefined;
+					const c =
+						param.time !== undefined
+							? comparison.compare.find((p) => p.time === param.time)
+							: undefined;
+					const at = b?.time ?? comparison.base.at(-1)?.time ?? '';
+					hoveredCompare = {
+						date: formatDate(at),
+						baseLabel: comparison.baseLabel,
+						baseValue: formatIndex(b?.value ?? comparison.base.at(-1)?.value ?? 0),
+						compareLabel: comparison.compareLabel,
+						compareValue: formatIndex(c?.value ?? comparison.compare.at(-1)?.value ?? 0)
+					};
+				} else {
+					const match =
+						param.time !== undefined ? candles.find((cc) => cc.time === param.time) : undefined;
+					hoveredBar = match ?? candles.at(-1) ?? null;
+				}
 			};
 			chart.subscribeCrosshairMove(onCrosshair);
 
@@ -490,11 +627,13 @@
 				for (const s of overlaySeries) chart.removeSeries(s);
 				for (const s of oscSeries) chart.removeSeries(s);
 				for (const h of oscHistograms) chart.removeSeries(h);
+				for (const s of compareSeries) chart.removeSeries(s);
 			}
 			overlaySeries = [];
 			oscSeries = [];
 			oscHistograms = [];
 			oscPriceLines = [];
+			compareSeries = [];
 			chart?.remove();
 			chart = null;
 			series = null;
@@ -509,12 +648,13 @@
 		void formatValue;
 		void overlays;
 		void oscillators;
+		void comparison;
 		if (chart) render();
 	});
 </script>
 
 <figure class="price">
-	<CrosshairReadout bar={hoveredBar} {formatValue} />
+	<CrosshairReadout bar={hoveredBar} {formatValue} comparison={hoveredCompare} />
 	<div class="canvas" bind:this={el} style:height role="img" aria-label={label}></div>
 	<figcaption class="credit">
 		<a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer">

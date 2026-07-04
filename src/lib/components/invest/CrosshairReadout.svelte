@@ -6,11 +6,14 @@
 	// single-line height means value changes never shift the layout, and the line is
 	// aria-live so a screen reader announces the hovered bar without a jump. Labels
 	// are quiet mono captions; the figures carry the ink. `--gok-*` tokens only.
+	// Optional `comparison` variant: in rebased-comparison mode this same reserved line
+	// narrates Date · {baseLabel} {baseValue} · {compareLabel} {compareValue} instead.
 	import { formatDate, formatNumber } from '$lib/format';
 
 	let {
 		bar,
-		formatValue
+		formatValue,
+		comparison = null
 	}: {
 		bar: {
 			time: string;
@@ -22,11 +25,24 @@
 		} | null;
 		/** Formats the O/H/L/C prices in the chart's own scale (money, decimals…). */
 		formatValue: (v: number) => string;
+		/** When set, the chart is in rebased-comparison mode: this reserved line shows the two
+		 *  rebased index values (already formatted, e.g. "105.2") instead of OHLCV. */
+		comparison?: {
+			date: string;
+			baseLabel: string;
+			baseValue: string;
+			compareLabel: string;
+			compareValue: string;
+		} | null;
 	} = $props();
 </script>
 
 <p class="readout" role="status" aria-live="polite">
-	{#if bar}
+	{#if comparison}
+		<span class="date">{comparison.date}</span>
+		<span class="field"><span class="label">{comparison.baseLabel}</span><span class="value">{comparison.baseValue}</span></span>
+		<span class="field"><span class="label">{comparison.compareLabel}</span><span class="value">{comparison.compareValue}</span></span>
+	{:else if bar}
 		<span class="date">{formatDate(bar.time)}</span>
 		<span class="field"><span class="label">O</span><span class="value">{formatValue(bar.open)}</span></span>
 		<span class="field"><span class="label">H</span><span class="value">{formatValue(bar.high)}</span></span>

@@ -24,12 +24,15 @@
 		isMarketOpen,
 		RANGES,
 		INSTRUMENTS,
+		benchmarkHistory,
+		BENCHMARK,
 		type Range
 	} from '$lib/data/market';
 	import { DECIMALS } from '$lib/data/money';
 	import { formatMoney, formatNumber, formatPercent } from '$lib/format';
 	import { setProps, on } from '$lib/wc.svelte';
 	import { PriceChart } from '$lib/charts';
+	import { rebasePair } from '$lib/charts/rebase';
 	import { overlayLines, oscillatorPanes, chartTableSeries } from '$lib/charts/indicator-series';
 	import { chartPrefs } from '$lib/invest/chart-prefs.svelte';
 	import OrderTicket from '$lib/components/invest/OrderTicket.svelte';
@@ -77,11 +80,6 @@
 			close: c.closeMinor / minorPerMajor,
 			volume: c.volume
 		}))
-	);
-	const chartLabel = $derived(
-		inst
-			? `${inst.name} ${range} ${chartKind} price — last ${formatMoney(inst.lastPriceMinor, currency)}.`
-			: 'Price chart'
 	);
 	const formatScale = (v: number) => formatMoney(Math.round(v * minorPerMajor), currency);
 
@@ -148,7 +146,19 @@
 
 	// The "View data" table gets the full oscillator-aware series (overlays reused from the same
 	// window, plus each oscillator pane's lines/histogram), each tagged with its `format`.
-	const tableSeries = $derived(chartTableSeries(closesMinor, chartPrefs.active));
+	const tableSeries = $derived.by(() => {
+		const series = chartTableSeries(closesMinor, chartPrefs.active);
+		if (!rebased) return series;
+		// Pad the (possibly clipped) rebased tails back to the full bar count with leading nulls so each
+		// aligns to rawCandles by index in the table — comparison is 'index' (a 0–100+ rebased index).
+		const pad = rawCandles.length - rebased.base.length;
+		const padded = (vals: (number | null)[]) => [...new Array(pad).fill(null), ...vals];
+		return [
+			...series,
+			{ id: 'cmp-base', label: `${symbol} rebased`, valuesMinor: padded(rebased.base), format: 'index' as const },
+			{ id: 'cmp-compare', label: `${compareShort} rebased`, valuesMinor: padded(rebased.compare), format: 'index' as const }
+		];
+	});
 
 	const marketOpen = isMarketOpen();
 
@@ -158,6 +168,10 @@
 	}
 	function onRange(e: Event) {
 		range = (e as CustomEvent<{ value: string }>).detail.value as Range;
+	}
+	function onCompare(e: Event) {
+		const value = (e.target as HTMLElement & { value: string }).value;
+		chartPrefs.setCompare(value);
 	}
 
 	// ── Overview / Fundamentals tab-rail, synced to the URL (V09) ──
@@ -205,6 +219,59 @@
 		const others = INSTRUMENTS.filter((i) => i.symbol !== symbol && i.sector !== inst.sector);
 		return [...sameSector, ...others].slice(0, 4);
 	});
+
+	// ── Comparison overlay (V08 C4) — one rebased benchmark/instrument vs the focal, indexed to a
+	//    common start (100). Options: None · the STOXX 600 benchmark · the related instruments. The
+	//    persisted selection is guarded against a stale id (falls back to None). ──
+	const compareOptions = $derived([
+		{ value: 'none', label: 'None', short: '' },
+		{ value: BENCHMARK.symbol, label: BENCHMARK.name, short: 'STOXX 600' },
+		...related.map((r) => ({ value: r.symbol, label: `${r.symbol} · ${r.name}`, short: r.symbol }))
+	]);
+	const compareId = $derived(
+		compareOptions.some((o) => o.value === chartPrefs.compare) ? chartPrefs.compare : 'none'
+	);
+	const compareShort = $derived(compareOptions.find((o) => o.value === compareId)?.short ?? '');
+
+	// The compare series' minor-unit closes for the current range (benchmark index points, or another
+	// instrument's price), then rebasePair → both indexed to a common start (×100 scaled, drift-free).
+	const rebased = $derived.by(() => {
+		if (compareId === 'none') return null;
+		const cmpCloses =
+			compareId === BENCHMARK.symbol
+				? benchmarkHistory(rangeDays(range)).map((c) => c.closeMinor)
+				: priceHistory(compareId, rangeDays(range)).map((c) => c.closeMinor);
+		return rebasePair(closesMinor, cmpCloses);
+	});
+
+	// PriceChart's comparison prop — rebased index values in MAJOR (÷100), aligned to the clipped tail
+	// of the focal's dates; null when not comparing.
+	const comparison = $derived.by(() => {
+		if (!rebased) return null;
+		const n = rebased.base.length;
+		const tailTimes = rawCandles.slice(rawCandles.length - n).map((c) => c.time);
+		const toPoints = (vals: (number | null)[]) =>
+			tailTimes
+				.map((t, i) => ({ time: t, value: vals[i] }))
+				.filter((p) => p.value !== null)
+				.map((p) => ({ time: p.time, value: (p.value as number) / 100 }));
+		return {
+			baseLabel: symbol,
+			compareLabel: compareShort,
+			base: toPoints(rebased.base),
+			compare: toPoints(rebased.compare)
+		};
+	});
+
+	// The chart's aria-label: rebased-comparison mode when comparing, else the single-series
+	// price summary. Declared after `comparison`/`compareShort` so it reads them in scope.
+	const chartLabel = $derived(
+		comparison
+			? `${inst?.name ?? symbol} rebased performance versus ${compareShort}, indexed to 100.`
+			: inst
+				? `${inst.name} ${range} ${chartKind} price — last ${formatMoney(inst.lastPriceMinor, currency)}.`
+				: 'Price chart'
+	);
 
 	// ── Seeded per-instrument headlines for the News section (NewsStrip owns its own
 	//    "view source" placeholder). Empty until an instrument resolves. ──
@@ -343,15 +410,19 @@
 								<h2 id="chart-heading" class="block-title gok-headline-5">Price history</h2>
 							</div>
 							<div class="chart-controls">
-								<gok-segmented
-									label="Chart type"
-									size="s"
-									{@attach setProps({ value: chartKind })}
-									{@attach on('change', onKind)}
-								>
-									<gok-segmented-item value="candlestick">Candlestick</gok-segmented-item>
-									<gok-segmented-item value="line">Line</gok-segmented-item>
-								</gok-segmented>
+								<!-- Chart type is meaningless in comparison mode (two rebased index lines,
+								     not candles) — hidden while comparing. -->
+								{#if compareId === 'none'}
+									<gok-segmented
+										label="Chart type"
+										size="s"
+										{@attach setProps({ value: chartKind })}
+										{@attach on('change', onKind)}
+									>
+										<gok-segmented-item value="candlestick">Candlestick</gok-segmented-item>
+										<gok-segmented-item value="line">Line</gok-segmented-item>
+									</gok-segmented>
+								{/if}
 								<gok-segmented
 									label="Range"
 									size="s"
@@ -365,6 +436,17 @@
 								<!-- Toggleable technical indicators — sits with the other chart controls in the
 								     thumb zone; writes chartPrefs, which re-derives the overlays + table columns. -->
 								<IndicatorMenu />
+								<!-- Compare with — None · the STOXX 600 benchmark · related instruments. Rebases the
+								     focal + the chosen series to a common start (index 100) via rebasePair. -->
+								<gok-select
+									label="Compare with"
+									{@attach setProps({ value: compareId })}
+									{@attach on('change', onCompare)}
+								>
+									{#each compareOptions as opt (opt.value)}
+										<gok-option value={opt.value}>{opt.label}</gok-option>
+									{/each}
+								</gok-select>
 							</div>
 						</div>
 
@@ -372,7 +454,13 @@
 							<p class="market-note">Market closed — showing the last close.</p>
 						{/if}
 
-						<PriceChart {candles} kind={chartKind} height="22rem" label={chartLabel} formatValue={formatScale} {overlays} {oscillators} />
+						{#if comparison}
+							<p class="market-note">
+								Rebased to start · indexed to 100.{#if rebased && rebased.clipped > 0} Common start from the shorter history — {rebased.clipped} earlier {rebased.clipped === 1 ? 'session' : 'sessions'} dropped.{/if}
+							</p>
+						{/if}
+
+						<PriceChart {candles} kind={chartKind} height="22rem" label={chartLabel} formatValue={formatScale} {overlays} {oscillators} {comparison} />
 
 						<!-- V08 Phase B/C: the honest "View data" fallback — the price series plus one column per
 						     active indicator, from the SAME lines the chart draws (so they can never disagree). -->

@@ -1,5 +1,6 @@
-// V08 · Chart indicator preferences — the single reactive source for which technical
-// indicators are drawn on the price chart. Mirrors the app's other `*.svelte.ts` state
+// V08 · Chart preferences — the single reactive source for which technical indicators are
+// drawn on the price chart, and which series (if any) is overlaid for the "Compare with"
+// rebased view. Mirrors the app's other `*.svelte.ts` state
 // singletons (toasts, schedule, command): a runed class, one exported instance. Persisted
 // via the shared `persist.ts` helper (browser-guarded, `gok-bank-` prefixed) so this
 // preference sits alongside the others; default is an EMPTY set — a calm, clean chart the
@@ -14,6 +15,7 @@ import { readJSON, writeJSON } from '$lib/state/persist';
 import { INDICATORS, type IndicatorKey } from '$lib/charts/indicator-series';
 
 const STORAGE_KEY = 'chart-indicators';
+const COMPARE_KEY = 'chart-compare';
 
 /** The catalogue's keys, as a lookup — anything not in here is dropped on load. */
 const VALID = new Set<string>(INDICATORS.map((i) => i.key));
@@ -45,6 +47,16 @@ class ChartPrefs {
 			: new Set([...this.active, key]);
 		this.active = next;
 		writeJSON(STORAGE_KEY, [...next]);
+	}
+
+	/** The active comparison selection — a series id to overlay (rebased), or 'none'.
+	 *  'none' = the single-series candle view. Persisted like `active`. */
+	compare = $state<string>(readJSON<string>(COMPARE_KEY, 'none'));
+
+	/** Set (or clear, with 'none') the comparison overlay and persist. */
+	setCompare(id: string): void {
+		this.compare = id;
+		writeJSON(COMPARE_KEY, id);
 	}
 }
 
