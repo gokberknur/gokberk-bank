@@ -150,6 +150,12 @@ export function priceHistory(symbol: string, days = 365): Candle[] {
 	const rng = mulberry32(symbolSeed(symbol));
 	const vol = inst.type === 'crypto' ? 0.035 : (inst.betaX100 ?? 100) > 130 ? 0.022 : 0.013;
 
+	// The walk's floor. Within a year, 0.6×52w-low keeps the series realistically
+	// bounded; over the multi-year ranges (V08's 5Y/Max) that clamp would flatten the
+	// deep past into a straight line, so a lower floor lets the walk descend naturally
+	// into a plausible "years ago" base. Same value across a call → deterministic.
+	const floor = Math.round(inst.low52wMinor * (days > 400 ? 0.15 : 0.6));
+
 	// Walk closes backward from last → prior → random walk into the past.
 	const closes: number[] = new Array(days);
 	closes[days - 1] = inst.lastPriceMinor;
@@ -160,7 +166,7 @@ export function priceHistory(symbol: string, days = 365): Candle[] {
 		// (markets trend up over the year), so the forward-read series rises toward
 		// the last price — consistent with positions being up vs cost.
 		const shock = (rng() - 0.5) * 2 * vol + 0.0006;
-		closes[i] = Math.max(Math.round(next / (1 + shock)), Math.round(inst.low52wMinor * 0.6));
+		closes[i] = Math.max(Math.round(next / (1 + shock)), floor);
 	}
 
 	const candles: Candle[] = [];
@@ -185,8 +191,11 @@ export function priceHistory(symbol: string, days = 365): Candle[] {
 	return candles;
 }
 
-/** Range presets → trailing session count. `max` returns the full history. */
-export const RANGES = ['1W', '1M', '1Y', 'Max'] as const;
+/** Range presets → trailing session count. The finer V08 timeframes all serve from the
+ *  same deterministic daily seed (more/fewer sessions); `Max` returns the full generated
+ *  history. Intraday **1D** is deliberately absent here — it rides V08 Phase C alongside
+ *  the live crypto klines + the intraday seed, so every range listed re-renders today. */
+export const RANGES = ['1W', '1M', '3M', '6M', 'YTD', '1Y', '5Y', 'Max'] as const;
 export type Range = (typeof RANGES)[number];
 
 export function rangeDays(range: Range): number {
@@ -195,10 +204,22 @@ export function rangeDays(range: Range): number {
 			return 7;
 		case '1M':
 			return 30;
+		case '3M':
+			return 90;
+		case '6M':
+			return 182;
+		case 'YTD': {
+			// Sessions since Jan 1 of TODAY's year (deterministic; ≥2 so a chart always draws).
+			const jan1 = new Date(TODAY.getFullYear(), 0, 1);
+			const days = Math.round((TODAY.getTime() - jan1.getTime()) / 86_400_000) + 1;
+			return Math.max(2, days);
+		}
 		case '1Y':
 			return 365;
+		case '5Y':
+			return 1825;
 		case 'Max':
-			return 365;
+			return 3650;
 	}
 }
 

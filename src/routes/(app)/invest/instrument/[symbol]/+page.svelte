@@ -10,9 +10,10 @@
 	// range/type segment. Direction (day change, candles, P&L) is carried by an
 	// icon + an explicit sign + a status role on the number — never hue alone.
 	//
-	// V09 builds the research CONTENT inline as one Overview scroll; the Overview/
-	// Fundamentals gok-tabs tab-rail + ?tab= URL sync and the V14 live-price overlay are
-	// deferred to the coordinated V08+V09+V11 instrument-page pass.
+	// V08 Phase A wraps the research content in an Overview / Fundamentals gok-tabs sub-nav
+	// with ?tab= URL sync (deep-linkable, back-button clean); the sticky Buy/Sell CTA lives
+	// above the tabs so it survives both. The V11 "Set alert" affordance (needs F13) and the
+	// V14 live-price overlay are still deferred.
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { invest } from '$lib/state/invest.svelte';
@@ -83,6 +84,27 @@
 	}
 	function onRange(e: Event) {
 		range = (e as CustomEvent<{ value: string }>).detail.value as Range;
+	}
+
+	// ── Overview / Fundamentals tab-rail, synced to the URL (V09) ──
+	// Active tab from the URL (?tab=fundamentals), defaulting to Overview. Deep-links + back-button clean.
+	const activeTab = $derived(
+		page.url.searchParams.get('tab') === 'fundamentals' ? 'fundamentals' : 'overview'
+	);
+
+	function selectTab(e: Event) {
+		// gok-tabs dispatches a PLAIN Event on itself (no detail) — the newly selected tab is
+		// its own `value`, read off currentTarget. The chart-type/range gok-segmented also fire
+		// `change` that bubbles up to this same listener; `e.target !== e.currentTarget` filters
+		// those out (their target is the segmented, not the tabs), so a range switch never navigates.
+		if (e.target !== e.currentTarget) return;
+		const value = (e.currentTarget as HTMLElement & { value?: string }).value;
+		if (value !== 'overview' && value !== 'fundamentals') return;
+		if (value === activeTab) return; // no redundant history entry
+		const url = new URL(page.url);
+		if (value === 'fundamentals') url.searchParams.set('tab', 'fundamentals');
+		else url.searchParams.delete('tab'); // keep the canonical Overview URL clean
+		goto(url, { noScroll: true, keepFocus: true });
 	}
 
 	// ── Today's session range (low/high), independent of the chart range ──
@@ -207,188 +229,220 @@
 			{/snippet}
 		</StickyActionBar>
 
-		<!-- In-page jump-nav (CV-LAY-6): calm, mono rail to the Overview research sections,
-		     in on-page order. Real anchors; the Related anchor only when there are related names. -->
-		<nav class="jump-nav" aria-label="On this page">
-			<ul class="jump-list">
-				<li><a class="jump-link" href="#chart">Chart</a></li>
-				<li><a class="jump-link" href="#fundamentals">Fundamentals</a></li>
-				<li><a class="jump-link" href="#news">News</a></li>
-				<li><a class="jump-link" href="#depth">Depth</a></li>
-				<li><a class="jump-link" href="#dividends">Dividends</a></li>
-				{#if related.length > 0}
-					<li><a class="jump-link" href="#related">Related</a></li>
-				{/if}
-			</ul>
-		</nav>
+		<!-- V11: "Set alert" affordance mounts here once F13 notifications land -->
 
-		<!-- Price chart -->
-		<section id="chart" class="block" aria-labelledby="chart-heading">
-			<div class="block-head chart-head">
-				<div>
-					<p class="block-eyebrow gok-eyebrow">Price</p>
-					<h2 id="chart-heading" class="block-title gok-headline-5">Price history</h2>
-				</div>
-				<div class="chart-controls">
-					<gok-segmented
-						label="Chart type"
-						size="s"
-						{@attach setProps({ value: chartKind })}
-						{@attach on('change', onKind)}
-					>
-						<gok-segmented-item value="candlestick">Candlestick</gok-segmented-item>
-						<gok-segmented-item value="line">Line</gok-segmented-item>
-					</gok-segmented>
-					<gok-segmented
-						label="Range"
-						size="s"
-						{@attach setProps({ value: range })}
-						{@attach on('change', onRange)}
-					>
-						{#each RANGES as r (r)}
-							<gok-segmented-item value={r}>{r}</gok-segmented-item>
-						{/each}
-					</gok-segmented>
-				</div>
-			</div>
+		<!-- Overview / Fundamentals sub-nav (V09). The sticky trade bar above stays outside the
+		     tabs so it survives both; the jump-nav lives inside the Overview panel since it targets
+		     Overview sections. Manual activation: arrow keys move focus, Enter/Space/click selects,
+		     so arrowing the rail doesn't spam history. -->
+		<gok-tabs
+			label="Instrument sections"
+			activation="manual"
+			{@attach setProps({ value: activeTab })}
+			{@attach on('change', selectTab)}
+		>
+			<gok-tab slot="tab" value="overview">Overview</gok-tab>
+			<gok-tab slot="tab" value="fundamentals">Fundamentals</gok-tab>
 
-			{#if !marketOpen}
-				<p class="market-note">Market closed — showing the last close.</p>
-			{/if}
+			<gok-tab-panel value="overview">
+				<div class="tab-body">
+					<!-- In-page jump-nav (CV-LAY-6): calm, mono rail to the Overview research sections,
+					     in on-page order. Real anchors; the Related anchor only when there are related names. -->
+					<nav class="jump-nav" aria-label="On this page">
+						<ul class="jump-list">
+							<li><a class="jump-link" href="#chart">Chart</a></li>
+							<li><a class="jump-link" href="#keystats">Key stats</a></li>
+							<li><a class="jump-link" href="#news">News</a></li>
+							<li><a class="jump-link" href="#depth">Depth</a></li>
+							<li><a class="jump-link" href="#dividends">Dividends</a></li>
+							{#if related.length > 0}
+								<li><a class="jump-link" href="#related">Related</a></li>
+							{/if}
+						</ul>
+					</nav>
 
-			<PriceChart {candles} kind={chartKind} height="22rem" label={chartLabel} formatValue={formatScale} />
-		</section>
-
-		<!-- Fundamentals — the shallow key-stats ledger, then the deep type-branched
-		     fundamentals, reading as one section. -->
-		<section id="fundamentals" class="block" aria-labelledby="stats-heading">
-			<div class="block-head">
-				<p class="block-eyebrow gok-eyebrow">Fundamentals</p>
-				<h2 id="stats-heading" class="block-title gok-headline-5">Key statistics</h2>
-			</div>
-			<gok-card>
-				<dl class="stats">
-					{@render stat('P/E ratio', inst.peRatioX100 !== null ? formatNumber(inst.peRatioX100 / 100) : '—')}
-					{@render stat('Market cap', compactMarketCap(inst.marketCapEurMinor))}
-					{@render stat(
-						'Dividend yield',
-						inst.dividendYieldBps > 0 ? `${formatNumber(inst.dividendYieldBps / 100)}%` : '—'
-					)}
-					{@render stat(
-						'52-week range',
-						`${formatMoney(inst.low52wMinor, currency)} – ${formatMoney(inst.high52wMinor, currency)}`
-					)}
-					{@render stat('Beta', inst.betaX100 !== null ? formatNumber(inst.betaX100 / 100) : '—')}
-					{@render stat(
-						'Day range',
-						`${formatMoney(dayLowMinor, currency)} – ${formatMoney(dayHighMinor, currency)}`
-					)}
-				</dl>
-			</gok-card>
-			<Fundamentals {inst} />
-		</section>
-
-		<!-- News -->
-		<section id="news" class="block" aria-labelledby="news-heading">
-			<div class="block-head">
-				<p class="block-eyebrow gok-eyebrow">News</p>
-				<h2 id="news-heading" class="block-title gok-headline-5">Latest headlines</h2>
-			</div>
-			<NewsStrip items={news} />
-		</section>
-
-		<!-- Depth (simulated order book) -->
-		<section id="depth" class="block" aria-labelledby="depth-heading">
-			<div class="block-head">
-				<p class="block-eyebrow gok-eyebrow">Order book</p>
-				<h2 id="depth-heading" class="block-title gok-headline-5">Simulated depth</h2>
-			</div>
-			<DepthLadder {inst} {marketOpen} />
-		</section>
-
-		<!-- Dividends -->
-		<section id="dividends" class="block" aria-labelledby="dividends-heading">
-			<div class="block-head">
-				<p class="block-eyebrow gok-eyebrow">Income</p>
-				<h2 id="dividends-heading" class="block-title gok-headline-5">Dividend history</h2>
-			</div>
-			<DividendHistory {symbol} />
-		</section>
-
-		<!-- About -->
-		<section class="block" aria-labelledby="about-heading">
-			<div class="block-head">
-				<p class="block-eyebrow gok-eyebrow">About</p>
-				<h2 id="about-heading" class="block-title gok-headline-5">{inst.name}</h2>
-			</div>
-			<p class="about-body">{inst.about}</p>
-			<div class="about-tags">
-				<gok-tag size="s" readonly>{inst.sector}</gok-tag>
-				<gok-tag size="s" readonly>{inst.region}</gok-tag>
-			</div>
-		</section>
-
-		<!-- My position (only when held) -->
-		{#if position}
-			<section class="block" aria-labelledby="position-heading">
-				<div class="block-head">
-					<p class="block-eyebrow gok-eyebrow">Holding</p>
-					<h2 id="position-heading" class="block-title gok-headline-5">My position</h2>
-				</div>
-				<gok-card>
-					<dl class="stats">
-						{@render stat('Quantity', formatNumber(position.quantity))}
-						{@render stat('Average cost', formatMoney(position.avgCostMinor, currency))}
-						{@render stat('Market value', formatMoney(position.marketValueEurMinor, 'EUR'))}
-						<div class="stat">
-							<dt class="stat-term">Unrealised P&amp;L</dt>
-							<dd class="stat-value">
-								{@render delta(
-									position.unrealizedPlEurMinor > 0
-										? 'up'
-										: position.unrealizedPlEurMinor < 0
-											? 'down'
-											: 'flat',
-									formatMoney(position.unrealizedPlEurMinor, 'EUR', { signDisplay: true })
-								)}
-							</dd>
+					<!-- Price chart -->
+					<section id="chart" class="block" aria-labelledby="chart-heading">
+						<div class="block-head chart-head">
+							<div>
+								<p class="block-eyebrow gok-eyebrow">Price</p>
+								<h2 id="chart-heading" class="block-title gok-headline-5">Price history</h2>
+							</div>
+							<div class="chart-controls">
+								<gok-segmented
+									label="Chart type"
+									size="s"
+									{@attach setProps({ value: chartKind })}
+									{@attach on('change', onKind)}
+								>
+									<gok-segmented-item value="candlestick">Candlestick</gok-segmented-item>
+									<gok-segmented-item value="line">Line</gok-segmented-item>
+								</gok-segmented>
+								<gok-segmented
+									label="Range"
+									size="s"
+									{@attach setProps({ value: range })}
+									{@attach on('change', onRange)}
+								>
+									{#each RANGES as r (r)}
+										<gok-segmented-item value={r}>{r}</gok-segmented-item>
+									{/each}
+								</gok-segmented>
+							</div>
 						</div>
-					</dl>
-				</gok-card>
-			</section>
-		{/if}
 
-		<!-- Related (a quiet hairline strip → each instrument's own detail page) -->
-		{#if related.length > 0}
-			<section id="related" class="block" aria-labelledby="related-heading">
-				<div class="block-head">
-					<p class="block-eyebrow gok-eyebrow">More to explore</p>
-					<h2 id="related-heading" class="block-title gok-headline-5">Related instruments</h2>
+						{#if !marketOpen}
+							<p class="market-note">Market closed — showing the last close.</p>
+						{/if}
+
+						<PriceChart {candles} kind={chartKind} height="22rem" label={chartLabel} formatValue={formatScale} />
+					</section>
+
+					<!-- Key statistics — the shallow key-stats ledger. The deep, type-branched
+					     fundamentals now live in their own tab panel. -->
+					<section id="keystats" class="block" aria-labelledby="keystats-heading">
+						<div class="block-head">
+							<p class="block-eyebrow gok-eyebrow">Snapshot</p>
+							<h2 id="keystats-heading" class="block-title gok-headline-5">Key statistics</h2>
+						</div>
+						<gok-card>
+							<dl class="stats">
+								{@render stat('P/E ratio', inst.peRatioX100 !== null ? formatNumber(inst.peRatioX100 / 100) : '—')}
+								{@render stat('Market cap', compactMarketCap(inst.marketCapEurMinor))}
+								{@render stat(
+									'Dividend yield',
+									inst.dividendYieldBps > 0 ? `${formatNumber(inst.dividendYieldBps / 100)}%` : '—'
+								)}
+								{@render stat(
+									'52-week range',
+									`${formatMoney(inst.low52wMinor, currency)} – ${formatMoney(inst.high52wMinor, currency)}`
+								)}
+								{@render stat('Beta', inst.betaX100 !== null ? formatNumber(inst.betaX100 / 100) : '—')}
+								{@render stat(
+									'Day range',
+									`${formatMoney(dayLowMinor, currency)} – ${formatMoney(dayHighMinor, currency)}`
+								)}
+							</dl>
+						</gok-card>
+					</section>
+
+					<!-- News -->
+					<section id="news" class="block" aria-labelledby="news-heading">
+						<div class="block-head">
+							<p class="block-eyebrow gok-eyebrow">News</p>
+							<h2 id="news-heading" class="block-title gok-headline-5">Latest headlines</h2>
+						</div>
+						<NewsStrip items={news} />
+					</section>
+
+					<!-- Depth (simulated order book) -->
+					<section id="depth" class="block" aria-labelledby="depth-heading">
+						<div class="block-head">
+							<p class="block-eyebrow gok-eyebrow">Order book</p>
+							<h2 id="depth-heading" class="block-title gok-headline-5">Simulated depth</h2>
+						</div>
+						<DepthLadder {inst} {marketOpen} />
+					</section>
+
+					<!-- Dividends -->
+					<section id="dividends" class="block" aria-labelledby="dividends-heading">
+						<div class="block-head">
+							<p class="block-eyebrow gok-eyebrow">Income</p>
+							<h2 id="dividends-heading" class="block-title gok-headline-5">Dividend history</h2>
+						</div>
+						<DividendHistory {symbol} />
+					</section>
+
+					<!-- About -->
+					<section class="block" aria-labelledby="about-heading">
+						<div class="block-head">
+							<p class="block-eyebrow gok-eyebrow">About</p>
+							<h2 id="about-heading" class="block-title gok-headline-5">{inst.name}</h2>
+						</div>
+						<p class="about-body">{inst.about}</p>
+						<div class="about-tags">
+							<gok-tag size="s" readonly>{inst.sector}</gok-tag>
+							<gok-tag size="s" readonly>{inst.region}</gok-tag>
+						</div>
+					</section>
+
+					<!-- My position (only when held) -->
+					{#if position}
+						<section class="block" aria-labelledby="position-heading">
+							<div class="block-head">
+								<p class="block-eyebrow gok-eyebrow">Holding</p>
+								<h2 id="position-heading" class="block-title gok-headline-5">My position</h2>
+							</div>
+							<gok-card>
+								<dl class="stats">
+									{@render stat('Quantity', formatNumber(position.quantity))}
+									{@render stat('Average cost', formatMoney(position.avgCostMinor, currency))}
+									{@render stat('Market value', formatMoney(position.marketValueEurMinor, 'EUR'))}
+									<div class="stat">
+										<dt class="stat-term">Unrealised P&amp;L</dt>
+										<dd class="stat-value">
+											{@render delta(
+												position.unrealizedPlEurMinor > 0
+													? 'up'
+													: position.unrealizedPlEurMinor < 0
+														? 'down'
+														: 'flat',
+												formatMoney(position.unrealizedPlEurMinor, 'EUR', { signDisplay: true })
+											)}
+										</dd>
+									</div>
+								</dl>
+							</gok-card>
+						</section>
+					{/if}
+
+					<!-- Related (a quiet hairline strip → each instrument's own detail page) -->
+					{#if related.length > 0}
+						<section id="related" class="block" aria-labelledby="related-heading">
+							<div class="block-head">
+								<p class="block-eyebrow gok-eyebrow">More to explore</p>
+								<h2 id="related-heading" class="block-title gok-headline-5">Related instruments</h2>
+							</div>
+							<ul class="related">
+								{#each related as r (r.symbol)}
+									{@const rBps = dayChangeBps(r)}
+									<li class="related-row">
+										<a class="related-link" href="/invest/instrument/{r.symbol}">
+											<span class="related-id">
+												<span class="related-symbol gok-tabular-nums">{r.symbol}</span>
+												<span class="related-name">{r.name}</span>
+											</span>
+											<span class="related-figures">
+												<span class="related-price gok-tabular-nums">
+													{formatMoney(r.lastPriceMinor, r.currency)}
+												</span>
+												{@render delta(
+													rBps > 0 ? 'up' : rBps < 0 ? 'down' : 'flat',
+													formatPercent(rBps / 10000)
+												)}
+											</span>
+										</a>
+									</li>
+								{/each}
+							</ul>
+						</section>
+					{/if}
 				</div>
-				<ul class="related">
-					{#each related as r (r.symbol)}
-						{@const rBps = dayChangeBps(r)}
-						<li class="related-row">
-							<a class="related-link" href="/invest/instrument/{r.symbol}">
-								<span class="related-id">
-									<span class="related-symbol gok-tabular-nums">{r.symbol}</span>
-									<span class="related-name">{r.name}</span>
-								</span>
-								<span class="related-figures">
-									<span class="related-price gok-tabular-nums">
-										{formatMoney(r.lastPriceMinor, r.currency)}
-									</span>
-									{@render delta(
-										rBps > 0 ? 'up' : rBps < 0 ? 'down' : 'flat',
-										formatPercent(rBps / 10000)
-									)}
-								</span>
-							</a>
-						</li>
-					{/each}
-				</ul>
-			</section>
-		{/if}
+			</gok-tab-panel>
+
+			<gok-tab-panel value="fundamentals">
+				<div class="tab-body">
+					<!-- Fundamentals — the deep, type-branched company fundamentals. -->
+					<section class="block" aria-labelledby="fundamentals-heading">
+						<div class="block-head">
+							<p class="block-eyebrow gok-eyebrow">Fundamentals</p>
+							<h2 id="fundamentals-heading" class="block-title gok-headline-5">Company fundamentals</h2>
+						</div>
+						<Fundamentals {inst} />
+					</section>
+				</div>
+			</gok-tab-panel>
+		</gok-tabs>
 	</div>
 
 	<OrderTicket {symbol} bind:open={ticketOpen} />
@@ -396,6 +450,14 @@
 
 <style>
 	.page {
+		display: flex;
+		flex-direction: column;
+		gap: var(--gok-space-section);
+	}
+
+	/* Each tab panel's content column. Carries the inter-section rhythm that .page's gap
+	   used to provide, now that the research sections live inside the tab panels. */
+	.tab-body {
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-section);
@@ -695,12 +757,10 @@
 	}
 
 	/* --- In-page jump-nav (CV-LAY-6) --- */
-	.jump-nav {
-		/* Calm + mono, sentence-case (the eyebrow owns the one uppercase); a hairline rule
-		   below snugs it under the sticky trade bar without competing with it. */
-		margin-block-start: calc(-1 * var(--gok-space-300));
-	}
-
+	/* Calm + mono, sentence-case (the eyebrow owns the one uppercase); a hairline rule below
+	   separates it from the sections. It's the first child of the Overview panel, so the panel's
+	   own top padding + the .tab-body gap already sit it calmly under the tablist — no negative
+	   margin needed now that it no longer tucks under the sticky trade bar. */
 	.jump-list {
 		display: flex;
 		flex-wrap: wrap;

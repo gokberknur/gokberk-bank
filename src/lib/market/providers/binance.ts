@@ -5,7 +5,7 @@
 // anything else returns null so the adapter falls straight through to the seed.
 // (WebSocket live-tick streaming is deferred to a follow-up.)
 
-import type { Candle, Range } from '$lib/data/market';
+import { rangeDays, type Candle, type Range } from '$lib/data/market';
 
 const BASE = 'https://data-api.binance.vision/api/v3';
 
@@ -34,17 +34,12 @@ export async function binanceQuote(
 	return { lastPriceMinor: toMinor(j.lastPrice), priorCloseMinor: toMinor(j.prevClosePrice) };
 }
 
-/** Daily klines to match the seed's daily series (parity with `priceHistory`). */
+/** Daily klines to match the seed's daily series (parity with `priceHistory`), capped at
+ *  Binance's 1000-row-per-request ceiling — the seed serves the fuller span on the multi-
+ *  year ranges. Delegates to `rangeDays` so live + seed bar counts stay aligned and no
+ *  switch needs maintaining as the range set grows. */
 function klineLimit(range: Range): number {
-	switch (range) {
-		case '1W':
-			return 7;
-		case '1M':
-			return 30;
-		case '1Y':
-		case 'Max':
-			return 365;
-	}
+	return Math.min(rangeDays(range), 1000);
 }
 
 export async function binanceCandles(
