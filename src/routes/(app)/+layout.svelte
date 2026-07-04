@@ -5,6 +5,7 @@
 	// desktop, collapsed icon rail on tablet, hidden rail + bottom tab bar on mobile.
 	// The persistent chrome (rail + navbar) is pinned out of the page crossfade via
 	// its own view-transition-name, so only <main> animates between routes.
+	import { onMount } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { afterNavigate, goto } from '$app/navigation';
 	import { page } from '$app/state';
@@ -12,8 +13,10 @@
 	import AppNavbar from '$lib/components/shell/AppNavbar.svelte';
 	import BottomTabBar from '$lib/components/shell/BottomTabBar.svelte';
 	import NotificationsDrawer from '$lib/components/shell/NotificationsDrawer.svelte';
+	import AlertsDrawer from '$lib/components/invest/AlertsDrawer.svelte';
 	import { toasts } from '$lib/state/toasts.svelte';
 	import { auth } from '$lib/state/auth.svelte';
+	import { alerts } from '$lib/invest/alerts.svelte';
 	import { on } from '$lib/wc.svelte';
 
 	let { children } = $props();
@@ -47,6 +50,20 @@
 		url.searchParams.delete('notif');
 		goto(url, { noScroll: true, keepFocus: true });
 	}
+
+	// The price-alerts drawer (V11) is a sibling URL overlay: ?alerts opens it centred, ?alerts=SYMBOL
+	// scopes the create form to that instrument. Closing strips the param (same ?tab/?target idiom).
+	const alertsOpen = $derived(page.url.searchParams.has('alerts'));
+	const alertsSymbol = $derived(page.url.searchParams.get('alerts') || undefined);
+	function closeAlerts() {
+		const url = new URL(page.url);
+		url.searchParams.delete('alerts');
+		goto(url, { noScroll: true, keepFocus: true });
+	}
+
+	// One quiet pass on shell mount: a pre-seeded in-band alert lands its feed line at load (no toast
+	// storm). Idempotent across reloads — a fired alert's persisted `firedAt` guards a re-fire.
+	onMount(() => alerts.evaluateArmed());
 </script>
 
 <a href="#main" class="skip">Skip to content</a>
@@ -70,6 +87,8 @@
 <BottomTabBar />
 
 <NotificationsDrawer open={notifOpen} onclose={closeNotif} />
+
+<AlertsDrawer open={alertsOpen} symbol={alertsSymbol} onclose={closeAlerts} />
 
 <gok-toast-region placement="bottom-end">
 	{#each toasts.items as t (t.id)}

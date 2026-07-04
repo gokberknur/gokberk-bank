@@ -72,11 +72,14 @@ class Alerts {
 	crossingNote(symbol: string, condition: AlertCondition, thresholdMinor: number): string | null {
 		const inst = BY_SYMBOL.get(symbol);
 		if (!inst) return null;
-		const last = inst.lastPriceMinor;
-		if (condition === 'above' && last >= thresholdMinor)
-			return `${symbol} is already above this level — you’ll be alerted if it crosses it again.`;
-		if (condition === 'below' && last <= thresholdMinor)
-			return `${symbol} is already below this level — you’ll be alerted if it crosses it again.`;
+		// Only when the level sits on the far side of BOTH ends of the seed's most-recent session
+		// move (prior close AND last) did the price genuinely NOT cross into it — so an alert won't
+		// fire on create. (An in-band level that the session crossed through fires immediately, and
+		// must NOT get this note.) Integer minor units, inclusive on the boundary.
+		if (condition === 'above' && thresholdMinor <= inst.priorCloseMinor && thresholdMinor <= inst.lastPriceMinor)
+			return `${symbol} is already above this level — you’ll be alerted if it dips below and crosses back up.`;
+		if (condition === 'below' && thresholdMinor >= inst.priorCloseMinor && thresholdMinor >= inst.lastPriceMinor)
+			return `${symbol} is already below this level — you’ll be alerted if it rises above and crosses back down.`;
 		return null;
 	}
 
