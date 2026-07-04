@@ -36,6 +36,7 @@
 	import Fundamentals from '$lib/components/invest/Fundamentals.svelte';
 	import DepthLadder from '$lib/components/invest/DepthLadder.svelte';
 	import DividendHistory from '$lib/components/invest/DividendHistory.svelte';
+	import ChartDataTable from '$lib/components/invest/ChartDataTable.svelte';
 	import { getNews } from '$lib/invest/news';
 
 	// ── The instrument + its held position (both deterministic from the seed) ──
@@ -58,10 +59,14 @@
 	let chartKind = $state<'candlestick' | 'line'>('candlestick');
 	let range = $state<Range>('1M');
 
-	// The candle series for the selected range, converted minor → MAJOR units for
-	// the chart (it reads major; the page owns the conversion + the scale formatter).
+	// One price-history read for the selected range (raw minor-unit candles WITH volume) feeds BOTH
+	// consumers: the chart's major-unit series below, and the "View data" fallback table (raw minor).
+	const rawCandles = $derived(priceHistory(symbol, rangeDays(range)));
+
+	// The candle series for the chart, converted minor → MAJOR units (it reads major; the page owns
+	// the conversion + the scale formatter). Mapped from rawCandles — same shape PriceChart expects.
 	const candles = $derived(
-		priceHistory(symbol, rangeDays(range)).map((c) => ({
+		rawCandles.map((c) => ({
 			time: c.time,
 			open: c.openMinor / minorPerMajor,
 			high: c.highMinor / minorPerMajor,
@@ -296,6 +301,10 @@
 						{/if}
 
 						<PriceChart {candles} kind={chartKind} height="22rem" label={chartLabel} formatValue={formatScale} />
+
+						<!-- V08 Phase B: the honest "View data" fallback — the price series + a calm default
+						     indicator set as a table, computed live from the same bars the chart plots. -->
+						<ChartDataTable candles={rawCandles} {currency} />
 					</section>
 
 					<!-- Key statistics — the shallow key-stats ledger. The deep, type-branched
