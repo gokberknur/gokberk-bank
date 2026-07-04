@@ -14,6 +14,7 @@
 	// with ?tab= URL sync (deep-linkable, back-button clean); the sticky Buy/Sell CTA lives
 	// above the tabs so it survives both. A secondary "Set price alert" affordance opens the ?alerts
 	// drawer (V11, coexists with ?tab); the V14 live-price overlay is still deferred.
+	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { invest } from '$lib/state/invest.svelte';
@@ -288,6 +289,14 @@
 		invest.openTicket(symbol, side);
 		ticketOpen = true;
 	}
+
+	// Deep-link from the V13 discovery surface's per-row "Buy" — ?ticket=buy auto-opens the Buy
+	// order ticket on load, landing the customer on the detail page with the full V03 order spine
+	// ready (cost preview + forced-decision confirm). Runs ONCE on mount by design: it does not keep
+	// watching the param, so closing the ticket doesn't reopen it.
+	onMount(() => {
+		if (page.url.searchParams.get('ticket') === 'buy') trade('buy');
+	});
 
 	// Pre-targeted savings plan → the V10 wizard, already pointed at this instrument
 	// (skips its target step). Secondary only — the Buy CTA keeps the earned accent.
