@@ -12,10 +12,12 @@
 		IChartApi,
 		ISeriesApi,
 		Time,
-		LineWidth
+		LineWidth,
+		MouseEventParams
 	} from 'lightweight-charts';
 	import { chartTheme, onThemeChange, prefersReducedMotion, type ChartTheme } from './theme';
 	import { resolveColor } from './util';
+	import CrosshairReadout from '$lib/components/invest/CrosshairReadout.svelte';
 
 	interface Candle {
 		/** A `'YYYY-MM-DD'` business day (Lightweight Charts BusinessDay string). */
@@ -24,6 +26,8 @@
 		high: number;
 		low: number;
 		close: number;
+		/** Optional daily volume — feeds the neutral-ink volume pane (magnitude only). */
+		volume?: number;
 	}
 
 	interface Props {
@@ -50,20 +54,54 @@
 	let el: HTMLDivElement;
 	let chart: IChartApi | null = null;
 	let series: ISeriesApi<'Candlestick'> | ISeriesApi<'Area'> | null = null;
+	let volumeSeries: ISeriesApi<'Histogram'> | null = null;
 	let lib: typeof import('lightweight-charts') | null = null;
 	let builtKind: 'candlestick' | 'line' | null = null;
 
-	/** (Re)create the series for the current `kind` (candlestick ⇄ line/area). */
+	// The bar shown in the reserved OHLC readout above the canvas. It DERIVES to the
+	// latest bar at rest — so it's never blank and a range/data switch refreshes it for
+	// free — and the crosshair handler OVERRIDES it to the hovered bar on move (the
+	// overridable-derived pattern; the override clears when `candles` next changes).
+	// Carries full OHLC+volume in BOTH candlestick and line mode, since `candles` always does.
+	let hoveredBar = $derived<Candle | null>(candles.at(-1) ?? null);
+
+	/** Whether any candle carries a numeric volume — gates the volume pane. */
+	function hasVolume(): boolean {
+		return candles.some((c) => typeof c.volume === 'number');
+	}
+
+	/** (Re)create the price series for the current `kind` (candlestick ⇄ line/area) and,
+	 *  alongside it, the volume histogram in pane 1. Both are torn down and rebuilt
+	 *  together on a kind switch so neither leaks nor duplicates across the swap. */
 	function buildSeries() {
 		if (!chart || !lib) return;
 		if (series) {
 			chart.removeSeries(series);
 			series = null;
 		}
+		if (volumeSeries) {
+			chart.removeSeries(volumeSeries);
+			volumeSeries = null;
+		}
 		series =
 			kind === 'candlestick'
 				? chart.addSeries(lib.CandlestickSeries)
 				: chart.addSeries(lib.AreaSeries);
+
+		// Volume pane (pane 1) — only when the data actually carries volume. Its own
+		// overlay price scale (`priceScaleId: ''`) auto-scales to the volume magnitude
+		// inside the pane, so it never distorts the price axis above.
+		if (hasVolume()) {
+			volumeSeries = chart.addSeries(
+				lib.HistogramSeries,
+				{ priceFormat: { type: 'volume' }, priceScaleId: '' },
+				1
+			);
+			// Price pane ~75% / volume pane ~25% of the vertical space.
+			const panes = chart.panes();
+			panes[0]?.setStretchFactor(3);
+			panes[1]?.setStretchFactor(1);
+		}
 		builtKind = kind;
 	}
 
@@ -85,6 +123,9 @@
 				candles.map((c) => ({ time: c.time as Time, value: c.close }))
 			);
 		}
+		// Volume is magnitude only — a single neutral ink (coloured in the theme pass),
+		// never up/down hue. Direction stays on the candles / line.
+		volumeSeries?.setData(candles.map((c) => ({ time: c.time as Time, value: c.volume ?? 0 })));
 	}
 
 	/** Re-apply series colours/format from a fresh palette (no remount). */
@@ -123,6 +164,15 @@
 				priceFormat
 			});
 		}
+		// Every volume bar the same muted ink at reduced strength — magnitude, not hue.
+		// theme.muted is already a concrete rgb(r, g, b) from the token bridge; give the
+		// receding volume bars a 45% alpha the chart lib can parse. color-mix()/color(srgb)
+		// serialisations are rejected by Lightweight, so never hand those to a series option.
+		const volumeColor = theme.muted.replace(/^rgb\((.+)\)$/, 'rgba($1, 0.45)');
+		volumeSeries?.applyOptions({
+			color: volumeColor,
+			priceFormat: { type: 'volume' }
+		});
 	}
 
 	/** Re-apply the monochrome chrome + series colours from the live tokens. */
@@ -172,12 +222,15 @@
 		reapply();
 		applyData();
 		chart.timeScale().fitContent();
+		// The readout refreshes itself: `hoveredBar` derives from `candles`, so a
+		// range/data switch snaps it back to the latest bar without a manual reset.
 	}
 
 	onMount(() => {
 		let disposed = false;
 		let ro: ResizeObserver | undefined;
 		let stopTheme: (() => void) | undefined;
+		let onCrosshair: ((param: MouseEventParams) => void) | undefined;
 
 		(async () => {
 			lib = await import('lightweight-charts');
@@ -187,6 +240,19 @@
 			reapply();
 			applyData();
 			chart.timeScale().fitContent();
+
+			// Override the readout with the hovered bar. On the data → that bar; off the
+			// data (crosshair left, or between points) → the latest bar, so the line holds
+			// rather than blanks. The override clears when `candles` next changes, so a
+			// range switch snaps back to the derived latest. Works in both candlestick and
+			// line mode because `candles` always carries full OHLC+volume.
+			onCrosshair = (param) => {
+				const match =
+					param.time !== undefined ? candles.find((c) => c.time === param.time) : undefined;
+				hoveredBar = match ?? candles.at(-1) ?? null;
+			};
+			chart.subscribeCrosshairMove(onCrosshair);
+
 			ro = new ResizeObserver(() => chart?.resize(el.clientWidth, el.clientHeight));
 			ro.observe(el);
 			stopTheme = onThemeChange(reapply);
@@ -196,9 +262,11 @@
 			disposed = true;
 			ro?.disconnect();
 			stopTheme?.();
+			if (chart && onCrosshair) chart.unsubscribeCrosshairMove(onCrosshair);
 			chart?.remove();
 			chart = null;
 			series = null;
+			volumeSeries = null;
 		};
 	});
 
@@ -212,6 +280,7 @@
 </script>
 
 <figure class="price">
+	<CrosshairReadout bar={hoveredBar} {formatValue} />
 	<div class="canvas" bind:this={el} style:height role="img" aria-label={label}></div>
 	<figcaption class="credit">
 		<a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer">

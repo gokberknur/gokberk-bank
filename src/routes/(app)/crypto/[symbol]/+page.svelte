@@ -92,7 +92,8 @@
 			open: c.openMinor / MINOR_PER_MAJOR,
 			high: c.highMinor / MINOR_PER_MAJOR,
 			low: c.lowMinor / MINOR_PER_MAJOR,
-			close: c.closeMinor / MINOR_PER_MAJOR
+			close: c.closeMinor / MINOR_PER_MAJOR,
+			volume: c.volume
 		}))
 	);
 	const chartLabel = $derived(
