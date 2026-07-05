@@ -16,6 +16,7 @@ import { PAYEES } from '$lib/data/payees';
 import { CARDS } from '$lib/data/cards';
 import type { Card } from '$lib/data/types';
 import { INSTRUMENTS } from '$lib/data/market';
+import { fold } from '$lib/invest/search';
 import { formatMoney, formatDate } from '$lib/format';
 import { density } from '$lib/state/density.svelte';
 import { auth } from '$lib/state/auth.svelte';
@@ -104,6 +105,7 @@ const STATIC: Command[] = [
 
 	// Invest
 	nav('nav-invest', 'Investments', 'Invest', '/invest', { icon: 'circle-dot', keywords: ['portfolio', 'holdings'] }),
+	nav('nav-discover', 'Discover instruments', 'Invest', '/invest/discover', { icon: 'window', keywords: ['discover', 'search', 'browse', 'explore', 'find', 'movers', 'lists', 'sectors'] }),
 	nav('act-order', 'Place an order', 'Invest', '/invest', { icon: 'circle-dot', keywords: ['buy', 'sell', 'trade'] }),
 	nav('nav-plans', 'Savings plans', 'Invest', '/invest/plans', { keywords: ['recurring', 'auto-invest', 'plans', 'dca'] }),
 	nav('act-plan', 'Start a savings plan', 'Invest', '/invest/plans/new', { icon: 'plus', keywords: ['recurring', 'auto-invest', 'monthly', 'dca', 'round-up'] }),
@@ -228,8 +230,9 @@ export function buildIndex(): Command[] {
 
 // ---- Ranking -------------------------------------------------------------
 function scoreItem(cmd: Command, q: string): number {
-	const title = cmd.title.toLowerCase();
-	const hay = `${title} ${(cmd.keywords ?? []).join(' ')}`.toLowerCase();
+	// Fold both sides (case + diacritics) so "nestle" matches "Nestlé", "loreal" matches "L'Oréal".
+	const title = fold(cmd.title);
+	const hay = fold(`${cmd.title} ${(cmd.keywords ?? []).join(' ')}`);
 	if (title.startsWith(q)) return 1000 - title.length;
 	if (title.includes(` ${q}`)) return 800; // word-boundary in title
 	if (title.includes(q)) return 700;
@@ -253,7 +256,7 @@ export interface CommandGroup {
  *  Sections are ordered by their best member's score so the globally top-scored hit
  *  is the first row — the default Enter target (PLT-Q-02). */
 export function search(query: string, perGroup = 6): CommandGroup[] {
-	const q = query.trim().toLowerCase();
+	const q = fold(query.trim());
 	if (!q) return [];
 	const scored = buildIndex()
 		.map((item) => ({ item, score: scoreItem(item, q) }))
