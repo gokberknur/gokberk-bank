@@ -50,6 +50,20 @@ html {
 	color: var(--gok-color-text);
 	-webkit-font-smoothing: antialiased;
 	text-rendering: optimizeLegibility;
+	/* Stop iOS Safari from auto-inflating text when the phone rotates to landscape. */
+	-webkit-text-size-adjust: 100%;
+	text-size-adjust: 100%;
+	/* The app provides its own :active / focus-visible affordances — suppress the default
+	   grey tap flash iOS paints over every link/button. */
+	-webkit-tap-highlight-color: transparent;
+}
+
+/* A global safety net against horizontal overflow on a phone: media can never push the
+   page wider than its column. Data tables recompose to cards below 40rem (CV-LAY-5); charts
+   size to their own container, so they're intentionally excluded here. */
+img,
+video {
+	max-inline-size: 100%;
 }
 
 body {

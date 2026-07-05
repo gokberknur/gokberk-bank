@@ -6,7 +6,6 @@
 	// The persistent chrome (rail + navbar) is pinned out of the page crossfade via
 	// its own view-transition-name, so only <main> animates between routes.
 	import { onMount } from 'svelte';
-	import { MediaQuery } from 'svelte/reactivity';
 	import { afterNavigate, goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import AppSidenav from '$lib/components/shell/AppSidenav.svelte';
@@ -18,6 +17,7 @@
 	import { auth } from '$lib/state/auth.svelte';
 	import { alerts } from '$lib/invest/alerts.svelte';
 	import { on } from '$lib/wc.svelte';
+	import { tablet } from '$lib/breakpoints';
 
 	let { children } = $props();
 
@@ -30,8 +30,7 @@
 
 	// Tablet band (40–64rem) → the rail collapses to an icon rail. Below 40rem the
 	// rail is hidden entirely (the bottom bar takes over); at/above 64rem it is the
-	// full rail.
-	const tablet = new MediaQuery('(min-width: 40rem) and (max-width: 63.999rem)');
+	// full rail. `tablet` is the shared MediaQuery singleton from $lib/breakpoints.
 
 	// The scroll container is now `.gok-app-shell__main` (the shell pins the chrome and
 	// only the content scrolls), so SvelteKit's window-based scroll handling can't reach
@@ -148,7 +147,13 @@
 
 	.topbar {
 		view-transition-name: app-navbar;
+		/* Safe-area insets (viewport-fit=cover): clear the notch / Dynamic Island at the top and
+		   a landscape notch on the sides. env() resolves to 0 on non-notched screens + desktop,
+		   so the resting look is unchanged. */
+		padding-block-start: env(safe-area-inset-top);
+		padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
 		background: var(--gok-color-surface-translucent);
+		-webkit-backdrop-filter: blur(var(--gok-blur-chrome));
 		backdrop-filter: blur(var(--gok-blur-chrome));
 		border-block-end: var(--gok-border-width-hairline) solid var(--gok-color-border);
 	}
@@ -176,7 +181,10 @@
 	.main-inner {
 		inline-size: min(100%, var(--measure-page));
 		margin-inline: auto;
-		padding-inline: var(--gok-space-500);
+		/* Fold the inline safe-area into the content gutter so nothing hides under a landscape
+		   notch. env() is 0 off-notch, so max() leaves the desktop gutter at --gok-space-500. */
+		padding-inline: max(var(--gok-space-500), env(safe-area-inset-left))
+			max(var(--gok-space-500), env(safe-area-inset-right));
 		padding-block: var(--gok-space-600);
 	}
 
@@ -192,7 +200,10 @@
 		}
 
 		.main-inner {
-			padding-inline: var(--gok-space-400);
+			/* Same safe-area fold at the mobile gutter — this is where a phone in landscape meets
+			   the notch. env() is 0 in portrait / off-notch, so the resting gutter stays --gok-space-400. */
+			padding-inline: max(var(--gok-space-400), env(safe-area-inset-left))
+				max(var(--gok-space-400), env(safe-area-inset-right));
 			padding-block-end: calc(var(--gok-space-900) + env(safe-area-inset-bottom));
 		}
 	}

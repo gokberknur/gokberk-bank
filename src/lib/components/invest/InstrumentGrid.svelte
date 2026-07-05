@@ -12,13 +12,13 @@
 	// which scrolls. All spacing/colour comes from --gok-* tokens; the page's single accent is
 	// spent on the active list tab elsewhere, so Buy here stays quiet.
 	import { goto } from '$app/navigation';
-	import { MediaQuery } from 'svelte/reactivity';
 	import type { Instrument } from '$lib/data/market';
 	import { priceHistory } from '$lib/data/market';
 	import { dayChangePctX100, dayChangeMinor, moveDir, type MoveDir } from '$lib/invest/movers';
 	import { formatMoney, formatPercent } from '$lib/format';
 	import { Sparkline } from '$lib/charts';
 	import { on } from '$lib/wc.svelte';
+	import { mobile } from '$lib/breakpoints';
 
 	type SortKey = 'symbol' | 'last' | 'change';
 
@@ -46,8 +46,8 @@
 		initialSortDir = 'asc'
 	}: Props = $props();
 
-	// Phones recompose to a card list — the discovery grid must never h-scroll on a phone (CV-LAY-5).
-	const mobile = new MediaQuery('(max-width: 39.999rem)');
+	// Phones recompose to a card list (mobile.current) — the discovery grid must never h-scroll on a
+	// phone (CV-LAY-5). The mobile breakpoint is the shared app-wide singleton ($lib/breakpoints).
 
 	// ── App-local sort state (a hand-built table hosts the Sparkline; gok-table can't) ──
 	// The `initial*` props seed this once — after mount the header buttons own the sort.

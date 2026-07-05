@@ -9,8 +9,8 @@
 	// via setProps (objects/arrays can't survive attribute stringification), and
 	// the hyphenated gok-selection-change event is wired with the on(...) attach.
 	import type { Snippet } from 'svelte';
-	import { MediaQuery } from 'svelte/reactivity';
 	import { setProps, on } from '$lib/wc.svelte';
+	import { mobile } from '$lib/breakpoints';
 
 	type Column = {
 		key: string;
@@ -64,9 +64,6 @@
 		/** Slotted empty state (rendered when rows is empty). */
 		empty?: Snippet;
 	} = $props();
-
-	// Reuse the exact app-wide mobile breakpoint (see (app)/+layout.svelte).
-	const mobile = new MediaQuery('(max-width: 39.999rem)');
 
 	// Column roles, derived once from the columns shape.
 	const primaryCol = $derived(columns.find((c) => c.primary));

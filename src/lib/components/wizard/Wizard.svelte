@@ -311,6 +311,7 @@
 			z-index: var(--gok-z-sticky);
 			padding-block: var(--gok-space-300);
 			background: var(--gok-color-surface-translucent);
+			-webkit-backdrop-filter: blur(var(--gok-blur-chrome));
 			backdrop-filter: blur(var(--gok-blur-chrome));
 		}
 
