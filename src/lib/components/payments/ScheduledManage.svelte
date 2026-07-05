@@ -17,6 +17,7 @@
 	import { setProps, on } from '$lib/wc.svelte';
 	import { formatMoney, formatDate } from '$lib/format';
 	import RecordList from '$lib/components/layout/RecordList.svelte';
+	import { sheetPlacement } from '$lib/breakpoints';
 
 	// Narrow string unions for the gok-badge / gok-icon attributes we set (the package
 	// doesn't re-export these from the root; we only need the literal values).
@@ -251,7 +252,7 @@
 
 <!-- Row detail · the schedule, the next few runs, and the two controls. -->
 <gok-drawer
-	placement="end"
+	placement={sheetPlacement()}
 	heading="Scheduled payment"
 	{@attach setProps({ open: drawerOpen })}
 	{@attach on('gok-close', closeDrawer)}

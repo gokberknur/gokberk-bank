@@ -13,6 +13,7 @@
 		type ActivityEvent,
 		type ActivityStatus
 	} from '$lib/state/feed.svelte';
+	import { sheetPlacement } from '$lib/breakpoints';
 
 	let {
 		event,
@@ -43,7 +44,7 @@
 </script>
 
 <gok-drawer
-	placement="end"
+	placement={sheetPlacement()}
 	heading="Activity"
 	{@attach setProps({ open })}
 	{@attach on('gok-close', onclose)}

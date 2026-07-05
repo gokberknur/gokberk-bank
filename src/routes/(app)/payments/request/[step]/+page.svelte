@@ -14,6 +14,7 @@
 	// the DS gok-date-picker (it owns its label + helper line); the ISO value is read
 	// off the event detail.
 	import { setProps, on } from '$lib/wc.svelte';
+	import BackLink from '$lib/components/layout/BackLink.svelte';
 	import { formatMoney } from '$lib/format';
 	import { requests } from '$lib/payments/requests.svelte';
 	import type { PaymentRequest } from '$lib/payments/requests.svelte';
@@ -191,7 +192,7 @@
 
 <div class="page">
 	<header class="head">
-		<gok-link href="/payments/request">&larr; Requests</gok-link>
+		<BackLink href="/payments/request" label="Requests" />
 		<p class="eyebrow gok-eyebrow">Request money</p>
 		<h1 class="title gok-headline-2">Ask for money</h1>
 		<p class="lead">

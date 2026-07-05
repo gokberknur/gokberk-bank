@@ -19,6 +19,7 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { setProps, on } from '$lib/wc.svelte';
+	import BackLink from '$lib/components/layout/BackLink.svelte';
 	import { formatMoney, formatDate } from '$lib/format';
 	import { TODAY } from '$lib/data/time';
 	import { payments } from '$lib/state/payments.svelte';
@@ -229,7 +230,7 @@
 		</section>
 	{:else}
 		<header class="head">
-			<gok-link href="/payments">&larr; Payments</gok-link>
+			<BackLink href="/payments" label="Payments" />
 			<p class="eyebrow gok-eyebrow">Send money</p>
 			<h1 class="title gok-headline-2">Pay someone</h1>
 		</header>

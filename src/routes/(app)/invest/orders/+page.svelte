@@ -19,6 +19,8 @@
 	} from '$lib/data/market';
 	import type { Currency } from '$lib/data/money';
 	import { setProps, on } from '$lib/wc.svelte';
+	import BackLink from '$lib/components/layout/BackLink.svelte';
+	import { sheetPlacement } from '$lib/breakpoints';
 	import { formatMoney, formatNumber, formatDate } from '$lib/format';
 	import MoneyInput from '$lib/components/money/MoneyInput.svelte';
 	import RecordList from '$lib/components/layout/RecordList.svelte';
@@ -241,7 +243,7 @@
 
 <div class="page">
 	<header class="head">
-		<gok-link href="/invest">&larr; Investments</gok-link>
+		<BackLink href="/invest" label="Investments" />
 		<p class="head-eyebrow gok-eyebrow">Orders</p>
 		<h1 class="head-title gok-headline-2">My orders</h1>
 		<p class="head-caption">Every order I've placed — working, filled, or pulled.</p>
@@ -302,7 +304,7 @@
 
 <!-- Detail drawer — the full order ledger; a working order can be modified or cancelled. -->
 <gok-drawer
-	placement="end"
+	placement={sheetPlacement()}
 	heading={selectedOrder ? `${selectedOrder.symbol} order` : 'Order'}
 	{@attach setProps({ open: drawerOpen })}
 	{@attach on('gok-close', closeDrawer)}

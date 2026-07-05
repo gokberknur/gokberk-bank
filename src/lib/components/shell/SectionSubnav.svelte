@@ -1,24 +1,50 @@
 <script lang="ts">
-	// V16 · The invest section sub-nav — the discoverability backbone rendered by
-	// (app)/invest/+layout.svelte so every /invest/** surface carries it. It mirrors
-	// the SettingsHeader precedent: a row of links over a hairline baseline, the active
-	// item's rule turning to the one earned accent and its label to ink (read from
-	// aria-current, never colour alone). Unbuilt surfaces render as inert "Soon" labels
-	// (no dead-end links — CV-CLK-3), and the whole row is a single roving-tabindex
-	// tab-stop group so arrow keys sweep the ready items and Tab treats it as one stop.
+	// The one shared section sub-nav (unifies the invest / security / settings strips).
+	// A single horizontal-scroll strip over a hairline baseline: a row of links whose
+	// active item's rule turns to the one earned accent and label to ink (read from
+	// aria-current, plus weight — never colour alone). Unbuilt surfaces (`ready: false`)
+	// render as inert "Soon" labels (no dead-end links). The whole row is one roving-
+	// tabindex tab-stop group so arrow keys sweep the ready items and Tab treats it as a
+	// single stop; the active tab is scrolled into view on every navigation. Because the
+	// scrollbar is hidden, a thin edge fade cues off-screen items at each inline edge.
 	import { page } from '$app/state';
 	import type { Attachment } from 'svelte/attachments';
 	import { SvelteMap } from 'svelte/reactivity';
-	import { INVEST_NAV, activeInvestHref } from '$lib/components/shell/nav-model';
+	import type { SubNavItem } from '$lib/components/shell/nav-model';
+
+	interface Props {
+		/** The sections to list, in display order (from nav-model). */
+		items: SubNavItem[];
+		/** The accessible name for the <nav> landmark, e.g. "Investing sections". */
+		ariaLabel: string;
+	}
+
+	let { items, ariaLabel }: Props = $props();
 
 	const pathname = $derived(page.url.pathname);
 
-	// The active item's href by longest-prefix (so /invest/instrument/x lights "Overview").
-	const activeHref = $derived(activeInvestHref(pathname));
+	// The active item's href by longest-matching-href prefix, so a nested surface still
+	// lights its section (e.g. `/invest/plans/x` → "Plans", `/invest/instrument/x` →
+	// "Overview"). An `external` item points to another section (e.g. Crypto → `/crypto`),
+	// so it only lights on a match within that section — which, inside a single-section
+	// layout, means never — mirroring how INVEST_NAV's Crypto behaves. Returns '' when
+	// nothing matches (e.g. an overlay route).
+	const activeHref = $derived.by(() => {
+		let best = '';
+		let bestLen = -1;
+		for (const item of items) {
+			const matches = pathname === item.href || pathname.startsWith(item.href + '/');
+			if (matches && item.href.length > bestLen) {
+				best = item.href;
+				bestLen = item.href.length;
+			}
+		}
+		return best;
+	});
 
 	// The ready surfaces' hrefs, in nav order — the roving group arrow keys move through
 	// (Soon items are skipped: they're inert spans, not links).
-	const readyHrefs = $derived(INVEST_NAV.filter((item) => item.ready).map((item) => item.href));
+	const readyHrefs = $derived(items.filter((item) => item.ready).map((item) => item.href));
 
 	// Roving tabindex: exactly one ready link is the tab stop. It follows the last-focused
 	// ready link; before any focus it defaults to the active link, or the first ready link
@@ -100,37 +126,72 @@
 	}
 </script>
 
-<nav class="subnav" aria-label="Investing sections" {@attach scrollActiveIntoView}>
-	<ul class="subnav-list">
-		{#each INVEST_NAV as item (item.href)}
-			<li class="subnav-item">
-				{#if item.ready}
-					<a
-						class="subnav-link"
-						href={item.href}
-						tabindex={item.href === tabStopHref ? 0 : -1}
-						aria-current={item.href === activeHref ? 'page' : undefined}
-						onfocus={() => (rovingHref = item.href)}
-						onkeydown={(event) => onLinkKeydown(event, item.href)}
-						{@attach registerLink(item.href)}
-					>
-						{item.label}
-					</a>
-				{:else}
-					<span class="subnav-link is-soon" aria-disabled="true">
-						{item.label}
-						<span class="soon">Soon</span>
-					</span>
-				{/if}
-			</li>
-		{/each}
-	</ul>
-</nav>
+<!-- The scroller wrapper hosts the edge fades (its ::before/::after), pinned to the visual
+	 edges so they stay put while the inner <nav> scrolls. -->
+<div class="subnav-scroller">
+	<nav class="subnav" aria-label={ariaLabel} {@attach scrollActiveIntoView}>
+		<ul class="subnav-list">
+			{#each items as item (item.href)}
+				<li class="subnav-item">
+					{#if item.ready}
+						<a
+							class="subnav-link"
+							href={item.href}
+							tabindex={item.href === tabStopHref ? 0 : -1}
+							aria-current={item.href === activeHref ? 'page' : undefined}
+							onfocus={() => (rovingHref = item.href)}
+							onkeydown={(event) => onLinkKeydown(event, item.href)}
+							{@attach registerLink(item.href)}
+						>
+							{item.label}
+						</a>
+					{:else}
+						<span class="subnav-link is-soon" aria-disabled="true">
+							{item.label}
+							<span class="soon">Soon</span>
+						</span>
+					{/if}
+				</li>
+			{/each}
+		</ul>
+	</nav>
+</div>
 
 <style>
+	/* Positioning context for the edge fades; the fades sit on top of the scrolling nav
+	   but never scroll with it, so they always mark the strip's visual inline edges. */
+	.subnav-scroller {
+		position: relative;
+	}
+
+	/* Edge-fade cue: because the scrollbar is hidden, a partially-scrolled strip gives no
+	   hint of off-screen items, so a thin gradient from the page canvas to transparent
+	   softens each inline edge to signal "more this way". Decorative (pseudo-elements are
+	   out of the a11y tree) and non-interactive; kept thin and painted BEHIND any focused
+	   link (which lifts to z-index 1), so it never veils or clips an edge item's focus
+	   ring. gokberk-design owns the exact gradient feel. */
+	.subnav-scroller::before,
+	.subnav-scroller::after {
+		content: '';
+		position: absolute;
+		inset-block: 0;
+		inline-size: var(--gok-space-500);
+		pointer-events: none;
+	}
+
+	.subnav-scroller::before {
+		inset-inline-start: 0;
+		background: linear-gradient(to right, var(--gok-color-bg), transparent);
+	}
+
+	.subnav-scroller::after {
+		inset-inline-end: 0;
+		background: linear-gradient(to left, var(--gok-color-bg), transparent);
+	}
+
 	/* A single horizontally-scrollable strip over a hairline baseline — never wraps into
-	   a tall block; the scrollbar is hidden (mirrors SettingsHeader). On a phone this is
-	   the thumb-zone tab strip pinned under the page header. */
+	   a tall block; the scrollbar is hidden. On a phone this is the thumb-zone tab strip
+	   pinned under the page header. */
 	.subnav {
 		overflow-x: auto;
 		border-block-end: var(--gok-border-width-hairline) solid var(--gok-color-border);
@@ -184,7 +245,10 @@
 		border-block-end-color: var(--gok-color-primary);
 	}
 
+	/* Lift a focused link above the edge fades so its ring is always fully drawn. */
 	a.subnav-link:focus-visible {
+		position: relative;
+		z-index: 1;
 		outline: var(--gok-focus-ring-width) solid var(--gok-color-focus-ring);
 		outline-offset: var(--gok-focus-ring-offset);
 		border-radius: var(--gok-radius-s);

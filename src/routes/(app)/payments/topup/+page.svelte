@@ -16,6 +16,7 @@
 	import { topup } from '$lib/payments/topup.svelte';
 	import type { TopUpReceipt } from '$lib/payments/topup.svelte';
 	import { setProps, on } from '$lib/wc.svelte';
+	import BackLink from '$lib/components/layout/BackLink.svelte';
 	import { formatMoney } from '$lib/format';
 	import type { Currency } from '$lib/data/money';
 	import MoneyInput from '$lib/components/money/MoneyInput.svelte';
@@ -255,7 +256,7 @@
 		{/if}
 	{:else}
 		<header class="head">
-			<gok-link href="/payments">&larr; Payments</gok-link>
+			<BackLink href="/payments" label="Payments" />
 			<p class="eyebrow gok-eyebrow">Payments</p>
 			<h1 class="title gok-headline-2">Top up</h1>
 			<p class="sub">Add money to one of my wallets.</p>

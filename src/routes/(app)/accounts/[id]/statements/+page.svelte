@@ -19,6 +19,7 @@
 	import { accounts } from '$lib/state/accounts.svelte';
 	import { session } from '$lib/state/session.svelte';
 	import { formatMoney, formatDate } from '$lib/format';
+	import BackLink from '$lib/components/layout/BackLink.svelte';
 
 	const walletId = $derived(page.params.id ?? '');
 	const wallet = $derived(walletId ? accounts.wallet(walletId) : undefined);
@@ -105,7 +106,7 @@
 {:else}
 	<div class="page">
 		<header class="head">
-			<gok-link href={`/accounts/${walletId}`}>&larr; {wallet.name}</gok-link>
+			<BackLink href={`/accounts/${walletId}`} label={wallet.name} />
 			<p class="currency gok-eyebrow">{wallet.currency} wallet</p>
 			<h1 class="title gok-headline-2">{wallet.name} · Statements</h1>
 			<p class="lead">

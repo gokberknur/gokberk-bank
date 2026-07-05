@@ -8,6 +8,7 @@
 	// Status is carried by the badge's rule + word (never colour alone); the QR is
 	// never the only path — the link text is always there to copy.
 	import { setProps, on } from '$lib/wc.svelte';
+	import { sheetPlacement } from '$lib/breakpoints';
 	import { formatMoney, formatDate } from '$lib/format';
 	import { requests } from '$lib/payments/requests.svelte';
 	import type { PaymentRequest, RequestStatus } from '$lib/payments/requests.svelte';
@@ -191,7 +192,7 @@
 
 <!-- Row detail · link + QR + payer + progress, and Cancel while still Open. -->
 <gok-drawer
-	placement="end"
+	placement={sheetPlacement()}
 	heading="Request"
 	{@attach setProps({ open: drawerOpen })}
 	{@attach on('gok-close', closeDrawer)}

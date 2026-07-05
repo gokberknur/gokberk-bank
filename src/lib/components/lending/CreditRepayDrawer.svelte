@@ -18,6 +18,7 @@
 	import { creditLine as cl } from '$lib/state/credit-line.svelte';
 	import { accounts } from '$lib/state/accounts.svelte';
 	import MoneyInput from '$lib/components/money/MoneyInput.svelte';
+	import { sheetPlacement } from '$lib/breakpoints';
 
 	interface Props {
 		/** Whether the drawer is shown (two-way; the host opens it, the drawer closes it). */
@@ -143,7 +144,7 @@
 </script>
 
 <gok-drawer
-	placement="end"
+	placement={sheetPlacement()}
 	heading="Repay my credit line"
 	{@attach setProps({ open })}
 	{@attach on('gok-close', closeDrawer)}

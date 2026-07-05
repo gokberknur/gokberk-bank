@@ -17,6 +17,8 @@
 	import type { Order } from '$lib/data/market';
 	import { formatMoney, formatDate } from '$lib/format';
 	import { setProps, on } from '$lib/wc.svelte';
+	import BackLink from '$lib/components/layout/BackLink.svelte';
+	import { sheetPlacement } from '$lib/breakpoints';
 	import RecordList from '$lib/components/layout/RecordList.svelte';
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 	import MoneyInput from '$lib/components/money/MoneyInput.svelte';
@@ -149,7 +151,7 @@
 	</div>
 {:else}
 	<div class="page">
-		<gok-link href="/invest/plans" class="back-link">&larr; Plans</gok-link>
+		<BackLink href="/invest/plans" label="Plans" />
 
 		<PageHeader eyebrow="Savings plan" title={plan.name} />
 
@@ -265,7 +267,7 @@
 
 		<!-- Edit · a side drawer with the two things a plan can change: amount + cadence. -->
 		<gok-drawer
-			placement="end"
+			placement={sheetPlacement()}
 			heading="Edit plan"
 			{@attach setProps({ open: editOpen })}
 			{@attach on('gok-close', () => (editOpen = false))}
@@ -323,10 +325,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-section);
-	}
-
-	.back-link {
-		align-self: flex-start;
 	}
 
 	/* --- Status + schedule summary --- */

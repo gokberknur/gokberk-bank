@@ -19,6 +19,7 @@
 	import { mortgageServicing as ms } from '$lib/state/mortgage-servicing.svelte';
 	import MoneyInput from '$lib/components/money/MoneyInput.svelte';
 	import StepUp from '$lib/components/security/StepUp.svelte';
+	import { sheetPlacement } from '$lib/breakpoints';
 
 	interface Props {
 		/** Whether the drawer is shown (two-way; the host opens it, the drawer closes it). */
@@ -119,7 +120,7 @@
 </script>
 
 <gok-drawer
-	placement="end"
+	placement={sheetPlacement()}
 	heading="Overpay my mortgage"
 	{@attach setProps({ open })}
 	{@attach on('gok-close', closeDrawer)}

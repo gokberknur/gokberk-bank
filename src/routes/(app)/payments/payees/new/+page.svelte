@@ -11,6 +11,7 @@
 	import { untrack } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { setProps, on } from '$lib/wc.svelte';
+	import BackLink from '$lib/components/layout/BackLink.svelte';
 	import Wizard from '$lib/components/wizard/Wizard.svelte';
 	import { createWizard } from '$lib/components/wizard/wizard-store.svelte';
 	import type { StepDef } from '$lib/components/wizard/types';
@@ -152,7 +153,7 @@
 
 <div class="page">
 	<header class="head">
-		<gok-link href="/payments/payees">&larr; Payees</gok-link>
+		<BackLink href="/payments/payees" label="Payees" />
 		<p class="eyebrow gok-eyebrow">Payments</p>
 		<h1 class="title gok-headline-2">Add a payee</h1>
 	</header>

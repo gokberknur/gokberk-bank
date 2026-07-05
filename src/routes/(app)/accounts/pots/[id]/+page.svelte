@@ -13,11 +13,13 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { setProps, on } from '$lib/wc.svelte';
+	import { sheetPlacement } from '$lib/breakpoints';
 	import { pots } from '$lib/accounts/pots.svelte';
 	import type { PotFrequency } from '$lib/accounts/pots.svelte';
 	import { formatMoney, formatDate } from '$lib/format';
 	import MoneyInput from '$lib/components/money/MoneyInput.svelte';
 	import ProgressRing from '$lib/components/accounts/ProgressRing.svelte';
+	import BackLink from '$lib/components/layout/BackLink.svelte';
 
 	const potId = $derived(page.params.id ?? '');
 	const pot = $derived(potId ? pots.get(potId) : undefined);
@@ -129,7 +131,7 @@
 {:else}
 	<div class="page">
 		<header class="head">
-			<gok-link href="/accounts/pots">&larr; Pots</gok-link>
+			<BackLink href="/accounts/pots" label="Pots" />
 			<div class="title-row">
 				<span class="emoji" aria-hidden="true">{pot.emoji}</span>
 				<div class="title-meta">
@@ -294,7 +296,7 @@
 
 	<!-- Add drawer — instant transfer, capped at the wallet's spare. -->
 	<gok-drawer
-		placement="end"
+		placement={sheetPlacement()}
 		heading="Add money"
 		{@attach setProps({ open: addOpen })}
 		{@attach on('gok-close', () => (addOpen = false))}
@@ -330,7 +332,7 @@
 
 	<!-- Withdraw drawer — instant transfer, capped at the pot's balance. -->
 	<gok-drawer
-		placement="end"
+		placement={sheetPlacement()}
 		heading="Move to wallet"
 		{@attach setProps({ open: withdrawOpen })}
 		{@attach on('gok-close', () => (withdrawOpen = false))}
