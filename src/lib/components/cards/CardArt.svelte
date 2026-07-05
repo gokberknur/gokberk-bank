@@ -302,6 +302,7 @@
 		display: grid;
 		place-items: center;
 		background: color-mix(in oklab, var(--gok-color-paper) 32%, transparent);
+		-webkit-backdrop-filter: saturate(0.6) brightness(1.04);
 		backdrop-filter: saturate(0.6) brightness(1.04);
 	}
 

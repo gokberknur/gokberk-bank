@@ -365,6 +365,7 @@
 		border: var(--gok-border-width-hairline) solid var(--gok-color-border);
 		border-radius: var(--gok-radius-l);
 		background: var(--gok-color-surface-translucent);
+		-webkit-backdrop-filter: blur(var(--gok-blur-chrome));
 		backdrop-filter: blur(var(--gok-blur-chrome));
 	}
 
