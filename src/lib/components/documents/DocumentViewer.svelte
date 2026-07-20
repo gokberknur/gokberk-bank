@@ -7,6 +7,7 @@
 	// scrim, and Escape; we feed `open` as a property and close on its gok-close /
 	// gok-cancel events. "Download" is simulated — this is a demo, there is no file.
 	import { setProps, on } from '$lib/wc.svelte';
+	import { sheetPlacement } from '$lib/breakpoints';
 	import { formatDate } from '$lib/format';
 	import { toast } from '$lib/state/toasts.svelte';
 	import { DOC_CATEGORY_LABELS, type BankDocument } from '$lib/data/documents-data';
@@ -34,7 +35,7 @@
 </script>
 
 <gok-drawer
-	placement="end"
+	placement={sheetPlacement()}
 	heading="Document"
 	{@attach setProps({ open })}
 	{@attach on('gok-close', onclose)}

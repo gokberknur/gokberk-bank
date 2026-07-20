@@ -66,6 +66,22 @@ video {
 	max-inline-size: 100%;
 }
 
+/*
+ * Mobile bottom-sheet height. On a phone, gok-drawer opens bottom-anchored (patterns.md §9,
+ * via sheetPlacement()), but its `size` token fixes a partial height (~45vh) — which crams a
+ * tall money form (the order ticket) into a peek and makes the whole form scroll in a small
+ * window. Letting the drawer part size to its content instead lets a tall sheet grow to the
+ * DS's own 90vh cap (footer stays pinned, body scrolls) while a short sheet (a notification
+ * glance, a terminal "done" state) stays compact. One rule, every overlay, scoped to the
+ * mobile bottom placement only. (A DS gap — no `size="full"`/grow-to-content for bottom sheets;
+ * logged for the design-system handoff.)
+ */
+@media (max-width: 39.999rem) {
+	gok-drawer[placement='bottom']::part(drawer) {
+		block-size: auto;
+	}
+}
+
 body {
 	margin: 0;
 	min-block-size: 100dvh;

@@ -17,6 +17,7 @@
 	// is by rule + word, never hue alone. The margin is disclosed honestly.
 	import { goto } from '$app/navigation';
 	import { setProps, on } from '$lib/wc.svelte';
+	import BackLink from '$lib/components/layout/BackLink.svelte';
 	import { formatMoney } from '$lib/format';
 	import { exchange, MIN_FROM_MINOR } from '$lib/state/exchange.svelte';
 	import { rateAsFloat } from '$lib/payments/fx';
@@ -230,7 +231,7 @@
 		</section>
 	{:else}
 		<header class="head">
-			<gok-link href="/payments">&larr; Payments</gok-link>
+			<BackLink href="/payments" label="Payments" />
 			<p class="eyebrow gok-eyebrow">Payments</p>
 			<h1 class="title gok-headline-2">Exchange</h1>
 			<p class="head-sub">Convert between my own wallets at today's rate.</p>

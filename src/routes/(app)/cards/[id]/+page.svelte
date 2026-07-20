@@ -19,6 +19,7 @@
 	import type { Currency } from '$lib/data/money';
 	import type { Transaction } from '$lib/data/types';
 	import StickyActionBar from '$lib/components/layout/StickyActionBar.svelte';
+	import BackLink from '$lib/components/layout/BackLink.svelte';
 	import CardArt from '$lib/components/cards/CardArt.svelte';
 	import RevealDialog from '$lib/components/cards/RevealDialog.svelte';
 	import PinDialog from '$lib/components/cards/PinDialog.svelte';
@@ -123,7 +124,7 @@
 {:else}
 	<div class="page">
 		<header class="head">
-			<gok-link href="/cards">&larr; Cards</gok-link>
+			<BackLink href="/cards" label="Cards" />
 		</header>
 
 		<section class="hero">

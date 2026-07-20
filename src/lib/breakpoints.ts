@@ -17,3 +17,13 @@ export const TABLET = '(min-width: 40rem) and (max-width: 63.999rem)';
 // non-browser evaluation desktop-first (harmless in this SPA, but correct).
 export const mobile = new MediaQuery(MOBILE_MAX, false);
 export const tablet = new MediaQuery(TABLET, false);
+
+/**
+ * The responsive `gok-drawer` placement, per patterns.md §9: "drawers = right on desktop,
+ * bottom-sheet on mobile". Reads the reactive `mobile` singleton, so a drawer bound to it
+ * (`placement={sheetPlacement()}`) re-anchors if the viewport crosses the breakpoint. One rule,
+ * one place — every functional overlay in the app shares it.
+ */
+export function sheetPlacement(): 'bottom' | 'end' {
+	return mobile.current ? 'bottom' : 'end';
+}

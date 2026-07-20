@@ -31,6 +31,7 @@
 	import type { Card } from '$lib/data';
 	import Wizard from '$lib/components/wizard/Wizard.svelte';
 	import StepUp from '$lib/components/security/StepUp.svelte';
+	import BackLink from '$lib/components/layout/BackLink.svelte';
 
 	// ── Reads off the card-order state (the wizard draft + the live derivations). ──
 	const replacing = $derived(cardOrder.replacingId !== null);
@@ -185,7 +186,7 @@
 {:else}
 	<div class="page">
 		<header class="head">
-			<gok-link href="/cards">&larr; Cards</gok-link>
+			<BackLink href="/cards" label="Cards" />
 			<p class="eyebrow gok-eyebrow">Card</p>
 			<h1 class="title gok-headline-2">{replacing ? 'Replace my card' : 'Order a card'}</h1>
 			<p class="lead">

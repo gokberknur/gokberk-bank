@@ -6,6 +6,7 @@
 	import { pots } from '$lib/accounts/pots.svelte';
 	import { formatMoney, formatNumber } from '$lib/format';
 	import PotCard from '$lib/components/accounts/PotCard.svelte';
+	import BackLink from '$lib/components/layout/BackLink.svelte';
 
 	const all = $derived(pots.all());
 	const total = $derived(formatMoney(pots.totalEurMinor(), 'EUR'));
@@ -19,7 +20,7 @@
 
 <div class="page">
 	<header class="head">
-		<gok-link href="/accounts">&larr; Accounts</gok-link>
+		<BackLink href="/accounts" label="Accounts" />
 		<p class="eyebrow gok-eyebrow">Accounts</p>
 		<h1 class="title gok-headline-2">Pots</h1>
 

@@ -22,6 +22,7 @@
 	import { formatUnits, type CryptoTx } from '$lib/data/crypto-data';
 	import type { CryptoSymbol } from '$lib/crypto/address';
 	import MoneyInput from '$lib/components/money/MoneyInput.svelte';
+	import { sheetPlacement } from '$lib/breakpoints';
 
 	interface Props {
 		/** The asset the ticket trades. */
@@ -146,7 +147,7 @@
 </script>
 
 <gok-drawer
-	placement="end"
+	placement={sheetPlacement()}
 	heading="{verb} {symbol}"
 	{@attach setProps({ open })}
 	{@attach on('gok-close', closeDrawer)}

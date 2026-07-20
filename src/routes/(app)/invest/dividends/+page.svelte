@@ -11,6 +11,7 @@
 	import type { DividendView } from '$lib/data/dividends-data';
 	import RecordList from '$lib/components/layout/RecordList.svelte';
 	import { setProps, on } from '$lib/wc.svelte';
+	import BackLink from '$lib/components/layout/BackLink.svelte';
 	import { formatMoney, formatDate } from '$lib/format';
 
 	// ── Toggle: Upcoming / History (a radiogroup via gok-segmented) ──
@@ -90,7 +91,7 @@
 
 <div class="page">
 	<header class="head">
-		<gok-link href="/invest">&larr; Investments</gok-link>
+		<BackLink href="/invest" label="Investments" />
 		<p class="head-eyebrow gok-eyebrow">Dividends</p>
 		<h1 class="head-title gok-headline-2">Dividends</h1>
 		<p class="head-caption">
