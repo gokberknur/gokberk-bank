@@ -16,6 +16,7 @@
 	// (each owns its label + helper line); the ISO value is read off the event detail.
 	import { goto } from '$app/navigation';
 	import { setProps, on } from '$lib/wc.svelte';
+	import BackLink from '$lib/components/layout/BackLink.svelte';
 	import { formatMoney, formatDate } from '$lib/format';
 	import { schedule } from '$lib/payments/schedule.svelte';
 	import type { Frequency, EndRule } from '$lib/payments/schedule.svelte';
@@ -344,7 +345,7 @@
 		</section>
 	{:else}
 		<header class="head">
-			<gok-link href="/payments/scheduled">&larr; Scheduled</gok-link>
+			<BackLink href="/payments/scheduled" label="Scheduled" />
 			<p class="eyebrow gok-eyebrow">Scheduled payments</p>
 			<h1 class="title gok-headline-2">Schedule a payment</h1>
 			<p class="lead">

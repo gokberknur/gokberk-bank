@@ -18,6 +18,7 @@
 	// the primary, never by hue.
 	import { untrack } from 'svelte';
 	import { setProps, on } from '$lib/wc.svelte';
+	import { sheetPlacement } from '$lib/breakpoints';
 	import { formatMoney, formatNumber } from '$lib/format';
 	import { invest } from '$lib/state/invest.svelte';
 	import type { Order, OrderStatus } from '$lib/data/market';
@@ -207,7 +208,7 @@
 </script>
 
 <gok-drawer
-	placement="end"
+	placement={sheetPlacement()}
 	heading="{verb} {symbol}"
 	{@attach setProps({ open })}
 	{@attach on('gok-close', closeDrawer)}

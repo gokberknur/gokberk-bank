@@ -17,6 +17,7 @@
 	import TxnToolbar from '$lib/components/accounts/TxnToolbar.svelte';
 	import TransactionGrid from '$lib/components/accounts/TransactionGrid.svelte';
 	import TransactionDialog from '$lib/components/accounts/TransactionDialog.svelte';
+	import BackLink from '$lib/components/layout/BackLink.svelte';
 
 	const wallet = $derived(page.params.id ? accounts.wallet(page.params.id) : undefined);
 
@@ -55,7 +56,7 @@
 {:else}
 	<div class="page">
 		<header class="head">
-			<gok-link href="/accounts">&larr; Accounts</gok-link>
+			<BackLink href="/accounts" label="Accounts" />
 
 			<p class="currency gok-eyebrow">{wallet.currency} wallet</p>
 			<h1 class="name gok-headline-2">{wallet.name}</h1>

@@ -14,6 +14,7 @@
 	import { formatDate } from '$lib/format';
 	import { profile } from '$lib/data/profile-data';
 	import { toast } from '$lib/state/toasts.svelte';
+	import { sheetPlacement } from '$lib/breakpoints';
 
 	type AddressField = 'line1' | 'city' | 'postcode' | 'country';
 
@@ -142,7 +143,7 @@
 
 <!-- Edit · the only editable surface. A calm drawer of address fields. -->
 <gok-drawer
-	placement="end"
+	placement={sheetPlacement()}
 	heading="Edit my address"
 	{@attach setProps({ open: drawerOpen })}
 	{@attach on('gok-close', closeDrawer)}

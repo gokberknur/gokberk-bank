@@ -13,6 +13,8 @@
 	import type { AssetClass, FundRegion } from '$lib/data/funds-data';
 	import { formatNumber } from '$lib/format';
 	import { setProps, on } from '$lib/wc.svelte';
+	import BackLink from '$lib/components/layout/BackLink.svelte';
+	import { sheetPlacement } from '$lib/breakpoints';
 
 	// ── Presentation helpers (charges/returns are bps; fund size is EUR minor) ──
 
@@ -174,7 +176,7 @@
 
 <div class="page">
 	<header class="head">
-		<gok-link href="/invest">&larr; Investments</gok-link>
+		<BackLink href="/invest" label="Investments" />
 		<p class="head-eyebrow gok-eyebrow">Funds &amp; ETFs</p>
 		<h1 class="head-title gok-headline-2">Funds I can buy</h1>
 		<p class="head-caption">
@@ -263,7 +265,7 @@
 
 <!-- Fact sheet — the objective, holdings, fee, risk, 1Y return, and the Buy CTA. -->
 <gok-drawer
-	placement="end"
+	placement={sheetPlacement()}
 	heading={selectedFund ? selectedFund.name : 'Fund'}
 	{@attach setProps({ open: drawerOpen })}
 	{@attach on('gok-close', closeDrawer)}

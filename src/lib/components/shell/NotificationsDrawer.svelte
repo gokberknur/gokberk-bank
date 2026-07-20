@@ -12,6 +12,7 @@
 	import { setProps, on } from '$lib/wc.svelte';
 	import { formatDate } from '$lib/format';
 	import { feed, ACTIVITY_TYPE_LABELS } from '$lib/state/feed.svelte';
+	import { sheetPlacement } from '$lib/breakpoints';
 
 	let { open, onclose }: { open: boolean; onclose: () => void } = $props();
 
@@ -26,7 +27,7 @@
 </script>
 
 <gok-drawer
-	placement="end"
+	placement={sheetPlacement()}
 	heading="Notifications"
 	{@attach setProps({ open })}
 	{@attach on('gok-close', onclose)}

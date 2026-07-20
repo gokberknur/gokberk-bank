@@ -17,6 +17,7 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { setProps, on } from '$lib/wc.svelte';
+	import BackLink from '$lib/components/layout/BackLink.svelte';
 	import { formatMoney, formatDate } from '$lib/format';
 	import { plans } from '$lib/invest/plans.svelte';
 	import type { SavingsPlan, PlanKind, PlanCadence } from '$lib/invest/plans.svelte';
@@ -407,7 +408,7 @@
 		</section>
 	{:else}
 		<header class="head">
-			<gok-link href="/invest/plans">&larr; Plans</gok-link>
+			<BackLink href="/invest/plans" label="Plans" />
 			<p class="eyebrow gok-eyebrow">Savings plans</p>
 			<h1 class="title gok-headline-2">Start a savings plan</h1>
 			<p class="lead">

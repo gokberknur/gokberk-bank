@@ -105,6 +105,29 @@ export const INVEST_NAV: SubNavItem[] = [
 	{ label: 'Crypto', href: '/crypto', value: 'crypto', ready: true, external: true }
 ];
 
+/**
+ * The security-center sub-nav (O03) — rendered by `(app)/security/+layout.svelte` across
+ * the five security areas, in the same order the section shell has always shown them. Every
+ * area is built (`ready: true`); flip a flag in the same change if one is ever split out.
+ */
+export const SECURITY_NAV: SubNavItem[] = [
+	{ label: 'Devices', href: '/security/devices', value: 'devices', ready: true },
+	{ label: 'Sessions', href: '/security/sessions', value: 'sessions', ready: true },
+	{ label: 'Passkeys', href: '/security/passkeys', value: 'passkeys', ready: true },
+	{ label: '2FA', href: '/security/2fa', value: '2fa', ready: true },
+	{ label: 'Activity', href: '/security/activity', value: 'activity', ready: true }
+];
+
+/**
+ * The settings sub-nav — rendered by `SettingsHeader.svelte` above each settings surface,
+ * across the three settings areas in the order they have always appeared. All built.
+ */
+export const SETTINGS_NAV: SubNavItem[] = [
+	{ label: 'Preferences', href: '/settings/preferences', value: 'preferences', ready: true },
+	{ label: 'Appearance', href: '/settings/appearance', value: 'appearance', ready: true },
+	{ label: 'Notifications', href: '/settings/notifications', value: 'notifications', ready: true }
+];
+
 /** Flat list of every nav item (both groupings deduped by value). */
 const ALL_ITEMS: NavItem[] = NAV.flatMap((s) => s.items);
 
@@ -119,23 +142,6 @@ export function activeValue(pathname: string): string {
 	for (const item of ALL_ITEMS) {
 		if ((pathname === item.href || pathname.startsWith(item.href + '/')) && item.href.length > bestLen) {
 			best = item.value;
-			bestLen = item.href.length;
-		}
-	}
-	return best;
-}
-
-/**
- * The active invest sub-nav item's `href` for a pathname, by longest matching prefix —
- * so `/invest/plans/x` lights "Plans" and `/invest/instrument/x` lights "Overview".
- * Returns '' when nothing matches. Crypto (`/crypto`) lights only under `/crypto`.
- */
-export function activeInvestHref(pathname: string): string {
-	let best = '';
-	let bestLen = -1;
-	for (const item of INVEST_NAV) {
-		if ((pathname === item.href || pathname.startsWith(item.href + '/')) && item.href.length > bestLen) {
-			best = item.href;
 			bestLen = item.href.length;
 		}
 	}

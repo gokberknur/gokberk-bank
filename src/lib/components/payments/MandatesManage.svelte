@@ -20,6 +20,7 @@
 	import { mandates } from '$lib/payments/mandates.svelte';
 	import type { Mandate, Collection, DisputeReason } from '$lib/payments/mandates.svelte';
 	import { WALLET_BLUEPRINTS } from '$lib/data/accounts';
+	import { sheetPlacement } from '$lib/breakpoints';
 
 	// Narrow string unions for the gok-badge / gok-icon attributes we set (the package
 	// doesn't re-export these from the root; we only need the literal values).
@@ -340,7 +341,7 @@
 
 <!-- Row detail · the creditor's identity, the collection history, and the two acts. -->
 <gok-drawer
-	placement="end"
+	placement={sheetPlacement()}
 	heading="Direct debit"
 	{@attach setProps({ open: drawerOpen })}
 	{@attach on('gok-close', closeDrawer)}

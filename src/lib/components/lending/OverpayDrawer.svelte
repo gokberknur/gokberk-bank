@@ -17,6 +17,7 @@
 	import { lending } from '$lib/state/lending.svelte';
 	import MoneyInput from '$lib/components/money/MoneyInput.svelte';
 	import { PayoffChart } from '$lib/charts';
+	import { sheetPlacement } from '$lib/breakpoints';
 
 	interface Props {
 		/** Whether the drawer is shown (two-way; the host opens it, the drawer closes it). */
@@ -111,7 +112,7 @@
 </script>
 
 <gok-drawer
-	placement="end"
+	placement={sheetPlacement()}
 	heading="Overpay my loan"
 	{@attach setProps({ open })}
 	{@attach on('gok-close', closeDrawer)}

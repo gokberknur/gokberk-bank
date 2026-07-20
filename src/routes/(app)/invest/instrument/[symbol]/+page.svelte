@@ -32,6 +32,7 @@
 	import { DECIMALS } from '$lib/data/money';
 	import { formatMoney, formatNumber, formatPercent } from '$lib/format';
 	import { setProps, on } from '$lib/wc.svelte';
+	import BackLink from '$lib/components/layout/BackLink.svelte';
 	import { PriceChart } from '$lib/charts';
 	import { rebasePair } from '$lib/charts/rebase';
 	import { overlayLines, oscillatorPanes, chartTableSeries } from '$lib/charts/indicator-series';
@@ -345,7 +346,7 @@
 {:else}
 	<div class="page">
 		<header class="head">
-			<gok-link href="/invest">&larr; Investing</gok-link>
+			<BackLink href="/invest" label="Investments" />
 
 			<div class="head-main">
 				<div class="head-id">

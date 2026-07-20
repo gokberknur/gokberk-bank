@@ -8,6 +8,7 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { setProps, on } from '$lib/wc.svelte';
+	import { sheetPlacement } from '$lib/breakpoints';
 	import { pots } from '$lib/accounts/pots.svelte';
 	import type { Currency } from '$lib/data/money';
 	import MoneyInput from '$lib/components/money/MoneyInput.svelte';
@@ -81,7 +82,7 @@
 </svelte:head>
 
 <gok-drawer
-	placement="end"
+	placement={sheetPlacement()}
 	heading="Create a pot"
 	{@attach setProps({ open })}
 	{@attach on('gok-close', dismiss)}

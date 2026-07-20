@@ -18,6 +18,7 @@
 	import { formatMoney } from '$lib/format';
 	import { setProps, on } from '$lib/wc.svelte';
 	import MoneyInput from '$lib/components/money/MoneyInput.svelte';
+	import BackLink from '$lib/components/layout/BackLink.svelte';
 
 	const card = $derived(page.params.id ? cards.card(page.params.id) : undefined);
 
@@ -136,7 +137,7 @@
 	{@const status = cards.displayStatus(card)}
 	<div class="page">
 		<header class="head">
-			<gok-link href="/cards/{card.id}">&larr; {cardTypeLabel} card</gok-link>
+			<BackLink href={`/cards/${card.id}`} label={`${cardTypeLabel} card`} />
 
 			<!-- TODO: swap in a mini card-art (CardArt) once C01 lands; kept a
 			     self-contained token block here to avoid a parallel-build import. -->

@@ -12,6 +12,7 @@
 	// type to filter the payees I haven't added, ↑/↓ move, Enter/click adds — each add
 	// is announced in a polite live region.
 	import { setProps, on } from '$lib/wc.svelte';
+	import BackLink from '$lib/components/layout/BackLink.svelte';
 	import { formatMoney } from '$lib/format';
 	import { split } from '$lib/payments/split.svelte';
 	import { requests } from '$lib/payments/requests.svelte';
@@ -196,7 +197,7 @@
 
 <div class="page">
 	<header class="head">
-		<gok-link href="/payments">&larr; Payments</gok-link>
+		<BackLink href="/payments" label="Payments" />
 		<p class="eyebrow gok-eyebrow">Payments</p>
 		<h1 class="title gok-headline-2">Split a bill</h1>
 		<p class="lead">Share a cost and collect everyone's share as a request.</p>

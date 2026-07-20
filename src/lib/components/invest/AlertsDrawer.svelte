@@ -5,6 +5,7 @@
 	// toast-undo from the store (low-stakes + reversible, so no danger dialog). The host drawer owns
 	// focus, the scrim and Escape (open fed as a property; closed on gok-close / gok-cancel).
 	import { setProps, on } from '$lib/wc.svelte';
+	import { sheetPlacement } from '$lib/breakpoints';
 	import { formatMoney } from '$lib/format';
 	import { INSTRUMENTS } from '$lib/data/market';
 	import { alerts, type PriceAlert } from '$lib/invest/alerts.svelte';
@@ -41,7 +42,7 @@
 </script>
 
 <gok-drawer
-	placement="end"
+	placement={sheetPlacement()}
 	{heading}
 	{@attach setProps({ open })}
 	{@attach on('gok-close', onclose)}
