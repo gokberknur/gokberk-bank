@@ -130,7 +130,7 @@
 >
 	<div class="picker">
 		<label class="field">
-			<span class="visually-hidden">Filter instruments by symbol or name</span>
+			<span class="field-label">Filter instruments by symbol or name</span>
 			<input
 				class="filter"
 				type="text"
@@ -140,7 +140,6 @@
 				aria-autocomplete="list"
 				aria-activedescendant={activeSymbol ? `wl-opt-${activeSymbol}` : undefined}
 				autocomplete="off"
-				placeholder="Filter by symbol or name"
 				{@attach captureInput}
 				oninput={onInput}
 				onkeydown={onKeydown}
@@ -224,7 +223,16 @@
 	}
 
 	.field {
-		display: block;
+		display: flex;
+		flex-direction: column;
+		gap: var(--gok-space-100);
+	}
+
+	.field-label {
+		font-family: var(--gok-font-family-text);
+		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
+		color: var(--gok-color-text);
 	}
 
 	.filter {
@@ -364,17 +372,5 @@
 		justify-content: flex-end;
 		gap: var(--gok-space-200);
 		inline-size: 100%;
-	}
-
-	.visually-hidden {
-		position: absolute;
-		inline-size: 1px;
-		block-size: 1px;
-		margin: -1px;
-		padding: 0;
-		border: 0;
-		clip-path: inset(50%);
-		white-space: nowrap;
-		overflow: hidden;
 	}
 </style>

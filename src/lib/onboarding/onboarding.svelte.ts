@@ -5,15 +5,22 @@
 // by flow id. So this module does NOT reinvent that — it WRAPS `createWizard`
 // with the onboarding-specific draft shape, the six forward-gating step
 // validators, and the intent methods the UI calls (consent, document, OCR,
-// liveness, completion). Everything stays deterministic: no Math.random, no
-// Date.now — verification + IBAN issuance derive from what the user typed and the
-// fixed TODAY anchor that already lives inside `kyc.ts`.
+// liveness, completion). The business data stays deterministic: no
+// Math.random, no Date.now in verification/IBAN issuance — those derive from
+// what the user typed and the fixed TODAY anchor that already lives inside
+// `kyc.ts`. The one exception is the draft's own `savedAt` bookkeeping stamp
+// below, which is real wall-clock time by design (it gates how long a stale
+// local draft may linger, not any seeded/business value).
 //
 // Persistence note — the Wizard store only writes its draft on a navigation
 // (`goNext`/`goBack`/`goTo`); its `#persist` is private and a bare `data` write
 // does NOT hit localStorage. So `patch` mirrors the store's exact draft shape
-// (`{ currentIndex, data }`) to the same key, so a mid-step field edit survives a
-// refresh too. The store re-hydrates from that same key on construction.
+// (`{ currentIndex, data, savedAt }`) to the same key, so a mid-step field edit
+// survives a refresh too. The store re-hydrates from that same key on
+// construction — but only after `discardStaleDraft` (below) has had a chance to
+// wipe an entry whose `savedAt` is missing, unparseable, or more than 24h old,
+// so a stale KYC-shaped draft (fullName/dob/residency/idType, …) never silently
+// resumes.
 
 import { browser } from '$app/environment';
 import { createWizard, Wizard } from '$lib/components/wizard/wizard-store.svelte';
@@ -80,6 +87,40 @@ export interface OnboardingData {
 /** localStorage key — mirrors the store's `gok-bank-wizard-<flowId>` for flow id `onboarding`. */
 const FLOW_ID = 'onboarding';
 const DRAFT_KEY = `gok-bank-wizard-${FLOW_ID}`;
+
+/** A persisted draft older than this (or missing/unparseable `savedAt`) is treated as stale. */
+const DRAFT_TTL_MS = 24 * 60 * 60 * 1000;
+
+/** True when `savedAt` parses to a timestamp within the last {@link DRAFT_TTL_MS}. */
+function isDraftFresh(savedAt: unknown): boolean {
+	if (typeof savedAt !== 'string') return false;
+	const savedMs = Date.parse(savedAt);
+	if (Number.isNaN(savedMs)) return false;
+	return Date.now() - savedMs <= DRAFT_TTL_MS;
+}
+
+/**
+ * Drop a persisted draft before the wizard store gets a chance to hydrate from
+ * it. The draft carries KYC-shaped fields (fullName/dob/residency/idType, …), so
+ * one that's missing a `savedAt`, has an unparseable one, or is older than 24h
+ * shouldn't silently resume — it's discarded here, which leaves the wizard
+ * store's own `localStorage.getItem` finding nothing, exactly like the "no
+ * draft found" path it already has.
+ */
+function discardStaleDraft(): void {
+	if (!browser) return;
+	try {
+		const raw = localStorage.getItem(DRAFT_KEY);
+		if (!raw) return;
+		const saved = JSON.parse(raw) as { savedAt?: unknown };
+		if (!isDraftFresh(saved.savedAt)) {
+			localStorage.removeItem(DRAFT_KEY);
+		}
+	} catch {
+		// An unreadable/corrupt draft already falls back to a fresh start via the
+		// wizard store's own parse guard — nothing further to do here.
+	}
+}
 
 /** A fresh, empty draft — a new object each call so instances never share state. */
 function emptyOnboarding(): OnboardingData {
@@ -179,6 +220,7 @@ export class OnboardingFlow {
 	readonly #wizard: Wizard<OnboardingData>;
 
 	constructor() {
+		discardStaleDraft();
 		this.#wizard = createWizard<OnboardingData>({
 			flowId: FLOW_ID,
 			persist: true,
@@ -200,8 +242,8 @@ export class OnboardingFlow {
 	/**
 	 * Merge a partial into the draft and persist. We mutate the store's `$state`
 	 * object in place (fine-grained reactivity) and then mirror the store's own
-	 * `{ currentIndex, data }` draft shape to localStorage — because the store
-	 * only persists on a navigation, not on a bare `data` write.
+	 * `{ currentIndex, data, savedAt }` draft shape to localStorage — because the
+	 * store only persists on a navigation, not on a bare `data` write.
 	 */
 	patch(partial: Partial<OnboardingData>): void {
 		Object.assign(this.#wizard.data, partial);
@@ -332,7 +374,7 @@ export class OnboardingFlow {
 		this.#wizard.error = null;
 	}
 
-	/** Mirror the store's `{ currentIndex, data }` draft to localStorage (browser-only). */
+	/** Mirror the store's `{ currentIndex, data, savedAt }` draft to localStorage (browser-only). */
 	#persistDraft(): void {
 		if (!browser) return;
 		try {
@@ -340,7 +382,8 @@ export class OnboardingFlow {
 				DRAFT_KEY,
 				JSON.stringify({
 					currentIndex: this.#wizard.currentIndex,
-					data: $state.snapshot(this.data)
+					data: $state.snapshot(this.data),
+					savedAt: new Date().toISOString()
 				})
 			);
 		} catch {

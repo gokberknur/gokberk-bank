@@ -16,6 +16,9 @@ const DRAFT_KEY_PREFIX = 'gok-bank-wizard-';
 interface WizardDraft<TData> {
 	currentIndex: number;
 	data: TData;
+	/** ISO timestamp of the write — consumers that want a TTL (e.g. onboarding's
+	 *  stale-draft discard) read this; the store itself doesn't gate on it. */
+	savedAt?: string;
 }
 
 export class Wizard<TData = Record<string, unknown>> {
@@ -160,13 +163,14 @@ export class Wizard<TData = Record<string, unknown>> {
 		}
 	}
 
-	/** Write the current `{ currentIndex, data }` draft, browser-guarded. */
+	/** Write the current `{ currentIndex, data, savedAt }` draft, browser-guarded. */
 	#persist(): void {
 		if (!this.#persistEnabled || !browser) return;
 		try {
 			const draft: WizardDraft<TData> = {
 				currentIndex: this.currentIndex,
-				data: $state.snapshot(this.data) as TData
+				data: $state.snapshot(this.data) as TData,
+				savedAt: new Date().toISOString()
 			};
 			localStorage.setItem(this.#key, JSON.stringify(draft));
 		} catch {

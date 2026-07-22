@@ -217,8 +217,9 @@
 
 <div class="page">
 	<header class="head">
+		<h1 id="portfolio-heading" class="visually-hidden">Portfolio</h1>
 		<p class="head-eyebrow gok-eyebrow">Portfolio</p>
-		<h1 class="head-title gok-headline-1 gok-tabular-nums">{totalValue}</h1>
+		<h2 class="head-title gok-headline-1 gok-tabular-nums">{totalValue}</h2>
 		{#if hasPositions}
 			<div class="head-deltas">
 				{@render deltaLine('Today', summary.dayChangeEurMinor, dayRatio)}
@@ -486,6 +487,9 @@
 							{@const inst = position.instrument}
 							{@const daySign = signOf(dayChangeBps(inst))}
 							{@const plSign = signOf(position.unrealizedPlEurMinor)}
+							<!-- Row is a click-shortcut only — the nested .sym-link below is the intentional
+							     keyboard-equivalent path (WCAG 2.1.1 satisfied via that link). Don't add
+							     tabindex/role="button" here; that'd nest a duplicate interactive element. -->
 							<tr class="row" onclick={() => openInstrument(inst.symbol)}>
 								<th scope="row" class="col-instrument">
 									<a

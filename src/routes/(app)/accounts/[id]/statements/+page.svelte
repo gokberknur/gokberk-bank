@@ -653,23 +653,27 @@
 		.print-doc,
 		.print-doc :global(*) {
 			visibility: visible !important;
-			color: #1a1a1a !important;
+			color: var(--print-ink) !important;
 			background: transparent !important;
 			box-shadow: none !important;
 		}
 
 		.print-doc {
+			--print-ink: #1a1a1a;
+			--print-paper: #ffffff;
+			--print-muted: #555555;
+			--print-rule: #cccccc;
 			position: absolute;
 			inset-block-start: 0;
 			inset-inline-start: 0;
 			inline-size: 100%;
 			padding: 0;
 			border: 0;
-			background: #ffffff !important;
+			background: var(--print-paper) !important;
 		}
 
 		.wordmark-sub {
-			color: #555555 !important;
+			color: var(--print-muted) !important;
 		}
 
 		.doc-kind,
@@ -677,19 +681,19 @@
 		.doc-meta-row dt,
 		.balance-fact dt,
 		.doc-table th {
-			color: #555555 !important;
+			color: var(--print-muted) !important;
 		}
 
 		.doc-head {
-			border-block-end-color: #1a1a1a !important;
+			border-block-end-color: var(--print-ink) !important;
 		}
 
 		.doc-table th {
-			border-block-end-color: #1a1a1a !important;
+			border-block-end-color: var(--print-ink) !important;
 		}
 
 		.doc-table td {
-			border-block-end-color: #cccccc !important;
+			border-block-end-color: var(--print-rule) !important;
 		}
 
 		/* The on-screen controls never print. */

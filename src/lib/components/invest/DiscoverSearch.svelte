@@ -111,35 +111,37 @@
 
 <div class="combo">
 	<label class="field">
-		<span class="visually-hidden">Search instruments</span>
-		<span class="search-icon" aria-hidden="true">
-			<svg viewBox="0 0 16 16" width="15" height="15" fill="none">
-				<circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5" />
-				<path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-			</svg>
+		<span class="field-label">Search instruments</span>
+		<span class="input-wrap">
+			<span class="search-icon" aria-hidden="true">
+				<svg viewBox="0 0 16 16" width="15" height="15" fill="none">
+					<circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5" />
+					<path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+				</svg>
+			</span>
+			<input
+				class="input"
+				type="text"
+				role="combobox"
+				aria-expanded={showList}
+				aria-controls={showList ? 'discover-listbox' : undefined}
+				aria-activedescendant={activeId}
+				aria-autocomplete="list"
+				autocomplete="off"
+				autocapitalize="off"
+				autocorrect="off"
+				spellcheck="false"
+				{placeholder}
+				bind:value={query}
+				oninput={onInput}
+				onkeydown={onKeydown}
+				onfocus={() => {
+					focused = true;
+					dismissed = false;
+				}}
+				onblur={() => (focused = false)}
+			/>
 		</span>
-		<input
-			class="input"
-			type="text"
-			role="combobox"
-			aria-expanded={showList}
-			aria-controls={showList ? 'discover-listbox' : undefined}
-			aria-activedescendant={activeId}
-			aria-autocomplete="list"
-			autocomplete="off"
-			autocapitalize="off"
-			autocorrect="off"
-			spellcheck="false"
-			{placeholder}
-			bind:value={query}
-			oninput={onInput}
-			onkeydown={onKeydown}
-			onfocus={() => {
-				focused = true;
-				dismissed = false;
-			}}
-			onblur={() => (focused = false)}
-		/>
 	</label>
 
 	{#if open}
@@ -184,6 +186,19 @@
 	}
 
 	.field {
+		display: flex;
+		flex-direction: column;
+		gap: var(--gok-space-100);
+	}
+
+	.field-label {
+		font-family: var(--gok-font-family-text);
+		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
+		color: var(--gok-color-text);
+	}
+
+	.input-wrap {
 		display: block;
 		position: relative;
 	}

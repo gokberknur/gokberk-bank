@@ -108,7 +108,12 @@ function docNumber(seed: string): string {
 	return `${letters}${(h % 9000000 + 1000000).toString()}`;
 }
 
-/** "Read" the document — deterministic, derived from the profile the user gave. */
+/**
+ * "Read" the document — deterministic, derived from the profile the user gave.
+ * Returns strings only, never binary ID-photo/selfie data — the onboarding draft this
+ * feeds gets persisted to localStorage (see onboarding.svelte.ts#persistDraft), so keep
+ * it that way if this ever grows a real OCR/liveness integration.
+ */
 export function runOcr(fullName: string, dob: string, countryCode: string, idType: IdType): OcrResult {
 	const country = getCountry(countryCode);
 	// Passports expire in 10 years; cards in ~5 — measured from a fixed anchor.
