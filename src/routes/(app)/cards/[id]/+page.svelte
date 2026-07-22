@@ -27,6 +27,15 @@
 
 	const card = $derived(page.params.id ? cards.card(page.params.id) : undefined);
 	const status = $derived(card ? cards.displayStatus(card) : 'Active');
+	// Visually-hidden page <h1> — the accessible page title (heading tree
+	// otherwise starts at "Spent this month"). Same type label the hero-eyebrow
+	// already shows, paired with the last 4 digits, e.g. "Physical card ending
+	// in 4242".
+	const cardHeading = $derived(
+		card
+			? `${card.type === 'physical' ? 'Physical' : card.type === 'virtual' ? 'Virtual' : 'Single-use'} card ending in ${card.last4}`
+			: ''
+	);
 	const cancelled = $derived(status === 'Cancelled');
 	const frozen = $derived(card?.controls.frozen ?? false);
 	const currency = $derived<Currency>(
@@ -133,6 +142,7 @@
 			</div>
 
 			<div class="hero-meta">
+				<h1 id="card-heading" class="visually-hidden">{cardHeading}</h1>
 				<p class="hero-eyebrow gok-eyebrow">
 					{card.type === 'physical'
 						? 'Physical'
@@ -517,6 +527,18 @@
 
 	.nums {
 		font-variant-numeric: tabular-nums;
+	}
+
+	.visually-hidden {
+		position: absolute;
+		inline-size: 1px;
+		block-size: 1px;
+		margin: -1px;
+		padding: 0;
+		border: 0;
+		clip-path: inset(50%);
+		white-space: nowrap;
+		overflow: hidden;
 	}
 
 	@media (max-width: 24.375rem) {
