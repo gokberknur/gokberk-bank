@@ -125,6 +125,9 @@
 		<tbody>
 			{#each sortedRows as row (row.symbol)}
 				{@const dir = row.change.dir}
+				<!-- No role/tabindex/onkeydown here: the nested .sym-link is the keyboard-equivalent
+				     path (WCAG 2.1.1) — adding tabindex/role="button" would nest a second interactive
+				     element and confuse screen readers. -->
 				<tr class="row" onclick={() => openInstrument(row.symbol)}>
 					<th scope="row" class="col-symbol">
 						<a
