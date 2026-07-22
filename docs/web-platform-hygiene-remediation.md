@@ -46,14 +46,35 @@ npm/CDN-bundled and fetches live data from exactly two external hosts:
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=()
-  Content-Security-Policy: default-src 'self'; connect-src 'self' https://api.frankfurter.dev https://data-api.binance.vision; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; frame-ancestors 'none'; base-uri 'self'
+  Content-Security-Policy: default-src 'self'; connect-src 'self' https://api.frankfurter.dev https://data-api.binance.vision; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; frame-ancestors 'none'; base-uri 'self'
 ```
 `style-src 'unsafe-inline'` is required because `gok-*` Lit components set inline styles on their shadow
 roots — tightening this further would need a design-system-side nonce/hash strategy, out of scope here.
 
-**Acceptance criteria.** `curl -I` on the deployed origin shows all five headers; CSP report-only test in a
-browser shows zero violations on a full click-through of accounts/payments/cards/invest/crypto routes
-(including a live FX convert and a crypto quote, to exercise the two allow-listed `connect-src` hosts).
+`script-src 'unsafe-inline'` turned out to be required too (**caught via a real Cloudflare Pages preview
+deploy going blank** — see the correction note below): `src/app.html` ships two inline `<script>` blocks —
+the theme-flash-prevention snippet and SvelteKit's own client hydration bootstrap (which embeds a
+build-specific payload/identifier that changes every build). A hash-based CSP would need those hashes
+regenerated on every single deploy via a build step that doesn't exist today; that's a real follow-up worth
+doing (Cloudflare Pages Functions could inject a per-response nonce, or a small postbuild script could
+compute and write the two hashes into `_headers`), but out of scope for this pass. `'unsafe-inline'` on
+`script-src` is the pragmatic, working baseline — CSP still meaningfully restricts `connect-src` (only the
+two live-data hosts), blocks framing (`frame-ancestors 'none'`), and blocks loading scripts from any
+non-self origin, which covers the actual threat model for an app with zero `{@html}` usage and no
+user-generated content ever rendered as markup.
+
+**Acceptance criteria.** `curl -I` on the deployed origin shows all five headers; loading the app on a real
+Cloudflare Pages preview deploy renders (not blank) with zero CSP console violations; full click-through of
+accounts/payments/cards/invest/crypto routes (including a live FX convert and a crypto quote, to exercise
+the two allow-listed `connect-src` hosts) shows no further violations.
+
+**Correction (2026-07-22, post-merge-review).** The first version of this fix shipped `script-src 'self'`
+(no `'unsafe-inline'`), reasoning by analogy from the `style-src` case without actually checking `app.html`
+for inline scripts. That shipped a blank-page regression on the PR's Cloudflare Pages preview deploy — caught
+by re-checking the live preview in a real browser (`chrome-devtools` MCP), which showed two CSP console
+errors naming the exact two blocked inline scripts. Fixed by adding `'unsafe-inline'` to `script-src` too.
+Lesson: **a CSP change against a real app must be verified against a real deployed preview, in a real
+browser, before calling it done** — `curl -I` only proves the header shape, not that the page still runs.
 
 **Owner.** Direct code fix, no sign-off needed — infra/hygiene, not product surface.
 
