@@ -7,6 +7,11 @@
 		     iPhones, so the bottom tab bar / sticky bars clear the home indicator + notch. -->
 		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 		<meta name="description" content="gökberk bank — a personal pan-European bank: accounts, payments, cards, investing." />
+		<!-- Warms the connection to the two hosts the app fetches live market data from
+		     directly in the browser (src/lib/market/providers/**), so the FX-convert and
+		     crypto/invest screens don't pay a cold DNS+TLS handshake on first quote. -->
+		<link rel="preconnect" href="https://api.frankfurter.dev" crossorigin />
+		<link rel="preconnect" href="https://data-api.binance.vision" crossorigin />
 		<!-- Tints the iOS Safari chrome to the app background; populated at runtime from the
 		     resolved --gok-color-bg token (see the root +layout.svelte) so it tracks the theme. -->
 		<meta name="theme-color" content="" />
