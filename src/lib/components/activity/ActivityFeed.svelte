@@ -33,6 +33,11 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-200);
+		/* Defer layout/paint for off-screen day-groups as history grows across
+		   months — 320px is a rough estimate (header + ~3 typical rows) and may
+		   need retuning after visual QA. */
+		content-visibility: auto;
+		contain-intrinsic-size: auto 320px;
 	}
 
 	.day-head {
