@@ -128,7 +128,7 @@
 			<gok-menu-item value="signout">Sign out</gok-menu-item>
 		</gok-menu>
 
-		<gok-theme-switch compact label="Theme"></gok-theme-switch>
+		<gok-theme-switch compact label="Theme" class="theme-switch"></gok-theme-switch>
 	</div>
 </header>
 
@@ -276,12 +276,19 @@
 	}
 
 	/* Mobile (<40rem): the rail is hidden, so the top bar is a single full-width row —
-	   the brand returns to its natural width with no divider. */
+	   the brand returns to its natural width with no divider. The theme switch drops out
+	   too — it's a duplicate control at this size, and Settings → Appearance already
+	   offers the same choice, so it's not worth the inline-space cost in the actions
+	   cluster. */
 	@media (max-width: 39.999rem) {
 		.brand {
 			inline-size: auto;
 			border-inline-end: none;
 			padding-inline: var(--gok-space-400);
+		}
+
+		.theme-switch {
+			display: none;
 		}
 	}
 
