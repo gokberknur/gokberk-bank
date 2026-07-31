@@ -344,7 +344,7 @@
 		</gok-empty-state>
 	</div>
 {:else}
-	<div class="page">
+	<div class="page-grid">
 		<header class="head">
 			<BackLink href="/invest" label="Investments" />
 
@@ -426,7 +426,7 @@
 					</nav>
 
 					<!-- Price chart -->
-					<section id="chart" class="block" aria-labelledby="chart-heading">
+					<section id="chart" class="block section" aria-labelledby="chart-heading">
 						<div class="block-head chart-head">
 							<div>
 								<p class="block-eyebrow gok-eyebrow">Price</p>
@@ -494,7 +494,7 @@
 
 					<!-- Key statistics — the shallow key-stats ledger. The deep, type-branched
 					     fundamentals now live in their own tab panel. -->
-					<section id="keystats" class="block" aria-labelledby="keystats-heading">
+					<section id="keystats" class="block section" aria-labelledby="keystats-heading">
 						<div class="block-head">
 							<p class="block-eyebrow gok-eyebrow">Snapshot</p>
 							<h2 id="keystats-heading" class="block-title gok-headline-5">Key statistics</h2>
@@ -521,7 +521,7 @@
 					</section>
 
 					<!-- News -->
-					<section id="news" class="block" aria-labelledby="news-heading">
+					<section id="news" class="block section" aria-labelledby="news-heading">
 						<div class="block-head">
 							<p class="block-eyebrow gok-eyebrow">News</p>
 							<h2 id="news-heading" class="block-title gok-headline-5">Latest headlines</h2>
@@ -530,7 +530,7 @@
 					</section>
 
 					<!-- Depth (simulated order book) -->
-					<section id="depth" class="block" aria-labelledby="depth-heading">
+					<section id="depth" class="block section" aria-labelledby="depth-heading">
 						<div class="block-head">
 							<p class="block-eyebrow gok-eyebrow">Order book</p>
 							<h2 id="depth-heading" class="block-title gok-headline-5">Simulated depth</h2>
@@ -539,7 +539,7 @@
 					</section>
 
 					<!-- Dividends -->
-					<section id="dividends" class="block" aria-labelledby="dividends-heading">
+					<section id="dividends" class="block section" aria-labelledby="dividends-heading">
 						<div class="block-head">
 							<p class="block-eyebrow gok-eyebrow">Income</p>
 							<h2 id="dividends-heading" class="block-title gok-headline-5">Dividend history</h2>
@@ -548,7 +548,7 @@
 					</section>
 
 					<!-- About -->
-					<section class="block" aria-labelledby="about-heading">
+					<section class="block section" aria-labelledby="about-heading">
 						<div class="block-head">
 							<p class="block-eyebrow gok-eyebrow">About</p>
 							<h2 id="about-heading" class="block-title gok-headline-5">{inst.name}</h2>
@@ -562,7 +562,7 @@
 
 					<!-- My position (only when held) -->
 					{#if position}
-						<section class="block" aria-labelledby="position-heading">
+						<section class="block section" aria-labelledby="position-heading">
 							<div class="block-head">
 								<p class="block-eyebrow gok-eyebrow">Holding</p>
 								<h2 id="position-heading" class="block-title gok-headline-5">My position</h2>
@@ -592,7 +592,7 @@
 
 					<!-- Related (a quiet hairline strip → each instrument's own detail page) -->
 					{#if related.length > 0}
-						<section id="related" class="block" aria-labelledby="related-heading">
+						<section id="related" class="block section" aria-labelledby="related-heading">
 							<div class="block-head">
 								<p class="block-eyebrow gok-eyebrow">More to explore</p>
 								<h2 id="related-heading" class="block-title gok-headline-5">Related instruments</h2>
@@ -627,7 +627,7 @@
 			<gok-tab-panel value="fundamentals">
 				<div class="tab-body">
 					<!-- Fundamentals — the deep, type-branched company fundamentals. -->
-					<section class="block" aria-labelledby="fundamentals-heading">
+					<section class="block section" aria-labelledby="fundamentals-heading">
 						<div class="block-head">
 							<p class="block-eyebrow gok-eyebrow">Fundamentals</p>
 							<h2 id="fundamentals-heading" class="block-title gok-headline-5">Company fundamentals</h2>
@@ -643,14 +643,18 @@
 {/if}
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
-	/* Each tab panel's content column. Carries the inter-section rhythm that .page's gap
-	   used to provide, now that the research sections live inside the tab panels. */
+	/* Each tab panel's content column, carrying the inter-section rhythm that `.page`'s gap used
+	   to provide.
+
+	   NOT a `.section`: the spine cannot reach in here. `<gok-tab-panel>` sits between this column
+	   and `.page-grid` as a `display: block` web component, so a subgrid chain breaks at the
+	   custom-element boundary — the same family as the `gok-card` `part="content"` gap (dogfooding
+	   #49/#50). Tried it; the blocks below resolved against zero tracks. The page has no card runs
+	   that need page-track alignment, so a plain flex column is the honest answer here. */
 	.tab-body {
 		display: flex;
 		flex-direction: column;
@@ -790,11 +794,8 @@
 	}
 
 	/* --- Content blocks --- */
-	.block {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-400);
-	}
+	/* `.section` (the spine) supplies display, tracks and row-gap. A local `display: flex`
+	   would win — route styles are unlayered — and collapse the subgrid beneath it. */
 
 	.block-head {
 		display: flex;
@@ -850,7 +851,10 @@
 		color: var(--gok-color-text-muted);
 	}
 
-	/* --- Key/value ledger grid --- */
+	/* --- Key/value ledger grid ---
+	   Deliberately NOT on the spine: this is an in-panel <dl> of stat pairs, and its panel does
+	   not span the whole page grid, so the page's tracks would be the wrong tracks. Recorded as a
+	   permanent allowance in scripts/check-layout.mjs, not as unmigrated work. */
 	.stats {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));

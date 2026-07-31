@@ -76,7 +76,7 @@
 	<title>Lending · gökberk bank</title>
 </svelte:head>
 
-<div class="page">
+<div class="page-grid">
 	<header class="head">
 		<p class="head-eyebrow gok-eyebrow">Lending</p>
 		<h1 class="head-title gok-headline-2">Borrow with a clear head</h1>
@@ -84,7 +84,7 @@
 	</header>
 
 	<!-- Active loan — the servicing summary for the one loan I hold. -->
-	<section class="block" aria-labelledby="loan-heading">
+	<section class="block section" aria-labelledby="loan-heading">
 		<h2 id="loan-heading" class="visually-hidden">My active loan</h2>
 		<gok-card>
 			<div class="loan">
@@ -130,7 +130,7 @@
 	</section>
 
 	<!-- My mortgage — the servicing summary for the one mortgage I hold. -->
-	<section class="block" aria-labelledby="mortgage-heading">
+	<section class="block section" aria-labelledby="mortgage-heading">
 		<h2 id="mortgage-heading" class="visually-hidden">My mortgage</h2>
 		<gok-card>
 			<div class="loan">
@@ -168,7 +168,7 @@
 	</section>
 
 	<!-- My credit line — the management summary for the one revolving line I hold. -->
-	<section class="block" aria-labelledby="credit-heading">
+	<section class="block section" aria-labelledby="credit-heading">
 		<h2 id="credit-heading" class="visually-hidden">My credit line</h2>
 		<gok-card>
 			<div class="loan">
@@ -204,15 +204,15 @@
 	</section>
 
 	<!-- Products — what I can borrow next. -->
-	<section class="block" aria-labelledby="products-heading">
+	<section class="block section" aria-labelledby="products-heading">
 		<div class="block-titles">
 			<p class="block-eyebrow gok-eyebrow">Products</p>
 			<h2 id="products-heading" class="block-title gok-headline-5">What I can borrow</h2>
 		</div>
 
-		<ul class="product-grid">
+		<ul class="product-grid grid-run">
 			{#each products as product (product.label)}
-				<li class="product-cell">
+				<li class="product-cell cell-third">
 					{#if product.ready}
 						<gok-card interactive style="position: relative">
 							<a class="stretched" href={product.href} aria-label={product.label}></a>
@@ -248,10 +248,8 @@
 </div>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	/* ── Header ── */
@@ -280,11 +278,8 @@
 	}
 
 	/* ── Blocks ── */
-	.block {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-400);
-	}
+	/* `.section` (the spine) supplies display, tracks and row-gap. A local `display: flex`
+	   would win — route styles are unlayered — and collapse the subgrid beneath it. */
 
 	.block-titles {
 		display: flex;
@@ -403,16 +398,6 @@
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-small-size);
 		color: var(--gok-color-text-muted);
-	}
-
-	/* ── Products grid ── */
-	.product-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-		gap: var(--gok-space-400);
-		margin: 0;
-		padding: 0;
-		list-style: none;
 	}
 
 	.product-cell {

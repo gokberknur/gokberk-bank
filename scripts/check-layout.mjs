@@ -30,6 +30,20 @@ import { dirname, join, relative } from 'node:path';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(ROOT, 'src');
 const KNOWN_PATH = join(dirname(fileURLToPath(import.meta.url)), 'layout-known.json');
+
+// PERMANENT, reasoned exceptions — distinct from KNOWN, which is a shrinking migration backlog.
+// KNOWN must reach zero; ALLOW never does, because these are correct as they stand. Every entry
+// needs a reason, and "not migrated yet" is not one — that is what KNOWN is for.
+const ALLOW = new Map([
+	[
+		'COLUMNS src/routes/(app)/crypto/[symbol]/+page.svelte',
+		'`.stats` is an in-panel key/value <dl>, not a page-level card run. Its panel does not span the whole spine, so page tracks would be the wrong tracks.'
+	],
+	[
+		'COLUMNS src/routes/(app)/invest/instrument/[symbol]/+page.svelte',
+		'Same in-panel `.stats` ledger as the crypto instrument page.'
+	]
+]);
 const EXTS = ['.svelte', '.css'];
 
 // The spine itself, and the app-global sheet that defines the measure roles, are the source of
@@ -78,7 +92,9 @@ for (const file of walk(SRC)) {
 			for (const m of line.matchAll(rule.re)) {
 				const value = m[1].trim().replace(/\s+/g, ' ');
 				if (rule.ok(value)) continue;
-				found.push({ key: `${rule.id} ${rel}`, rule: rule.id, file: rel, line: i + 1, value, hint: rule.hint });
+				const key = `${rule.id} ${rel}`;
+				if (ALLOW.has(key)) continue;
+				found.push({ key, rule: rule.id, file: rel, line: i + 1, value, hint: rule.hint });
 			}
 		});
 	}
@@ -121,5 +137,5 @@ if (stale.length > 0) {
 }
 
 console.log(
-	`✔ layout-lint: no new drift (${known.length} known violation(s) awaiting migration).`
+	`✔ layout-lint: no new drift (${known.length} awaiting migration, ${ALLOW.size} permanently allowed).`
 );
