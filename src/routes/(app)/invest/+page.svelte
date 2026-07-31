@@ -29,6 +29,7 @@
 	import ContributionList from '$lib/components/invest/ContributionList.svelte';
 	import ProjectionCalculator from '$lib/components/invest/ProjectionCalculator.svelte';
 	import StickyActionBar from '$lib/components/layout/StickyActionBar.svelte';
+	import JumpNav from '$lib/components/layout/JumpNav.svelte';
 
 	// ── Portfolio reads (all derived fresh from the seed) ──
 	const summary = $derived(invest.summary);
@@ -239,17 +240,16 @@
 			</gok-empty-state>
 		</section>
 	{:else}
-		<!-- In-page jump-nav (CV-LAY-6): calm, mono, secondary to the V16 sub-nav above.
-		     Real anchors to the analytics sections, in on-page order. -->
-		<nav class="jump-nav" aria-label="On this page">
-			<ul class="jump-list">
-				<li><a class="jump-link" href="#benchmark">Performance</a></li>
-				<li><a class="jump-link" href="#return">Return</a></li>
-				<li><a class="jump-link" href="#pl">P/L</a></li>
-				<li><a class="jump-link" href="#contribution">Contribution</a></li>
-				<li><a class="jump-link" href="#projection">Projection</a></li>
-			</ul>
-		</nav>
+		<!-- In-page jump-nav (CV-LAY-6), secondary to the V16 sub-nav above. -->
+		<JumpNav
+			items={[
+				{ id: 'benchmark', label: 'Performance' },
+				{ id: 'return', label: 'Return' },
+				{ id: 'pl', label: 'P/L' },
+				{ id: 'contribution', label: 'Contribution' },
+				{ id: 'projection', label: 'Projection' }
+			]}
+		/>
 
 		<!-- Performance (with the V12 benchmark overlay) -->
 		<section id="benchmark" class="block section" aria-labelledby="perf-heading">
@@ -926,40 +926,6 @@
 	}
 
 	/* ── In-page jump-nav (CV-LAY-6) ── */
-	.jump-nav {
-		/* Calm + mono, sentence-case (the eyebrow owns the one uppercase), hairline rule
-		   below so it reads lighter than the V16 sub-nav above and doesn't compete. */
-		margin-block-start: calc(-1 * var(--gok-space-300));
-	}
-
-	.jump-list {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--gok-space-200) var(--gok-space-400);
-		margin: 0;
-		padding: 0;
-		padding-block-end: var(--gok-space-300);
-		list-style: none;
-		border-block-end: var(--gok-border-width-hairline) solid var(--gok-color-border);
-	}
-
-	.jump-link {
-		font-family: var(--gok-font-family-mono);
-		font-size: var(--gok-type-footnote-size);
-		color: var(--gok-color-text-muted);
-		text-decoration: none;
-	}
-
-	.jump-link:hover {
-		color: var(--gok-color-text);
-	}
-
-	.jump-link:focus-visible {
-		outline: var(--gok-focus-ring-width) solid var(--gok-color-focus-ring);
-		outline-offset: 2px;
-		border-radius: var(--gok-radius-s);
-	}
-
 	/* ── Performance controls (range + compare switch) ── */
 	.perf-controls {
 		display: flex;
