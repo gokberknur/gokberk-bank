@@ -21,7 +21,12 @@ import { toMinorUnits } from '../support/money';
 test('/accounts lists every wallet and the home-currency total reconciles', async ({ page }) => {
 	await gotoApp(page, '/accounts');
 
-	await expect(page.getByRole('heading', { level: 1, name: 'Your money' })).toBeVisible();
+	// The header is figure-first since X06: the total across wallets IS the page's hero, so
+	// the h1 is the amount (with an sr-only "Total across wallets" prefix) rather than a
+	// generic "Your money" label (CV-VIS-3).
+	await expect(
+		page.getByRole('heading', { level: 1, name: /Total across wallets/ })
+	).toBeVisible();
 
 	// All four seeded wallets are present as links to their detail route.
 	await expect(page.getByRole('link', { name: /EUR wallet, available/ })).toBeVisible();
@@ -29,9 +34,11 @@ test('/accounts lists every wallet and the home-currency total reconciles', asyn
 	await expect(page.getByRole('link', { name: /GBP wallet, available/ })).toBeVisible();
 	await expect(page.getByRole('link', { name: /SEK wallet, available/ })).toBeVisible();
 
-	// The "Total across wallets" figure is a real grouped EUR amount (not a float-drift artefact).
-	const total = page.getByText('Total across wallets').locator('xpath=following-sibling::*[1]');
-	const totalMinor = toMinorUnits((await total.first().textContent()) ?? '');
+	// The total is a real grouped EUR amount (not a float-drift artefact). It now lives in the
+	// figure-first h1 itself rather than in a sibling paragraph, so read the heading and let
+	// toMinorUnits pick the amount out of its "Total across wallets €X" text (X06).
+	const total = page.getByRole('heading', { level: 1, name: /Total across wallets/ });
+	const totalMinor = toMinorUnits((await total.textContent()) ?? '');
 	expect(totalMinor).not.toBeNull();
 	expect(totalMinor!).toBeGreaterThan(0);
 });

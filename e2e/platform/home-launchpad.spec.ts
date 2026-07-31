@@ -23,7 +23,10 @@ test('home renders the launchpad blocks', async ({ page }) => {
 	await expect(page.getByText(/Good to see you/)).toBeVisible();
 	await expect(page.locator('.figure').first()).toBeVisible();
 	await expect(page.getByRole('heading', { name: 'Start something' })).toBeVisible();
-	await expect(page.getByText('Total across wallets')).toBeVisible();
+	// "Total across wallets" now appears twice by design: once as the visible eyebrow, once as
+	// the sr-only prefix inside the figure heading so the heading does not read as a bare
+	// number. Assert the visible eyebrow specifically rather than matching both (X06).
+	await expect(page.locator('p.gok-eyebrow', { hasText: 'Total across wallets' })).toBeVisible();
 });
 
 test('quick actions each launch a live payments surface', async ({ page }) => {
