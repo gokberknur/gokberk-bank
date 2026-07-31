@@ -15,6 +15,7 @@
 	import { setProps, on } from '$lib/wc.svelte';
 	import MoneyInput from '$lib/components/money/MoneyInput.svelte';
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
+	import JumpNav from '$lib/components/layout/JumpNav.svelte';
 
 	// ── Period: two segments (custom range out of scope — F06 date-range, deferred) ──
 	const LAST_MONTH = shiftMonth(THIS_MONTH, -1);
@@ -100,7 +101,7 @@
 	{/if}
 {/snippet}
 
-<div class="page">
+<div class="page-grid">
 	<PageHeader eyebrow={monthLabel(budgets.month)} figure={eur(total)} srLabel="Spent">
 		{#snippet actions()}
 			<gok-segmented
@@ -127,13 +128,26 @@
 		</section>
 	{:else}
 		<!-- 2 · Spend by category -->
-		<section class="block" aria-labelledby="cat-heading">
+		<!-- In-page jump nav (CV-LAY-6): this page is eight stacked panels deep. -->
+		<JumpNav
+			items={[
+				{ id: 'cat', label: 'Categories' },
+				{ id: 'trend', label: 'Trend' },
+				{ id: 'budgets', label: 'Budgets' },
+				{ id: 'ledger', label: 'Cashflow' },
+				{ id: 'merchants', label: 'Merchants' },
+				{ id: 'subs', label: 'Subscriptions' },
+				{ id: 'mom', label: 'Comparison' }
+			]}
+		/>
+
+		<section id="cat" class="block section" aria-labelledby="cat-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">By category</p>
 				<h2 id="cat-heading" class="block-title gok-headline-5">Where my money went</h2>
 			</div>
-			<div class="cat-layout">
-				<div class="cat-chart">
+			<div class="cat-layout grid-run">
+				<div class="cat-chart cell-half">
 					<DonutChart
 						data={donutData}
 						formatValue={eur}
@@ -143,7 +157,7 @@
 						height="16rem"
 					/>
 				</div>
-				<ul class="legend">
+				<ul class="legend cell-half">
 					{#each spend as row (row.category)}
 						{@const share = total !== 0 ? row.amountMinor / total : 0}
 						<li class="legend-row">
@@ -159,7 +173,7 @@
 		</section>
 
 		<!-- 3 · Monthly trend -->
-		<section class="block" aria-labelledby="trend-heading">
+		<section id="trend" class="block section" aria-labelledby="trend-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Trend</p>
 				<h2 id="trend-heading" class="block-title gok-headline-5">Spending over time</h2>
@@ -174,7 +188,7 @@
 		</section>
 
 		<!-- 4 · Budgets -->
-		<section class="block" aria-labelledby="budgets-heading">
+		<section id="budgets" class="block section" aria-labelledby="budgets-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Budgets</p>
 				<h2 id="budgets-heading" class="block-title gok-headline-5">My budgets</h2>
@@ -271,7 +285,7 @@
 		</section>
 
 		<!-- 5 · Income vs expense -->
-		<section class="block" aria-labelledby="ledger-heading">
+		<section id="ledger" class="block section" aria-labelledby="ledger-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Cashflow</p>
 				<h2 id="ledger-heading" class="block-title gok-headline-5">Income and expense</h2>
@@ -307,7 +321,7 @@
 		</section>
 
 		<!-- 6 · Top merchants -->
-		<section class="block" aria-labelledby="merchants-heading">
+		<section id="merchants" class="block section" aria-labelledby="merchants-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Merchants</p>
 				<h2 id="merchants-heading" class="block-title gok-headline-5">Where I shopped most</h2>
@@ -328,7 +342,7 @@
 		</section>
 
 		<!-- 7 · Subscriptions -->
-		<section class="block" aria-labelledby="subs-heading">
+		<section id="subs" class="block section" aria-labelledby="subs-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Recurring</p>
 				<h2 id="subs-heading" class="block-title gok-headline-5">My subscriptions</h2>
@@ -336,9 +350,9 @@
 			{#if subscriptions.length === 0}
 				<p class="subs-empty">No recurring charges detected this period.</p>
 			{:else}
-				<ul class="subs-grid">
+				<ul class="subs-grid grid-run">
 					{#each subscriptions as sub (sub.merchant)}
-						<li class="sub-card">
+						<li class="sub-card cell-third">
 							<span class="sub-merchant">{sub.merchant}</span>
 							<span class="sub-cadence">Monthly</span>
 							<span class="sub-amount gok-tabular-nums">{eur(sub.amountMinor)}</span>
@@ -352,7 +366,7 @@
 
 		<!-- 8 · Month over month -->
 		{#if mom.length > 0}
-			<section class="block" aria-labelledby="mom-heading">
+			<section id="mom" class="block section" aria-labelledby="mom-heading">
 				<div class="block-titles">
 					<p class="block-eyebrow gok-eyebrow">Comparison</p>
 					<h2 id="mom-heading" class="block-title gok-headline-5">Month over month</h2>
@@ -375,18 +389,18 @@
 </div>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
+	}
+
+	/* Clear of the pinned top bar when the jump nav lands on a section. */
+	.block[id] {
+		scroll-margin-block-start: var(--gok-space-600);
 	}
 
 	/* ── Blocks ── */
-	.block {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-400);
-	}
+	/* `.section` (the spine) supplies display, tracks and row-gap. A local `display: flex`
+	   would win — route styles are unlayered — and collapse the subgrid beneath it. */
 
 	.block-titles {
 		display: flex;
@@ -405,15 +419,9 @@
 	}
 
 	/* ── Spend by category ── */
+	/* Tracks + gutter come from `.grid-run`; chart and legend each claim half the spine. */
 	.cat-layout {
-		display: grid;
-		grid-template-columns: 1fr;
-		gap: var(--gok-space-500);
 		align-items: center;
-	}
-
-	.cat-chart {
-		min-inline-size: 0;
 	}
 
 	.legend {
@@ -674,14 +682,6 @@
 	}
 
 	/* ── Subscriptions ── */
-	.subs-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
-		gap: var(--gok-space-300);
-		margin: 0;
-		padding: 0;
-		list-style: none;
-	}
 
 	.sub-card {
 		display: grid;
@@ -839,13 +839,5 @@
 		clip-path: inset(50%);
 		white-space: nowrap;
 		overflow: hidden;
-	}
-
-	/* ── Two-column category split + breathing room at desktop ── */
-	@media (min-width: 48rem) {
-		.cat-layout {
-			grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-			gap: var(--gok-space-700);
-		}
 	}
 </style>

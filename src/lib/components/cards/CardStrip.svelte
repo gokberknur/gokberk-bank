@@ -110,7 +110,13 @@
 
 	/* Desktop: a wrapping grid so every card and the "Add a card" tile stay
 	   visible with no horizontal scroll. The track matches the strip card art's
-	   rendered inline-size (CardArt size="strip" → 16rem, same as the add-tile). */
+	   rendered inline-size (CardArt size="strip" → 16rem, same as the add-tile).
+
+	   A DOCUMENTED EXCEPTION to the X06 spine: a payment card is fixed-aspect media at a
+	   real physical size, so its track is intrinsic rather than fluid. Putting it on a
+	   `cell-*` role would either letterbox the art inside a wider cell or distort it. The
+	   gutter still reads the spine's token, so the rhythm matches even where the tracks
+	   cannot. */
 	@media (min-width: 64rem) {
 		.strip {
 			display: grid;

@@ -29,6 +29,7 @@
 	import ContributionList from '$lib/components/invest/ContributionList.svelte';
 	import ProjectionCalculator from '$lib/components/invest/ProjectionCalculator.svelte';
 	import StickyActionBar from '$lib/components/layout/StickyActionBar.svelte';
+	import JumpNav from '$lib/components/layout/JumpNav.svelte';
 
 	// ── Portfolio reads (all derived fresh from the seed) ──
 	const summary = $derived(invest.summary);
@@ -215,7 +216,7 @@
 	</span>
 {/snippet}
 
-<div class="page">
+<div class="page-grid">
 	<header class="head">
 		<h1 id="portfolio-heading" class="visually-hidden">Portfolio</h1>
 		<p class="head-eyebrow gok-eyebrow">Portfolio</p>
@@ -239,20 +240,19 @@
 			</gok-empty-state>
 		</section>
 	{:else}
-		<!-- In-page jump-nav (CV-LAY-6): calm, mono, secondary to the V16 sub-nav above.
-		     Real anchors to the analytics sections, in on-page order. -->
-		<nav class="jump-nav" aria-label="On this page">
-			<ul class="jump-list">
-				<li><a class="jump-link" href="#benchmark">Performance</a></li>
-				<li><a class="jump-link" href="#return">Return</a></li>
-				<li><a class="jump-link" href="#pl">P/L</a></li>
-				<li><a class="jump-link" href="#contribution">Contribution</a></li>
-				<li><a class="jump-link" href="#projection">Projection</a></li>
-			</ul>
-		</nav>
+		<!-- In-page jump-nav (CV-LAY-6), secondary to the V16 sub-nav above. -->
+		<JumpNav
+			items={[
+				{ id: 'benchmark', label: 'Performance' },
+				{ id: 'return', label: 'Return' },
+				{ id: 'pl', label: 'P/L' },
+				{ id: 'contribution', label: 'Contribution' },
+				{ id: 'projection', label: 'Projection' }
+			]}
+		/>
 
 		<!-- Performance (with the V12 benchmark overlay) -->
-		<section id="benchmark" class="block" aria-labelledby="perf-heading">
+		<section id="benchmark" class="block section" aria-labelledby="perf-heading">
 			<div class="block-head">
 				<div class="block-titles">
 					<p class="block-eyebrow gok-eyebrow">Performance</p>
@@ -346,7 +346,7 @@
 		</section>
 
 		<!-- Return pair (V12): total vs time-weighted return -->
-		<section id="return" class="block" aria-labelledby="return-heading">
+		<section id="return" class="block section" aria-labelledby="return-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Return</p>
 				<h2 id="return-heading" class="block-title gok-headline-5">How the money did</h2>
@@ -374,7 +374,7 @@
 		</section>
 
 		<!-- P/L split (V12): realised vs unrealised -->
-		<section id="pl" class="block" aria-labelledby="pl-heading">
+		<section id="pl" class="block section" aria-labelledby="pl-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Profit &amp; loss</p>
 				<h2 id="pl-heading" class="block-title gok-headline-5">Realised and unrealised</h2>
@@ -386,13 +386,13 @@
 		</section>
 
 		<!-- Allocation -->
-		<section class="block" aria-labelledby="alloc-heading">
+		<section class="block section" aria-labelledby="alloc-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Allocation</p>
 				<h2 id="alloc-heading" class="block-title gok-headline-5">How it's split</h2>
 			</div>
-			<div class="alloc-layout">
-				<div class="alloc-chart">
+			<div class="alloc-layout grid-run">
+				<div class="alloc-chart cell-half">
 					<DonutChart
 						data={allocation}
 						formatValue={(m) => formatMoney(m, 'EUR')}
@@ -402,7 +402,7 @@
 						height="16rem"
 					/>
 				</div>
-				<ul class="legend">
+				<ul class="legend cell-half">
 					{#each allocation as slice (slice.name)}
 						{@const weight = allocTotal !== 0 ? slice.value / allocTotal : 0}
 						<li class="legend-row">
@@ -418,7 +418,7 @@
 		</section>
 
 		<!-- Holdings grid (app-local accessible table — see dogfooding #8/#11) -->
-		<section class="block" aria-labelledby="holdings-heading">
+		<section class="block section" aria-labelledby="holdings-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Holdings</p>
 				<h2 id="holdings-heading" class="block-title gok-headline-5">What I own</h2>
@@ -533,7 +533,7 @@
 		</section>
 
 		<!-- Contribution (V12): what drove the return, per holding -->
-		<section id="contribution" class="block" aria-labelledby="contribution-heading">
+		<section id="contribution" class="block section" aria-labelledby="contribution-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Analytics</p>
 				<h2 id="contribution-heading" class="block-title gok-headline-5">What drove it</h2>
@@ -542,7 +542,7 @@
 		</section>
 
 		<!-- Projection (V12): a neutral what-if illustration -->
-		<section id="projection" class="block" aria-labelledby="projection-heading">
+		<section id="projection" class="block section" aria-labelledby="projection-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Illustration</p>
 				<h2 id="projection-heading" class="block-title gok-headline-5">
@@ -553,7 +553,7 @@
 		</section>
 
 		<!-- Quick actions -->
-		<section class="block actions" aria-labelledby="actions-heading">
+		<section class="block actions section" aria-labelledby="actions-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Quick actions</p>
 				<h2 id="actions-heading" class="block-title gok-headline-5">Make a move</h2>
@@ -591,10 +591,9 @@
 {/if}
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	/* Section rhythm between the page's own blocks; the tracks come from the spine. */
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	/* ── Summary header ── */
@@ -673,13 +672,11 @@
 	}
 
 	/* ── Blocks ── */
-	.block {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-400);
-	}
+	/* `.section` (the spine) supplies display, tracks and row-gap. A local `display: flex`
+	   here would win — route styles are unlayered — and silently collapse the subgrid. */
 
 	.block-head {
+		grid-column: 1 / -1;
 		display: flex;
 		flex-wrap: wrap;
 		align-items: flex-end;
@@ -704,15 +701,10 @@
 	}
 
 	/* ── Allocation ── */
+	/* Tracks + gutter come from `.grid-run`; the chart and the legend each claim half the
+	   spine, so the donut's left edge sits on the same line as the holdings grid below. */
 	.alloc-layout {
-		display: grid;
-		grid-template-columns: 1fr;
-		gap: var(--gok-space-500);
 		align-items: center;
-	}
-
-	.alloc-chart {
-		min-inline-size: 0;
 	}
 
 	.legend {
@@ -934,40 +926,6 @@
 	}
 
 	/* ── In-page jump-nav (CV-LAY-6) ── */
-	.jump-nav {
-		/* Calm + mono, sentence-case (the eyebrow owns the one uppercase), hairline rule
-		   below so it reads lighter than the V16 sub-nav above and doesn't compete. */
-		margin-block-start: calc(-1 * var(--gok-space-300));
-	}
-
-	.jump-list {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--gok-space-200) var(--gok-space-400);
-		margin: 0;
-		padding: 0;
-		padding-block-end: var(--gok-space-300);
-		list-style: none;
-		border-block-end: var(--gok-border-width-hairline) solid var(--gok-color-border);
-	}
-
-	.jump-link {
-		font-family: var(--gok-font-family-mono);
-		font-size: var(--gok-type-footnote-size);
-		color: var(--gok-color-text-muted);
-		text-decoration: none;
-	}
-
-	.jump-link:hover {
-		color: var(--gok-color-text);
-	}
-
-	.jump-link:focus-visible {
-		outline: var(--gok-focus-ring-width) solid var(--gok-color-focus-ring);
-		outline-offset: 2px;
-		border-radius: var(--gok-radius-s);
-	}
-
 	/* ── Performance controls (range + compare switch) ── */
 	.perf-controls {
 		display: flex;
@@ -1084,13 +1042,7 @@
 		scroll-margin-block-start: var(--gok-space-600);
 	}
 
-	/* ── Two-column allocation + breathing room at desktop ── */
 	@media (min-width: 48rem) {
-		.alloc-layout {
-			grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-			gap: var(--gok-space-700);
-		}
-
 		.perf-controls {
 			align-items: flex-end;
 		}

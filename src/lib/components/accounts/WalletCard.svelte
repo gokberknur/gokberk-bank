@@ -24,11 +24,15 @@
 		<h2 class="name gok-headline-5">{wallet.name}</h2>
 		<p class="available gok-tabular-nums">{available}</p>
 
-		{#if hasHold}
-			<p class="held gok-tabular-nums">
+		<!-- Always rendered, even with nothing to say: the held line reserves its own height
+		     (`.line-delta`) so a wallet with a hold and one without still stack to the same
+		     steps, and their IBAN tails land on one baseline across a card row. Empty means
+		     empty to a screen reader — there is no placeholder text. -->
+		<p class="held line-delta gok-tabular-nums">
+			{#if hasHold}
 				Current {current} · <span class="held-amount">{held} held</span>
-			</p>
-		{/if}
+			{/if}
+		</p>
 
 		<p class="iban gok-tabular-nums">•••• {ibanTail}</p>
 	</div>

@@ -62,14 +62,14 @@
 	}
 </script>
 
-<div class="page">
+<div class="page-grid">
 	<header class="head">
 		<p class="head-eyebrow gok-eyebrow">Payments</p>
 		<h1 class="head-title gok-headline-2">Move my money</h1>
 		<p class="head-sub">Send, request, and manage everyone I pay — in one place.</p>
 	</header>
 
-	<section class="actions" aria-label="What I can do">
+	<section class="actions section" aria-label="What I can do">
 		<gok-card interactive class="featured" style="position: relative">
 			<a class="stretched" href={primary.href} aria-label={primary.label}></a>
 			<div class="featured-body">
@@ -84,9 +84,9 @@
 			</div>
 		</gok-card>
 
-		<ul class="action-grid">
+		<ul class="action-grid grid-run">
 			{#each rest as action (action.label)}
-				<li class="action-cell">
+				<li class="action-cell cell-third">
 					<gok-card interactive style="position: relative">
 						<a class="stretched" href={action.href} aria-label={action.label}></a>
 						<div class="tile">
@@ -100,15 +100,15 @@
 		</ul>
 	</section>
 
-	<section class="recent" aria-labelledby="recent-heading">
+	<section class="recent section" aria-labelledby="recent-heading">
 		<div class="recent-head">
 			<h2 id="recent-heading" class="recent-title gok-headline-4">Recent payees</h2>
 			<gok-link href="/payments/payees">All payees</gok-link>
 		</div>
 
-		<ul class="recent-grid">
+		<ul class="recent-grid grid-run">
 			{#each recent as payee (payee.id)}
-				<li class="recent-cell">
+				<li class="recent-cell cell-third">
 					<gok-card interactive style="position: relative">
 						<button
 							type="button"
@@ -128,10 +128,8 @@
 </div>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.head {
@@ -158,31 +156,10 @@
 		color: var(--gok-color-text-muted);
 	}
 
-	/* --- Actions board --- */
-	.actions,
-	.recent {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-400);
-	}
-
-	.action-grid,
-	.recent-grid {
-		display: grid;
-		gap: var(--gok-space-400);
-		margin: 0;
-		padding: 0;
-		list-style: none;
-	}
-
-	.action-grid {
-		grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-	}
-
-	.recent-grid {
-		grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
-	}
-
+	/* --- Actions board ---
+	   Display, tracks, gutter and row rhythm all come from `.section` + `.grid-run` on the
+	   spine. A local `display: flex` on the sections would win (route styles are unlayered)
+	   and collapse the subgrid, so there is deliberately nothing here. */
 	.action-cell,
 	.recent-cell {
 		display: flex;
