@@ -1,8 +1,0 @@
-[
-	"COLUMNS src/routes/(app)/crypto/transfer/+page.svelte",
-	"COLUMNS src/routes/(app)/insurance/policies/[id]/+page.svelte",
-	"COLUMNS src/routes/(app)/insurance/quote/+page.svelte",
-	"COLUMNS src/routes/(app)/invest/discover/+page.svelte",
-	"COLUMNS src/routes/(app)/lending/mortgages/calculator/+page.svelte",
-	"COLUMNS src/routes/(app)/payments/exchange/+page.svelte"
-]

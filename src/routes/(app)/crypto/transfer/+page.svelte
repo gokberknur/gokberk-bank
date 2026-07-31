@@ -158,10 +158,17 @@
 		color: var(--gok-color-text-muted);
 	}
 
+	/* Tracks from the spine; the two-up breakpoint stays this route's own (32rem). */
 	.selectors {
 		display: grid;
-		grid-template-columns: 1fr;
+		grid-template-columns: subgrid;
 		gap: var(--gok-space-300);
+	}
+
+	/* Stacked by default: a subgrid child gets no span of its own, so without this each child
+	   would be auto-placed into a single track and render at a twelfth of the width. */
+	.selectors > :global(*) {
+		grid-column: 1 / -1;
 	}
 
 	.field {
@@ -190,8 +197,8 @@
 	}
 
 	@media (min-width: 32rem) {
-		.selectors {
-			grid-template-columns: 1fr 1fr;
+		.selectors > :global(*) {
+			grid-column: span 6;
 		}
 	}
 </style>
