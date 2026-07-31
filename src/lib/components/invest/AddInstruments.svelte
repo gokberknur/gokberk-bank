@@ -1,9 +1,11 @@
 <script lang="ts">
 	// V05 · Add instruments (the F10 combobox) — an app-local multi-select over the
-	// instruments NOT already on the active list (`watchlists.addable()`). No
-	// gok-combobox exists yet, so this is hand-built to the WAI-ARIA combobox +
-	// listbox pattern: a tokened native input (role="combobox", aria-activedescendant
-	// tracks the active option) over a role="listbox" aria-multiselectable list.
+	// instruments NOT already on the active list (`watchlists.addable()`). Stays
+	// hand-built rather than moving to gok-combobox: that component is single-select
+	// over `{ value, label }` options, and this list is aria-multiselectable with a
+	// per-row checkmark. It follows the WAI-ARIA combobox + listbox pattern: a tokened
+	// native input (role="combobox", aria-activedescendant tracks the active option)
+	// over a role="listbox" aria-multiselectable list.
 	// Type to filter by symbol or name; ↑/↓ move; Enter toggles; click toggles. The
 	// add primary is the single accent. "Add (N)" appends via watchlists.addToActive,
 	// which toasts. Monochrome otherwise.
@@ -242,8 +244,10 @@
 		border-radius: var(--gok-radius-m);
 		background: var(--gok-color-surface);
 		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-regular-line);
+		/* The control-text role, not a content role — DS 0.6.0 put every interactive control on
+		   14/20, and this field sits in a dialog beside gok-* controls. */
+		font-size: var(--gok-density-control-text-size);
+		line-height: var(--gok-density-control-text-line);
 		color: var(--gok-color-text);
 	}
 
