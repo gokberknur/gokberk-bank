@@ -1,6 +1,5 @@
 [
 	"COLUMNS src/routes/(app)/+layout.svelte",
-	"COLUMNS src/routes/(app)/accounts/+page.svelte",
 	"COLUMNS src/routes/(app)/accounts/[id]/statements/+page.svelte",
 	"COLUMNS src/routes/(app)/accounts/pots/+page.svelte",
 	"COLUMNS src/routes/(app)/accounts/pots/[id]/+page.svelte",
