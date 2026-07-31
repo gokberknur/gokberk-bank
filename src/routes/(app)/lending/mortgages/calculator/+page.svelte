@@ -133,7 +133,7 @@
 	<title>Mortgage calculator · gökberk bank</title>
 </svelte:head>
 
-<div class="page">
+<div class="page-grid">
 	<header class="head">
 		<p class="head-eyebrow gok-eyebrow">Mortgages</p>
 		<h1 class="head-title gok-headline-2">Mortgage calculator</h1>
@@ -320,10 +320,8 @@
 </div>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	/* ── Header ── */
@@ -601,7 +599,7 @@
 		flex-direction: column;
 		align-items: flex-start;
 		gap: var(--gok-space-300);
-		max-inline-size: 46rem;
+		max-inline-size: var(--measure-read);
 		padding-block-start: var(--gok-space-400);
 		border-block-start: var(--gok-border-width-hairline) solid var(--gok-color-border);
 	}

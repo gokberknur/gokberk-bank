@@ -211,7 +211,7 @@
 	<title>Apply for a loan · gökberk bank</title>
 </svelte:head>
 
-<div class="page">
+<div class="page-grid">
 	{#if phase === 'apply'}
 		<header class="head">
 			<gok-link href="/lending">&larr; Lending</gok-link>
@@ -599,10 +599,8 @@
 </gok-dialog>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.head {
@@ -637,7 +635,7 @@
 	}
 
 	.fields {
-		max-inline-size: 32rem;
+		max-inline-size: var(--measure-form);
 		gap: var(--gok-space-400);
 	}
 
@@ -885,7 +883,7 @@
 
 	.checking gok-alert {
 		display: block;
-		max-inline-size: 32rem;
+		max-inline-size: var(--measure-form);
 	}
 
 	/* The active title / headline figure stays neutral; only the primary earns green. */
@@ -961,7 +959,7 @@
 	}
 
 	.withdrawal {
-		max-inline-size: 32rem;
+		max-inline-size: var(--measure-form);
 		margin: 0;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);

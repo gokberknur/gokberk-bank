@@ -46,7 +46,7 @@
 		</gok-empty-state>
 	</div>
 {:else}
-	<div class="page">
+	<div class="page-grid">
 		<header class="head">
 			<gok-link href="/rewards">&larr; Rewards</gok-link>
 			<p class="eyebrow gok-eyebrow">Offer</p>
@@ -60,7 +60,7 @@
 		</header>
 
 		<!-- Activate — the one control; low-stakes + reversible, no confirm dialog. -->
-		<section class="block" aria-labelledby="activate-heading">
+		<section class="block section" aria-labelledby="activate-heading">
 			<div class="activate-row">
 				<div class="activate-text">
 					<h2 id="activate-heading" class="block-title gok-headline-5">
@@ -83,7 +83,7 @@
 		</section>
 
 		<!-- Terms ledger — reward, cap, validity window, category. -->
-		<section class="block" aria-labelledby="terms-heading">
+		<section class="block section" aria-labelledby="terms-heading">
 			<h2 id="terms-heading" class="block-title gok-headline-5">Terms</h2>
 			<gok-card>
 				<dl class="ledger">
@@ -117,7 +117,7 @@
 		</section>
 
 		<!-- How it works — a quiet, plain note. -->
-		<section class="block" aria-labelledby="how-heading">
+		<section class="block section" aria-labelledby="how-heading">
 			<h2 id="how-heading" class="block-title gok-headline-5">How it works</h2>
 			<p class="help">
 				Once activated, qualifying spend at {offer.merchant} earns
@@ -131,10 +131,8 @@
 {/if}
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.missing {
@@ -187,11 +185,8 @@
 		color: var(--gok-color-text);
 	}
 
-	.block {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-300);
-	}
+	/* `.section` (the spine) supplies display, tracks and row-gap. A local `display: flex`
+	   would win — route styles are unlayered — and collapse the subgrid beneath it. */
 
 	.block-title {
 		margin: 0;

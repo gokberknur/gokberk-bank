@@ -131,7 +131,7 @@
 		</gok-empty-state>
 	</div>
 {:else}
-	<div class="page">
+	<div class="page-grid">
 		<header class="head">
 			<BackLink href="/cards" label="Cards" />
 		</header>
@@ -296,10 +296,8 @@
 {/if}
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.missing {

@@ -152,7 +152,7 @@
 	<title>Requests · gökberk bank</title>
 </svelte:head>
 
-<div class="page">
+<div class="page-grid">
 	<header class="head">
 		<div class="head-text">
 			<p class="head-eyebrow gok-eyebrow">Payments</p>
@@ -292,10 +292,8 @@
 </gok-dialog>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.head {

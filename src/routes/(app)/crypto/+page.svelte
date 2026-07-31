@@ -59,7 +59,7 @@
 	</span>
 {/snippet}
 
-<div class="page">
+<div class="page-grid">
 	<header class="head">
 		<p class="head-eyebrow gok-eyebrow">Crypto</p>
 		<h1 class="head-title gok-headline-1 gok-tabular-nums">{totalValue}</h1>
@@ -94,7 +94,7 @@
 	</section>
 
 	<!-- Balances -->
-	<section class="block" aria-labelledby="balances-heading">
+	<section class="block section" aria-labelledby="balances-heading">
 		<div class="block-head">
 			<p class="block-eyebrow gok-eyebrow">Balances</p>
 			<h2 id="balances-heading" class="block-title gok-headline-5">What I hold</h2>
@@ -137,7 +137,7 @@
 	</section>
 
 	<!-- Activity -->
-	<section class="block" aria-labelledby="activity-heading">
+	<section class="block section" aria-labelledby="activity-heading">
 		<div class="block-head">
 			<p class="block-eyebrow gok-eyebrow">Activity</p>
 			<h2 id="activity-heading" class="block-title gok-headline-5">On-chain ledger</h2>
@@ -149,10 +149,8 @@
 <CryptoTicket symbol={buySymbol} bind:open={ticketOpen} />
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	/* ── Summary header ── */
@@ -231,11 +229,8 @@
 	}
 
 	/* ── Blocks ── */
-	.block {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-400);
-	}
+	/* `.section` (the spine) supplies display, tracks and row-gap. A local `display: flex`
+	   would win — route styles are unlayered — and collapse the subgrid beneath it. */
 
 	.block-head {
 		display: flex;

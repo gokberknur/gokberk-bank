@@ -183,7 +183,7 @@
 	<title>Send money · gökberk bank</title>
 </svelte:head>
 
-<div class="page">
+<div class="page-grid">
 	{#if sent}
 		<!-- Success: receipt + settled status for the irrevocable SEPA Instant send. -->
 		<section class="outcome">
@@ -400,10 +400,8 @@
 </gok-dialog>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.head {
@@ -639,7 +637,7 @@
 
 	.receipt {
 		inline-size: 100%;
-		max-inline-size: 22rem;
+		max-inline-size: var(--measure-rail);
 		margin-inline: auto;
 		text-align: start;
 	}

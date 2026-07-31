@@ -135,7 +135,7 @@
 	{@const allOff = cards.allChannelsOff(card)}
 	{@const ceiling = card.controls.ceilingMinor}
 	{@const status = cards.displayStatus(card)}
-	<div class="page">
+	<div class="page-grid">
 		<header class="head">
 			<BackLink href={`/cards/${card.id}`} label={`${cardTypeLabel} card`} />
 
@@ -151,7 +151,7 @@
 		</header>
 
 		<!-- Freeze — the prominent, fully reversible control. -->
-		<section class="block" aria-labelledby="freeze-heading">
+		<section class="block section" aria-labelledby="freeze-heading">
 			<div class="freeze-row">
 				<h2 id="freeze-heading" class="block-title gok-headline-5">Freeze card</h2>
 				<gok-switch
@@ -166,7 +166,7 @@
 		<gok-divider></gok-divider>
 
 		<!-- Channels — three independent instant settings. -->
-		<section class="block" aria-labelledby="channels-heading">
+		<section class="block section" aria-labelledby="channels-heading">
 			<h2 id="channels-heading" class="block-title gok-headline-5">Card use</h2>
 			<p class="help">Turn each way to pay on or off. Changes apply right away.</p>
 
@@ -198,7 +198,7 @@
 		<gok-divider></gok-divider>
 
 		<!-- Daily spend limit — reward-early money input + a clear affordance. -->
-		<section class="block" aria-labelledby="limit-heading">
+		<section class="block section" aria-labelledby="limit-heading">
 			<h2 id="limit-heading" class="block-title gok-headline-5">Daily spend limit</h2>
 			<p class="help">
 				How much this card can spend in a day.
@@ -242,7 +242,7 @@
 		<gok-divider></gok-divider>
 
 		<!-- Region allow-list — read-only for now (editable multi-select needs F10). -->
-		<section class="block" aria-labelledby="regions-heading">
+		<section class="block section" aria-labelledby="regions-heading">
 			<div class="regions-head">
 				<h2 id="regions-heading" class="block-title gok-headline-5">Where this card works</h2>
 				<gok-tag size="s">Soon</gok-tag>
@@ -268,10 +268,8 @@
 {/if}
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.missing {
@@ -328,11 +326,8 @@
 		color: var(--gok-color-text);
 	}
 
-	.block {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-200);
-	}
+	/* `.section` (the spine) supplies display, tracks and row-gap. A local `display: flex`
+	   would win — route styles are unlayered — and collapse the subgrid beneath it. */
 
 	.block-title {
 		margin: 0;
@@ -385,7 +380,7 @@
 	.limit-field {
 		display: flex;
 		flex-direction: column;
-		max-inline-size: 22rem;
+		max-inline-size: var(--measure-rail);
 	}
 
 	.field-message {

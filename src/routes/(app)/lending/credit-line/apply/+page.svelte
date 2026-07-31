@@ -147,7 +147,7 @@
 	<title>Apply for a credit line · gökberk bank</title>
 </svelte:head>
 
-<div class="page">
+<div class="page-grid">
 	<header class="head">
 		<gok-link href="/lending">&larr; Lending</gok-link>
 		<p class="eyebrow gok-eyebrow">Credit line</p>
@@ -445,10 +445,8 @@
 </div>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	/* ── Header ── */
@@ -471,7 +469,7 @@
 
 	.lead {
 		margin: 0;
-		max-inline-size: 46rem;
+		max-inline-size: var(--measure-read);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
 		line-height: var(--gok-type-body-regular-line);
@@ -551,12 +549,12 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-400);
-		max-inline-size: 32rem;
+		max-inline-size: var(--measure-form);
 	}
 
 	.quiet {
 		margin: 0;
-		max-inline-size: 46rem;
+		max-inline-size: var(--measure-read);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
 		line-height: var(--gok-type-body-regular-line);
@@ -577,7 +575,7 @@
 		align-items: center;
 		gap: var(--gok-space-200);
 		margin: 0;
-		max-inline-size: 46rem;
+		max-inline-size: var(--measure-read);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
 		line-height: var(--gok-type-body-small-line);
@@ -669,7 +667,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-300);
-		max-inline-size: 46rem;
+		max-inline-size: var(--measure-read);
 		padding-block-start: var(--gok-space-400);
 		border-block-start: var(--gok-border-width-strong) solid var(--gok-color-border-strong);
 	}

@@ -98,7 +98,7 @@
 	<title>Documents · gökberk bank</title>
 </svelte:head>
 
-<div class="page">
+<div class="page-grid">
 	<header class="head">
 		<p class="head-eyebrow gok-eyebrow">Documents</p>
 		<h1 class="head-title gok-headline-2">My documents</h1>
@@ -175,10 +175,8 @@
 <DocumentViewer doc={selectedDoc} open={selectedDoc !== null} onclose={closeViewer} />
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.head {

@@ -184,7 +184,7 @@
 		</gok-empty-state>
 	</section>
 {:else}
-	<div class="page">
+	<div class="page-grid">
 		<header class="head">
 			<BackLink href="/cards" label="Cards" />
 			<p class="eyebrow gok-eyebrow">Card</p>
@@ -425,10 +425,8 @@
 {/if}
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.head {
@@ -450,7 +448,7 @@
 
 	.lead {
 		margin: 0;
-		max-inline-size: 46rem;
+		max-inline-size: var(--measure-read);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
 		line-height: var(--gok-type-body-regular-line);
@@ -465,7 +463,7 @@
 	}
 
 	.fields {
-		max-inline-size: 32rem;
+		max-inline-size: var(--measure-form);
 	}
 
 	/* --- Radio-cards (type + design) ---

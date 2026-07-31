@@ -294,7 +294,7 @@
 	<title>Schedule a payment · gökberk bank</title>
 </svelte:head>
 
-<div class="page">
+<div class="page-grid">
 	{#if created}
 		<!-- Success: a Scheduled status tag + the next-run preview. Calm, not loud. -->
 		<section class="outcome">
@@ -604,10 +604,8 @@
 </gok-dialog>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.head {
@@ -631,7 +629,7 @@
 
 	.lead {
 		margin: 0;
-		max-inline-size: 46rem;
+		max-inline-size: var(--measure-read);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
 		line-height: var(--gok-type-body-regular-line);
@@ -643,7 +641,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-400);
-		max-inline-size: 32rem;
+		max-inline-size: var(--measure-form);
 	}
 
 	.step-fields.wide {
@@ -867,7 +865,7 @@
 
 	.receipt {
 		inline-size: 100%;
-		max-inline-size: 22rem;
+		max-inline-size: var(--measure-rail);
 		margin-inline: auto;
 		text-align: start;
 	}

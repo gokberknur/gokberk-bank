@@ -93,7 +93,7 @@
 	<title>Discover · gökberk bank</title>
 </svelte:head>
 
-<div class="page">
+<div class="page-grid">
 	<PageHeader
 		eyebrow="Discover"
 		title="Find an instrument"
@@ -216,10 +216,8 @@
 <style>
 	/* Single column, section rhythm, NO page-level measure cap (the shell's .main-inner
 	   already caps the content column — this page fills it). */
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	/* ── In-page jump-nav (CV-LAY-6) — calm, mono, sentence-case, a hairline rule below. ── */
