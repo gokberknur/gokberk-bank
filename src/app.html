@@ -1,5 +1,11 @@
 <!doctype html>
-<html lang="en">
+<!--
+	data-scale="product" freezes the display type roles at their mobile values inside the DS's
+	desktop media query, so an app surface stops reading like a landing page (DS 0.6.0). Unlike
+	theme and density it is not a user preference — it is a property of this surface — so it is
+	static here rather than restored by the pre-paint script below.
+-->
+<html lang="en" data-scale="product">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.svg" />

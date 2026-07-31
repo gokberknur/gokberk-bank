@@ -375,10 +375,10 @@
 	}
 
 	.calc-summary-value {
-		font-family: var(--gok-font-family-display);
-		font-size: var(--gok-type-headline-5-size);
-		font-weight: var(--gok-font-weight-semibold);
-		line-height: var(--gok-type-headline-5-line);
+		font-family: var(--gok-type-metric-small-family);
+		font-size: var(--gok-type-metric-small-size);
+		font-weight: var(--gok-type-metric-small-weight);
+		line-height: var(--gok-type-metric-small-line);
 		color: var(--gok-color-text);
 	}
 
@@ -480,11 +480,11 @@
 
 	.ledger-monthly {
 		margin: 0;
-		font-family: var(--gok-font-family-display);
-		font-size: var(--gok-type-headline-2-size);
-		font-weight: var(--gok-font-weight-semibold);
-		line-height: var(--gok-type-headline-2-line);
-		letter-spacing: var(--gok-type-headline-2-tracking);
+		font-family: var(--gok-type-metric-family);
+		font-size: var(--gok-type-metric-size);
+		font-weight: var(--gok-type-metric-weight);
+		line-height: var(--gok-type-metric-line);
+		letter-spacing: var(--gok-type-metric-tracking);
 		color: var(--gok-color-text);
 	}
 

@@ -67,11 +67,11 @@
 	.available {
 		margin: 0;
 		margin-block-start: var(--gok-space-200);
-		font-family: var(--gok-font-family-display);
-		font-size: var(--gok-type-headline-4-size);
-		font-weight: var(--gok-font-weight-semibold);
-		line-height: var(--gok-type-headline-4-line);
-		letter-spacing: var(--gok-type-headline-4-tracking);
+		font-family: var(--gok-type-metric-small-family);
+		font-size: var(--gok-type-metric-small-size);
+		font-weight: var(--gok-type-metric-small-weight);
+		line-height: var(--gok-type-metric-small-line);
+		letter-spacing: var(--gok-type-metric-small-tracking);
 		color: var(--gok-color-text);
 	}
 

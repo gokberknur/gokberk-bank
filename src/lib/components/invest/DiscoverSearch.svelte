@@ -1,7 +1,11 @@
 <script lang="ts">
 	// V13 · Global instrument search — the app-local WAI-ARIA combobox over the whole
-	// instrument universe. No gok-combobox exists, so this is hand-built to the combobox
-	// + listbox pattern (mirrors AddInstruments): a tokened native input (role="combobox",
+	// instrument universe. Stays hand-built rather than moving to gok-combobox: that
+	// component takes flat `{ value, label }` options, where each row here is a three-
+	// column grid (mono symbol · muted name · tabular price), and it is select-only —
+	// it binds a value and reverts on dismiss, where this commits by *navigating* to the
+	// instrument. It follows the combobox + listbox pattern (mirrors AddInstruments): a
+	// tokened native input (role="combobox",
 	// aria-activedescendant tracks the active option) over a role="listbox" popup. Unlike
 	// AddInstruments this is SINGLE-select and ROUTES — Enter/click commits the active
 	// instrument and navigates to its detail page (which owns Buy → the V03 spine). Focus
@@ -222,8 +226,10 @@
 		border-radius: var(--gok-radius-m);
 		background: var(--gok-color-surface);
 		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-regular-line);
+		/* The control-text role, not a content role — DS 0.6.0 put every interactive control
+		   on 14/20, and this field sits beside gok-* controls on the discover page. */
+		font-size: var(--gok-density-control-text-size);
+		line-height: var(--gok-density-control-text-line);
 		color: var(--gok-color-text);
 	}
 

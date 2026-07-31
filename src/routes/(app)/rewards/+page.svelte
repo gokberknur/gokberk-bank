@@ -211,11 +211,11 @@
 	.balance-figure {
 		margin: 0;
 		margin-block-start: var(--gok-space-200);
-		font-family: var(--gok-font-family-display);
-		font-size: var(--gok-type-headline-2-size);
-		font-weight: var(--gok-font-weight-semibold);
-		line-height: var(--gok-type-headline-2-line);
-		letter-spacing: var(--gok-type-headline-2-tracking);
+		font-family: var(--gok-type-metric-family);
+		font-size: var(--gok-type-metric-size);
+		font-weight: var(--gok-type-metric-weight);
+		line-height: var(--gok-type-metric-line);
+		letter-spacing: var(--gok-type-metric-tracking);
 		color: var(--gok-color-text);
 	}
 
@@ -236,10 +236,10 @@
 	.balance-points-figure {
 		margin: 0;
 		margin-block-start: var(--gok-space-200);
-		font-family: var(--gok-font-family-display);
-		font-size: var(--gok-type-headline-4-size);
-		font-weight: var(--gok-font-weight-semibold);
-		line-height: var(--gok-type-headline-4-line);
+		font-family: var(--gok-type-metric-small-family);
+		font-size: var(--gok-type-metric-small-size);
+		font-weight: var(--gok-type-metric-small-weight);
+		line-height: var(--gok-type-metric-small-line);
 		color: var(--gok-color-text);
 	}
 
