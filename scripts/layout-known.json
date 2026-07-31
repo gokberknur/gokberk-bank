@@ -11,7 +11,6 @@
 	"COLUMNS src/routes/(app)/insurance/+page.svelte",
 	"COLUMNS src/routes/(app)/insurance/policies/[id]/+page.svelte",
 	"COLUMNS src/routes/(app)/insurance/quote/+page.svelte",
-	"COLUMNS src/routes/(app)/invest/+page.svelte",
 	"COLUMNS src/routes/(app)/invest/discover/+page.svelte",
 	"COLUMNS src/routes/(app)/invest/instrument/[symbol]/+page.svelte",
 	"COLUMNS src/routes/(app)/lending/+page.svelte",
