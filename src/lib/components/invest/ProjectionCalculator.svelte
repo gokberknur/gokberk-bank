@@ -178,10 +178,10 @@
 	.projected {
 		margin: 0;
 		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-headline-2-size);
-		line-height: var(--gok-type-headline-2-line);
-		letter-spacing: var(--gok-type-headline-2-tracking);
-		font-weight: var(--gok-font-weight-semibold);
+		font-size: var(--gok-type-metric-size);
+		line-height: var(--gok-type-metric-line);
+		letter-spacing: var(--gok-type-metric-tracking);
+		font-weight: var(--gok-type-metric-weight);
 		color: var(--gok-color-text);
 	}
 

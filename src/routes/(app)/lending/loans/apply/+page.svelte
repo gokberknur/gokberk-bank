@@ -663,9 +663,9 @@
 	}
 
 	.slider-value {
-		font-family: var(--gok-font-family-display);
-		font-size: var(--gok-type-headline-5-size);
-		line-height: var(--gok-type-headline-5-line);
+		font-family: var(--gok-type-metric-small-family);
+		font-size: var(--gok-type-metric-small-size);
+		line-height: var(--gok-type-metric-small-line);
 		color: var(--gok-color-text);
 	}
 
@@ -809,9 +809,9 @@
 
 	/* The headline figure of each ledger reads a touch larger — still neutral. */
 	.row-lead dd {
-		font-family: var(--gok-font-family-display);
-		font-size: var(--gok-type-headline-5-size);
-		line-height: var(--gok-type-headline-5-line);
+		font-family: var(--gok-type-metric-small-family);
+		font-size: var(--gok-type-metric-small-size);
+		line-height: var(--gok-type-metric-small-line);
 	}
 
 	.row dd.mono {

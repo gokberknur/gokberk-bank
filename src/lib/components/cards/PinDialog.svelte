@@ -324,8 +324,8 @@
 		min-inline-size: 2.5rem;
 		padding-block: var(--gok-space-200);
 		font-family: var(--gok-font-family-mono);
-		font-size: var(--gok-type-headline-4-size);
-		line-height: var(--gok-type-headline-4-line);
+		font-size: var(--gok-type-metric-small-size);
+		line-height: var(--gok-type-metric-small-line);
 		color: var(--gok-color-text);
 		border-block-end: var(--gok-border-width-strong) solid var(--gok-color-border);
 	}
