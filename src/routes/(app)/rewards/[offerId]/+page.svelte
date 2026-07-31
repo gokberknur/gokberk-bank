@@ -235,7 +235,7 @@
 		display: flex;
 		align-items: baseline;
 		justify-content: space-between;
-		gap: var(--gok-space-400);
+		gap: var(--gap-action-row);
 	}
 
 	.row dt {
@@ -266,9 +266,4 @@
 		color: var(--gok-color-text-muted);
 	}
 
-	@media (max-width: 24.375rem) {
-		.row {
-			gap: var(--gok-space-200);
-		}
-	}
 </style>

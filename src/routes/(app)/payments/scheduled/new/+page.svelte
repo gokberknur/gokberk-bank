@@ -789,7 +789,7 @@
 		display: flex;
 		align-items: baseline;
 		justify-content: space-between;
-		gap: var(--gok-space-400);
+		gap: var(--gap-action-row);
 		padding-block: var(--gok-space-300);
 		border-block-start: var(--gok-border-width-hairline) solid var(--gok-color-border);
 	}
@@ -890,9 +890,4 @@
 		}
 	}
 
-	@media (max-width: 24.375rem) {
-		.row {
-			gap: var(--gok-space-200);
-		}
-	}
 </style>

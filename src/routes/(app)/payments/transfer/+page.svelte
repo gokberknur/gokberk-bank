@@ -517,7 +517,7 @@
 		display: flex;
 		align-items: baseline;
 		justify-content: space-between;
-		gap: var(--gok-space-400);
+		gap: var(--gap-action-row);
 	}
 
 	.row dt {
@@ -651,9 +651,4 @@
 		gap: var(--gok-space-200);
 	}
 
-	@media (max-width: 24.375rem) {
-		.row {
-			gap: var(--gok-space-200);
-		}
-	}
 </style>

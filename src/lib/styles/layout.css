@@ -191,6 +191,28 @@
 		}
 	}
 
+	/* ─────────────  NARROW-PHONE ROW GAP  ─────────────
+	 * A horizontal row — a Back/Continue pair, a label-and-value line, a chip cluster — tightens
+	 * its gap on a very narrow phone so its two ends still fit on one line. This exact rule,
+	 * `gap: 400` narrowing to `200` at 24.375rem (390px), was written inline in 19 separate
+	 * files, each carrying its own `@media` block. One token, one media query, nineteen deletions.
+	 *
+	 * Deliberately named for the BEHAVIOUR, not for "actions": the 19 rows are a mix of action
+	 * pairs and key/value lines, and the rule was always the same either way.
+	 *
+	 * A row opts in by reading this token instead of a raw space token; nothing is imposed on a
+	 * `.row` class the spine does not own.
+	 */
+	:root {
+		--gap-action-row: var(--gok-space-400);
+	}
+
+	@media (width <= 24.375rem) {
+		:root {
+			--gap-action-row: var(--gok-space-200);
+		}
+	}
+
 	/* ─────────────  RESERVED LINES  ─────────────
 	 * Baseline alignment across a row of tiles without subgrid. Each line reserves its type
 	 * role's line-height, so a tile missing a delta still occupies the same vertical steps as
