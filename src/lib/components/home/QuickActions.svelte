@@ -14,9 +14,9 @@
 	];
 </script>
 
-<ul class="grid">
+<ul class="grid-run">
 	{#each actions as action (action.label)}
-		<li class="cell">
+		<li class="cell-sixth cell">
 			<gok-button
 				class="action"
 				variant="secondary"
@@ -30,15 +30,8 @@
 </ul>
 
 <style>
-	.grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-		gap: var(--gok-space-300);
-		margin: 0;
-		padding: 0;
-		list-style: none;
-	}
-
+	/* Placement comes from `.grid-run` + `.cell-sixth` on the shared spine: four across an
+	   8-track main column, four across the full spine on a tablet, two across on a phone. */
 	.cell {
 		display: flex;
 		flex-direction: column;

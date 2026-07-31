@@ -14,6 +14,8 @@
 		id,
 		eyebrow,
 		title,
+		figure,
+		srLabel,
 		caption,
 		level = 2,
 		actions
@@ -22,8 +24,12 @@
 		id: string;
 		/** Mono-uppercase context label. Always shown — it is the brand's section identity. */
 		eyebrow: string;
-		/** The section heading. */
-		title: string;
+		/** Label-first section heading. Used when `figure` is not given. */
+		title?: string;
+		/** Figure-first heading (a formatted amount). Switches the head to figure-first mode. */
+		figure?: string;
+		/** Visually-hidden prefix read before a figure, so the heading is not a bare number. */
+		srLabel?: string;
 		/** Optional muted secondary line under the heading. */
 		caption?: string;
 		/** Heading rank. Defaults to 2; drop to 3 for a block nested inside another section. */
@@ -36,11 +42,23 @@
 <div class="section-head">
 	<div class="sh-titles">
 		<p class="sh-eyebrow gok-eyebrow">{eyebrow}</p>
-		{#if level === 3}
-			<h3 {id} class="sh-title gok-headline-6">{title}</h3>
-		{:else}
-			<h2 {id} class="sh-title gok-headline-5">{title}</h2>
-		{/if}
+		<!-- Figure-first when the section's subject IS the number (CV-VIS-3: the hero is the
+		     characteristic number, not a label). Otherwise label-first. -->
+		<svelte:element
+			this={level === 3 ? 'h3' : 'h2'}
+			{id}
+			class="sh-title {figure != null
+				? 'sh-figure gok-tabular-nums'
+				: level === 3
+					? 'gok-headline-6'
+					: 'gok-headline-5'}"
+		>
+			{#if figure != null}
+				{#if srLabel}<span class="sr-only">{srLabel} </span>{/if}{figure}
+			{:else}
+				{title}
+			{/if}
+		</svelte:element>
 		{#if caption}
 			<p class="sh-caption">{caption}</p>
 		{/if}
@@ -79,6 +97,28 @@
 	.sh-title {
 		margin: 0;
 		color: var(--gok-color-text);
+	}
+
+	/* A section whose subject is a number reads it on the metric role, not a headline role —
+	   the figure is the hero, and metric is the type role built for it. */
+	.sh-figure {
+		font-family: var(--gok-type-metric-small-family);
+		font-size: var(--gok-type-metric-small-size);
+		font-weight: var(--gok-type-metric-small-weight);
+		line-height: var(--gok-type-metric-small-line);
+		letter-spacing: var(--gok-type-metric-small-tracking);
+	}
+
+	.sr-only {
+		position: absolute;
+		inline-size: 1px;
+		block-size: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+		border: 0;
 	}
 
 	.sh-caption {

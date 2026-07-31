@@ -48,19 +48,30 @@
 	}
 
 	/*
-	 * Every direct child spans the whole spine AND re-exposes its tracks to its own children.
-	 * This is the load-bearing rule: a card inside section A and a card inside section B are
-	 * placed on the SAME column lines, because both sections resolve against the page's tracks
-	 * rather than tracks of their own.
+	 * Every direct child spans the spine by default, so a plain block or a line of text behaves
+	 * exactly as it did before the grid existed. Safe for ANY element — this sets placement only.
+	 */
+	:where(.page-grid > *) {
+		grid-column: 1 / -1;
+	}
+
+	/*
+	 * `.section` is the opt-in that does the real work: it re-exposes the parent's tracks to its
+	 * own children, so a card inside section A and a card inside section B are placed on the SAME
+	 * column lines. Both resolve against the page's tracks rather than tracks of their own.
 	 *
-	 * `grid-template-rows` is deliberately NOT subgridded here — the number of children per
-	 * section varies, and subgridding a variable-count axis dumps the extras into the last
-	 * track. Rows stay implicit.
+	 * Opt-in rather than applied to every child on purpose: `display: grid` on an element whose
+	 * content is text would make that text an anonymous grid item and squash it into track 1.
+	 * The subgrid belongs on containers that hold cells, and nowhere else.
+	 *
+	 * `grid-template-rows` is deliberately NOT subgridded — the number of children per section
+	 * varies, and subgridding a variable-count axis dumps the extras into the last track. Rows
+	 * stay implicit.
 	 *
 	 * The plain `grid-template-columns` before the subgrid line is a same-cascade fallback: a
 	 * browser without subgrid keeps a working 12-track grid instead of dropping the declaration.
 	 */
-	:where(.page-grid > *) {
+	.section {
 		grid-column: 1 / -1;
 		display: grid;
 		grid-template-columns: repeat(var(--gok-grid-columns), minmax(0, 1fr));
@@ -69,9 +80,9 @@
 	}
 
 	/*
-	 * A nested run of cells (a `<ul>` of cards, a row of tiles) passes the tracks down one more
-	 * level, so list items are placed on the page spine too rather than on tracks of the list's
-	 * own. `.grid-run` also resets list chrome, since most of these runs are `<ul>`s.
+	 * A run of cells (a `<ul>` of cards, a row of tiles) passes the tracks down one more level,
+	 * so list items land on the page spine too rather than on tracks of the list's own. Also
+	 * resets list chrome, since most runs are `<ul>`s.
 	 */
 	.grid-run {
 		grid-column: 1 / -1;
@@ -82,6 +93,25 @@
 		margin: 0;
 		padding: 0;
 		list-style: none;
+	}
+
+	/*
+	 * The default inside any subgrid: span everything. A child becomes a CELL only by claiming a
+	 * role below. Without this, a section's single content block (a hero, a list, a chart) would
+	 * be auto-placed into track 1 and render at one twelfth of the width — which is exactly what
+	 * happened the first time this shipped.
+	 *
+	 * `:where()` is correct here: this is a default that every cell role and every route rule
+	 * must be able to beat trivially. (Contrast the mobile collapse below, which is an override
+	 * and therefore must NOT be zero-specificity.)
+	 *
+	 * `min-inline-size: 0` goes with it. A grid item's automatic minimum is its content size, so
+	 * a wide table, a long IBAN or a chart's intrinsic width would otherwise push its track past
+	 * its share and blow out the whole row.
+	 */
+	:where(.section > *, .grid-run > *) {
+		grid-column: 1 / -1;
+		min-inline-size: 0;
 	}
 
 	/* ─────────────  CELL ROLES  ─────────────
@@ -112,6 +142,11 @@
 		grid-column: span 3;
 	}
 
+	/* Six across the full spine — and, usefully, four across an 8-track main column. */
+	.cell-sixth {
+		grid-column: span 2;
+	}
+
 	/*
 	 * TWO collapse rules for the whole app, replacing the per-route breakpoint blocks. The
 	 * track count stays 12 at every width — only the spans change — so the spine itself never
@@ -131,11 +166,28 @@
 		.cell-quarter {
 			grid-column: span 6;
 		}
+
+		/* Still four across, now of the full spine rather than an 8-track column. */
+		.cell-sixth {
+			grid-column: span 3;
+		}
 	}
 
+	/*
+	 * NOT `:where()`. A media query adds no specificity, so a zero-specificity override loses to
+	 * the plain `.cell-third` rule above it and the collapse silently never happens (measured:
+	 * wallet cards stayed two-across on a 390px phone). `:where()` is for defaults that should be
+	 * easy to beat; an override has to be able to win.
+	 */
 	@media (width < 40rem) {
-		:where([class*='cell-']) {
+		[class*='cell-'] {
 			grid-column: 1 / -1;
+		}
+
+		/* The one exception to full-width-on-phone: a compact action tile stays paired, because
+		   four full-width buttons is a scroll where two rows of two is a glance. */
+		.cell-sixth {
+			grid-column: span 6;
 		}
 	}
 
@@ -167,15 +219,6 @@
 
 	.line-delta {
 		min-block-size: var(--gok-type-body-small-line);
-	}
-
-	/*
-	 * Any cell holding a chart, a table, or long unbreakable text needs an explicit zero
-	 * minimum — a grid item's automatic minimum size is its content, so without this the cell
-	 * refuses to shrink and pushes the whole track wider than its share.
-	 */
-	.cell-fluid {
-		min-inline-size: 0;
 	}
 
 	/* ─────────────  DEBUG OVERLAY  ─────────────

@@ -9,7 +9,6 @@
 	"COLUMNS src/routes/(app)/crypto/+page.svelte",
 	"COLUMNS src/routes/(app)/crypto/[symbol]/+page.svelte",
 	"COLUMNS src/routes/(app)/crypto/transfer/+page.svelte",
-	"COLUMNS src/routes/(app)/home/+page.svelte",
 	"COLUMNS src/routes/(app)/insurance/+page.svelte",
 	"COLUMNS src/routes/(app)/insurance/policies/[id]/+page.svelte",
 	"COLUMNS src/routes/(app)/insurance/quote/+page.svelte",

@@ -1,17 +1,22 @@
 <script lang="ts">
 	// X01 home dashboard — the calm, editorial launchpad a user lands on after
 	// login. It reads "how am I doing?" at a glance: net worth, the wallets, recent
-	// activity, quick actions and this-month spend. The five sections are flat grid
-	// children: at full width (>=64rem) grid-template-areas place the main sections
-	// in a 2fr column with activity in a sticky 1fr right rail; below 64rem they
-	// collapse to a single column where activity rides high (right after balances,
-	// not buried below — ACC-U-01). Read-only: no money moves here, every onward
-	// affordance deep-links or waits as "Soon". Omitted blocks (portfolio / tickers
-	// / bills) wait on F11/V01/P05.
+	// activity, quick actions and this-month spend. Read-only: no money moves here,
+	// every onward affordance deep-links or waits as "Soon". Omitted blocks
+	// (portfolio / tickers / bills) wait on F11/V01/P05.
+	//
+	// Layout (X06): the page sits on the shared 12-track spine, so the wallet cards
+	// here land on the same column lines as the wallet cards on /accounts. At >=64rem
+	// the dashboard places its sections explicitly — main column on tracks 1-8, the
+	// activity rail on 9-12 spanning all four main rows. Below that everything falls to
+	// one column in DOM order, which is why activity is third in the markup: on a phone
+	// it rides high, right after balances rather than buried below quick actions and
+	// spend (ACC-U-01).
 	import { session } from '$lib/state/session.svelte';
 	import { accounts } from '$lib/state/accounts.svelte';
 	import { formatMoney } from '$lib/format';
 	import NetWorthHero from '$lib/components/home/NetWorthHero.svelte';
+	import SectionHead from '$lib/components/layout/SectionHead.svelte';
 	import WalletCard from '$lib/components/accounts/WalletCard.svelte';
 	import QuickActions from '$lib/components/home/QuickActions.svelte';
 	import SpendSummary from '$lib/components/home/SpendSummary.svelte';
@@ -26,193 +31,100 @@
 	);
 </script>
 
-<div class="page">
+<div class="page-grid">
 	<p class="greeting gok-eyebrow">Good to see you, {firstName}</p>
 
-	<div class="dashboard">
-		<section class="net-worth" aria-labelledby="net-worth-heading">
+	<div class="dashboard section">
+		<section class="net-worth section" aria-labelledby="net-worth-heading">
 			<h1 id="net-worth-heading" class="visually-hidden">Net worth</h1>
 			<NetWorthHero />
 		</section>
 
-		<section class="wallets" aria-labelledby="wallets-heading">
-			<div class="wallets-head">
-				<div class="wallets-total">
-					<p class="eyebrow gok-eyebrow">Total across wallets</p>
-					<h2 id="wallets-heading" class="wallets-figure gok-tabular-nums">{walletsTotal}</h2>
-				</div>
-				<p class="wallets-more">
+		<section class="wallets section" aria-labelledby="wallets-heading">
+			<SectionHead
+				id="wallets-heading"
+				eyebrow="Total across wallets"
+				figure={walletsTotal}
+				srLabel="Total across wallets"
+			>
+				{#snippet actions()}
 					<gok-link href="/accounts">See all &rarr;</gok-link>
-				</p>
-			</div>
+				{/snippet}
+			</SectionHead>
 
-			<ul class="wallet-grid">
+			<ul class="grid-run">
 				{#each orderedWallets as wallet (wallet.id)}
-					<li class="wallet-cell">
+					<li class="cell-third">
 						<WalletCard {wallet} />
 					</li>
 				{/each}
 			</ul>
 		</section>
 
-		<!-- Recent activity rides high on mobile (single column) — right after balances, not
-		     buried below quick actions + spend (ACC-U-01). On desktop the grid areas below put
-		     it back in the sticky right rail. -->
-		<aside class="activity" aria-labelledby="activity-heading">
-			<p class="eyebrow gok-eyebrow">Recent</p>
-			<h2 id="activity-heading" class="section-title gok-headline-5">Activity</h2>
+		<!-- Third in the DOM on purpose — see the layout note above. -->
+		<aside class="activity section" aria-labelledby="activity-heading">
+			<SectionHead id="activity-heading" eyebrow="Recent" title="Activity" />
 			<RecentActivity />
 		</aside>
 
-		<!-- TODO: portfolio snapshot when V01 lands -->
-		<!-- TODO: market tickers when V02 lands -->
-
-		<section class="quick-actions" aria-labelledby="quick-actions-heading">
-			<p class="eyebrow gok-eyebrow">Quick actions</p>
-			<h2 id="quick-actions-heading" class="section-title gok-headline-5">Start something</h2>
+		<section class="quick-actions section" aria-labelledby="quick-actions-heading">
+			<SectionHead id="quick-actions-heading" eyebrow="Quick actions" title="Start something" />
 			<QuickActions />
 		</section>
 
-		<section class="spend" aria-labelledby="spend-heading">
-			<p class="eyebrow gok-eyebrow">This month</p>
-			<h2 id="spend-heading" class="section-title gok-headline-5">Spending</h2>
+		<section class="spend section" aria-labelledby="spend-heading">
+			<SectionHead id="spend-heading" eyebrow="This month" title="Spending" />
 			<SpendSummary />
 		</section>
 	</div>
-
-	<!-- TODO: upcoming bills when P05 lands -->
 </div>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
-	}
-
 	.greeting {
 		margin: 0;
 		color: var(--gok-color-text-muted);
 	}
 
-	.eyebrow {
-		margin: 0;
-		color: var(--gok-color-text-muted);
-	}
-
+	/* Section rhythm between the dashboard's own blocks, rather than the tighter
+	   head-to-content rhythm the spine gives a section by default. */
 	.dashboard {
-		display: grid;
-		grid-template-columns: 1fr;
-		gap: var(--gok-space-section);
+		row-gap: var(--gok-space-section);
 	}
 
-	.net-worth,
-	.wallets,
-	.quick-actions,
-	.spend,
-	.activity {
-		min-inline-size: 0;
-	}
-
-	.quick-actions,
-	.spend,
-	.activity {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-200);
-	}
-
-	.section-title {
-		margin: 0;
-		margin-block-end: var(--gok-space-200);
-		color: var(--gok-color-text);
-	}
-
-	.wallets {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-400);
-	}
-
-	.wallets-head {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: var(--gok-space-200);
-	}
-
-	.wallets-total {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-100);
-	}
-
-	.wallets-figure {
-		margin: 0;
-		font-family: var(--gok-type-metric-small-family);
-		font-size: var(--gok-type-metric-small-size);
-		font-weight: var(--gok-type-metric-small-weight);
-		line-height: var(--gok-type-metric-small-line);
-		letter-spacing: var(--gok-type-metric-small-tracking);
-		color: var(--gok-color-text);
-	}
-
-	.wallets-more {
-		margin: 0;
-	}
-
-	/* A filling auto-fill grid: cards stretch to fill the column width instead of
-	   leaving a right gap (mirrors /accounts). */
-	.wallet-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
-		gap: var(--gok-space-400);
-		margin: 0;
-		padding: 0;
-		list-style: none;
-	}
-
-	.wallet-cell {
-		display: flex;
-	}
-
-	.wallet-cell :global(gok-card) {
-		inline-size: 100%;
-	}
-
+	/* Desktop: main column on tracks 1-8, the activity rail on 9-12 beside it. Explicit
+	   placement rather than auto-flow — the rail has to span the four main-column rows,
+	   or it would size to one of them and leave the hero cell padded out with dead
+	   height. This is the one bespoke placement on the page; the tracks themselves still
+	   come from the spine, so everything stays on the shared column lines. */
 	@media (min-width: 64rem) {
-		.dashboard {
-			grid-template-columns: minmax(0, 2fr) minmax(20rem, 1fr);
-			grid-template-areas:
-				'networth activity'
-				'wallets  activity'
-				'quick    activity'
-				'spend    activity';
-			align-items: start;
-			gap: var(--gok-space-section);
-		}
-
 		.net-worth {
-			grid-area: networth;
+			grid-column: 1 / 9;
+			grid-row: 1;
 		}
 
 		.wallets {
-			grid-area: wallets;
+			grid-column: 1 / 9;
+			grid-row: 2;
 		}
 
 		.quick-actions {
-			grid-area: quick;
+			grid-column: 1 / 9;
+			grid-row: 3;
 		}
 
 		.spend {
-			grid-area: spend;
+			grid-column: 1 / 9;
+			grid-row: 4;
 		}
 
 		.activity {
-			grid-area: activity;
+			grid-column: 9 / -1;
+			grid-row: 1 / span 4;
+			align-self: start;
 			position: sticky;
-			top: var(--gok-space-section);
+			/* Clear of the scroll container's top edge, so the rail never sits flush under the
+			   pinned navbar as the main column scrolls past it. */
+			inset-block-start: var(--gok-space-500);
 		}
 	}
 
