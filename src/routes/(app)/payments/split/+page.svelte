@@ -660,8 +660,11 @@
 		border-radius: var(--gok-radius-m);
 		background: var(--gok-color-surface);
 		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-regular-line);
+		/* The control-text role, not a content role: DS 0.6.0 put every interactive control on
+		   14/20, so a hand-built field reading body-regular would sit 2px larger than the gok-*
+		   controls beside it. Reading the density token keeps it in lockstep from here on. */
+		font-size: var(--gok-density-control-text-size);
+		line-height: var(--gok-density-control-text-line);
 		color: var(--gok-color-text);
 	}
 
