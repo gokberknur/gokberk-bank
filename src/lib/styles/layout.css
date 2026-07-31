@@ -1,0 +1,205 @@
+/*
+ * X06 — the app's layout spine.
+ *
+ * ONE 12-track grid, inherited by every section through `subgrid`, so surfaces built
+ * independently land on the same column lines. This replaces the per-section
+ * `repeat(auto-fill, minmax(Xrem, 1fr))` grids, whose track count is derived from a
+ * per-section `minmax` — which is exactly why two sections on one page could disagree
+ * (/accounts: wallets at 16rem vs pots at 13rem).
+ *
+ * Everything here is CSS. No JavaScript is involved in the layout at any width.
+ *
+ * The tracks and the gutter are DESIGN-SYSTEM tokens (`--gok-grid-columns` = 12,
+ * `--gok-grid-gutter` = 24) — the DS already ships this grid as `.gok-grid`; we consume
+ * its tokens rather than inventing a parallel scale. Nothing here restyles a DS component.
+ *
+ * Cascade: one `@layer`, and structural defaults wrapped in `:where()` so they carry zero
+ * specificity. A route's own scoped `<style>` is unlayered and therefore always wins — that
+ * is the intended escape hatch for a genuinely bespoke surface, not a leak.
+ *
+ * Loaded from the root `+layout.svelte`, after the DS foundation CSS.
+ */
+
+@layer gok-bank-layout {
+	/* ─────────────  MEASURES  ─────────────
+	 * Four roles, not thirty widths. The page canvas is the DS container token — the app no
+	 * longer defines its own. Field-level widths (`--field-money`, `--field-short`) stay in
+	 * app.css: they size to their VALUE, not to a layout role.
+	 *
+	 *   page canvas   --gok-container-content (75rem)  dashboards, data grids, the shell
+	 *   --measure-read   (46rem)  long-form reading: disclosures, policy text, review ledgers
+	 *   --measure-form   (32rem)  a labelled-field column, a wizard step
+	 *   --measure-rail   (22rem)  a side panel or summary rail
+	 */
+
+	/* ─────────────  THE SPINE  ─────────────
+	 * Opt-in via `.page-grid` rather than the existing `.page`: 58 routes still style `.page`
+	 * as a flex column in their own scoped block, and redefining it globally would change all
+	 * of them in one unreviewable step. Routes migrate one commit at a time; when none styles
+	 * `.page` locally any more, this is renamed and the opt-in disappears.
+	 *
+	 * Row gap is the section rhythm (64), column gap is the grid gutter (24). Both axes read a
+	 * single token each — no section ever re-tunes them.
+	 */
+	.page-grid {
+		display: grid;
+		grid-template-columns: repeat(var(--gok-grid-columns), minmax(0, 1fr));
+		gap: var(--gok-space-section) var(--gok-grid-gutter);
+	}
+
+	/*
+	 * Every direct child spans the whole spine AND re-exposes its tracks to its own children.
+	 * This is the load-bearing rule: a card inside section A and a card inside section B are
+	 * placed on the SAME column lines, because both sections resolve against the page's tracks
+	 * rather than tracks of their own.
+	 *
+	 * `grid-template-rows` is deliberately NOT subgridded here — the number of children per
+	 * section varies, and subgridding a variable-count axis dumps the extras into the last
+	 * track. Rows stay implicit.
+	 *
+	 * The plain `grid-template-columns` before the subgrid line is a same-cascade fallback: a
+	 * browser without subgrid keeps a working 12-track grid instead of dropping the declaration.
+	 */
+	:where(.page-grid > *) {
+		grid-column: 1 / -1;
+		display: grid;
+		grid-template-columns: repeat(var(--gok-grid-columns), minmax(0, 1fr));
+		grid-template-columns: subgrid;
+		row-gap: var(--gok-space-500);
+	}
+
+	/*
+	 * A nested run of cells (a `<ul>` of cards, a row of tiles) passes the tracks down one more
+	 * level, so list items are placed on the page spine too rather than on tracks of the list's
+	 * own. `.grid-run` also resets list chrome, since most of these runs are `<ul>`s.
+	 */
+	.grid-run {
+		grid-column: 1 / -1;
+		display: grid;
+		grid-template-columns: repeat(var(--gok-grid-columns), minmax(0, 1fr));
+		grid-template-columns: subgrid;
+		gap: var(--gok-grid-gutter);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	/* ─────────────  CELL ROLES  ─────────────
+	 * The only spans anyone writes. Named for the job, not the number, so a role can be retuned
+	 * once here instead of hunted through 82 routes.
+	 */
+	.cell-full {
+		grid-column: span 12;
+	}
+
+	.cell-main {
+		grid-column: span 8;
+	}
+
+	.cell-half {
+		grid-column: span 6;
+	}
+
+	.cell-third {
+		grid-column: span 4;
+	}
+
+	.cell-side {
+		grid-column: span 4;
+	}
+
+	.cell-quarter {
+		grid-column: span 3;
+	}
+
+	/*
+	 * TWO collapse rules for the whole app, replacing the per-route breakpoint blocks. The
+	 * track count stays 12 at every width — only the spans change — so the spine itself never
+	 * shifts and alignment survives the collapse.
+	 *
+	 * These are `@media`, not `@container`, on purpose: this is page-level layout, which is the
+	 * one thing media queries are still the right tool for. Component-internal adaptation uses
+	 * `@container` (see the tile components).
+	 */
+	@media (width < 64rem) {
+		.cell-main {
+			grid-column: span 12;
+		}
+
+		.cell-side,
+		.cell-third,
+		.cell-quarter {
+			grid-column: span 6;
+		}
+	}
+
+	@media (width < 40rem) {
+		:where([class*='cell-']) {
+			grid-column: 1 / -1;
+		}
+	}
+
+	/* ─────────────  RESERVED LINES  ─────────────
+	 * Baseline alignment across a row of tiles without subgrid. Each line reserves its type
+	 * role's line-height, so a tile missing a delta still occupies the same vertical steps as
+	 * its neighbours and every figure lands on the same baseline.
+	 *
+	 * Exact, not approximate: the brand guarantees every line-height is a multiple of 4px "so a
+	 * text box occupies a whole number of grid steps and stacks flush". Same mechanism as the
+	 * reserved validation-message line (patterns.md §3, CV-FRM-3).
+	 *
+	 * True `grid-template-rows: subgrid` through a card would be cheaper still, but `gok-card`'s
+	 * shadow tree exposes no `part` on its `.content` wrapper, so the subgrid chain cannot reach
+	 * the card's regions. Logged in docs/dogfooding/findings.md; when the DS ships that part,
+	 * these three rules can be replaced by one subgrid declaration.
+	 */
+	.line-eyebrow {
+		min-block-size: var(--gok-type-eyebrow-line);
+	}
+
+	.line-figure {
+		min-block-size: var(--gok-type-metric-line);
+	}
+
+	.line-figure-s {
+		min-block-size: var(--gok-type-metric-small-line);
+	}
+
+	.line-delta {
+		min-block-size: var(--gok-type-body-small-line);
+	}
+
+	/*
+	 * Any cell holding a chart, a table, or long unbreakable text needs an explicit zero
+	 * minimum — a grid item's automatic minimum size is its content, so without this the cell
+	 * refuses to shrink and pushes the whole track wider than its share.
+	 */
+	.cell-fluid {
+		min-inline-size: 0;
+	}
+
+	/* ─────────────  DEBUG OVERLAY  ─────────────
+	 * Set `data-grid-debug` on any `.page-grid` in devtools to see the 12 tracks. CSS-only and
+	 * pointer-transparent; there is no control for it and nothing ships enabled.
+	 */
+	.page-grid[data-grid-debug] {
+		position: relative;
+	}
+
+	.page-grid[data-grid-debug]::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: 0;
+		pointer-events: none;
+		background-image: repeating-linear-gradient(
+			to right,
+			color-mix(in oklab, var(--gok-color-primary) 12%, transparent) 0,
+			color-mix(in oklab, var(--gok-color-primary) 12%, transparent)
+				calc((100% + var(--gok-grid-gutter)) / var(--gok-grid-columns) - var(--gok-grid-gutter)),
+			transparent
+				calc((100% + var(--gok-grid-gutter)) / var(--gok-grid-columns) - var(--gok-grid-gutter)),
+			transparent calc((100% + var(--gok-grid-gutter)) / var(--gok-grid-columns))
+		);
+	}
+}

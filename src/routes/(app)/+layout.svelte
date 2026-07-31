@@ -177,15 +177,26 @@
 
 	/* The content column. The measure cap + padding live here, not on the scroll container, so the
 	   content stays centered and capped (patterns.md §9) while `.main` spans the full width above.
-	   Mirrors the `.measure-page` utility in app.css. */
+
+	   The cap is the design system's own container token (75rem) — the app no longer defines a
+	   parallel `--measure-page` (X06). The gutter is the DS's fluid page pad,
+	   `clamp(--gok-space-500, 5vw, --gok-space-900)` = 24 → 64px, so side air grows with the
+	   viewport instead of staying pinned at 24px on a 1440 display. */
 	.main-inner {
-		inline-size: min(100%, var(--measure-page));
+		inline-size: min(100%, var(--gok-container-content));
 		margin-inline: auto;
 		/* Fold the inline safe-area into the content gutter so nothing hides under a landscape
-		   notch. env() is 0 off-notch, so max() leaves the desktop gutter at --gok-space-500. */
-		padding-inline: max(var(--gok-space-500), env(safe-area-inset-left))
-			max(var(--gok-space-500), env(safe-area-inset-right));
-		padding-block: var(--gok-space-600);
+		   notch. env() is 0 off-notch, so max() leaves the gutter at the fluid DS value. */
+		padding-inline: max(var(--gok-container-inline-pad), env(safe-area-inset-left))
+			max(var(--gok-container-inline-pad), env(safe-area-inset-right));
+		padding-block: var(--gok-space-700);
+	}
+
+	/* Laptop and up: more air above and below the content, matching the wider side gutter. */
+	@media (min-width: 64rem) {
+		.main-inner {
+			padding-block: var(--gok-space-900);
+		}
 	}
 
 	/* Mobile: one column, rail hidden, bottom bar shown — pad content to clear the bar. */
