@@ -344,7 +344,7 @@
 		display: flex;
 		align-items: flex-start;
 		gap: var(--gok-space-300);
-		max-inline-size: 36rem;
+		max-inline-size: var(--measure-panel);
 	}
 
 	.cop-mark {

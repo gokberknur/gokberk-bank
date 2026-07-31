@@ -479,7 +479,7 @@
 		flex-direction: column;
 		align-items: flex-start;
 		gap: var(--gok-space-300);
-		max-inline-size: 40rem;
+		max-inline-size: var(--measure-panel);
 		padding-block: var(--gok-space-500);
 	}
 
@@ -509,7 +509,7 @@
 
 	.ledger {
 		inline-size: 100%;
-		max-inline-size: 30rem;
+		max-inline-size: var(--measure-card);
 		display: flex;
 		flex-direction: column;
 		gap: 0;

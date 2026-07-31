@@ -245,7 +245,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-100);
-		max-inline-size: 44rem;
+		max-inline-size: var(--measure-panel);
 		padding: var(--gok-space-300) var(--gok-space-400);
 		border: var(--gok-border-width-hairline) solid var(--gok-color-border);
 		border-radius: var(--gok-radius-l);

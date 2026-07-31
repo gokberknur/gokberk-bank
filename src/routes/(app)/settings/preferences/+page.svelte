@@ -136,12 +136,12 @@
 
 	.control-field {
 		inline-size: 100%;
-		max-inline-size: 22rem;
+		max-inline-size: var(--measure-rail);
 	}
 
 	.setting-note {
 		margin: 0;
-		max-inline-size: 42rem;
+		max-inline-size: var(--measure-panel);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
 		line-height: var(--gok-type-body-small-line);

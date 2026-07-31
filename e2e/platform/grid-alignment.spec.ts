@@ -23,20 +23,28 @@ import { test, expect, gotoApp } from '../support/fixtures';
  */
 
 const MIGRATED = [
-	// wave 1
+	// A representative slice across every layout shape, not the full 57 — the same spine rules
+	// govern all of them, and the headless sweep in the wave-2 notes covers the rest.
 	'/home',
 	'/accounts',
 	'/invest',
 	'/payments',
 	'/cards',
 	'/budgets',
-	// wave 2 · W2-A hubs
 	'/lending',
 	'/insurance',
 	'/accounts/pots',
 	'/payments/topup',
 	'/crypto/BTC',
-	'/invest/instrument/AAPL'
+	'/invest/instrument/AAPL',
+	'/rewards',
+	'/documents',
+	'/profile',
+	'/invest/orders',
+	'/invest/watchlists',
+	'/payments/payees',
+	'/support',
+	'/activity'
 ] as const;
 
 /**
@@ -48,7 +56,19 @@ const MIGRATED = [
  *    does not span the spine. The instrument page additionally cannot chain subgrid through
  *    `<gok-tab-panel>` (dogfooding #50), so its blocks are a full-width stack by design.
  */
-const NO_RUNS = new Set<string>(['/cards', '/crypto/BTC', '/invest/instrument/AAPL']);
+const NO_RUNS = new Set<string>([
+	'/cards',
+	'/crypto/BTC',
+	'/invest/instrument/AAPL',
+	// Table and list surfaces: their content is a RecordList or a table, not a run of cells.
+	'/documents',
+	'/invest/orders',
+	'/invest/watchlists',
+	'/payments/payees',
+	'/support',
+	'/activity',
+	'/profile'
+]);
 const WITH_RUNS = MIGRATED.filter((r) => !NO_RUNS.has(r));
 
 /**

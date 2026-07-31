@@ -473,7 +473,7 @@
 
 	.reached-note {
 		margin: 0;
-		max-inline-size: 44rem;
+		max-inline-size: var(--measure-panel);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
 		line-height: var(--gok-type-body-regular-line);

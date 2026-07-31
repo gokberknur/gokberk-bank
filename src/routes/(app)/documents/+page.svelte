@@ -210,7 +210,7 @@
 	}
 
 	.search {
-		max-inline-size: 24rem;
+		max-inline-size: var(--measure-card);
 	}
 
 	.chips {

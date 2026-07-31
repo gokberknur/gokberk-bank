@@ -124,7 +124,7 @@
 	}
 
 	.card[data-size='hero'] {
-		max-inline-size: 27rem;
+		max-inline-size: var(--measure-card);
 	}
 
 	/* --- The three art treatments — core brand tokens, never raw hex. --- */

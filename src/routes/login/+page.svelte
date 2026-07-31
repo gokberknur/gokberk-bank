@@ -212,7 +212,7 @@
 		align-items: stretch;
 		gap: var(--gok-space-600);
 		inline-size: 100%;
-		max-inline-size: 26rem;
+		max-inline-size: var(--measure-card);
 	}
 
 	.masthead {

@@ -74,7 +74,7 @@
 		align-items: center;
 		gap: var(--gok-space-200);
 		inline-size: 100%;
-		max-inline-size: 26rem;
+		max-inline-size: var(--measure-card);
 	}
 
 	.address-eyebrow {
@@ -104,7 +104,7 @@
 		gap: var(--gok-space-200);
 		margin: 0;
 		inline-size: 100%;
-		max-inline-size: 26rem;
+		max-inline-size: var(--measure-card);
 		padding: var(--gok-space-300);
 		border: var(--gok-border-width-hairline) solid var(--gok-color-border-strong);
 		border-radius: var(--gok-radius-m);

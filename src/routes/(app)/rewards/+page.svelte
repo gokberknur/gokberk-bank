@@ -66,7 +66,7 @@
 	<title>Rewards · gökberk bank</title>
 </svelte:head>
 
-<div class="page">
+<div class="page-grid">
 	<header class="head">
 		<p class="head-eyebrow gok-eyebrow">Rewards</p>
 		<h1 class="head-title gok-headline-2">My rewards</h1>
@@ -113,7 +113,7 @@
 	</section>
 
 	<!-- Offers grid — flat hairline cards; one featured offer earns a 2px accent rule. -->
-	<section class="block" aria-labelledby="offers-heading">
+	<section class="block section" aria-labelledby="offers-heading">
 		<h2 id="offers-heading" class="block-title gok-headline-4">Offers</h2>
 
 		{#if offers.length === 0}
@@ -122,9 +122,9 @@
 				<p class="empty-body">When new offers land, they show up here to activate.</p>
 			</gok-empty-state>
 		{:else}
-			<ul class="offers" role="list">
+			<ul class="offers grid-run" role="list">
 				{#each offers as offer (offer.id)}
-					<li class="offer-cell">
+					<li class="offer-cell cell-third">
 						<OfferCard {offer} />
 					</li>
 				{/each}
@@ -133,7 +133,7 @@
 	</section>
 
 	<!-- History — earned + redeemed, newest first; status by rule + word. -->
-	<section class="block" aria-labelledby="history-heading">
+	<section class="block section" aria-labelledby="history-heading">
 		<h2 id="history-heading" class="block-title gok-headline-4">History</h2>
 
 		{#if historyRows.length === 0}
@@ -156,10 +156,8 @@
 <RedeemFlow bind:open={redeemOpen} />
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.head {
@@ -262,11 +260,7 @@
 	}
 
 	/* --- Shared block chrome --- */
-	.block {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-300);
-	}
+	/* `.section` (the spine) supplies display, tracks and row-gap. */
 
 	.block-title {
 		margin: 0;
@@ -274,14 +268,6 @@
 	}
 
 	/* --- Offers grid --- */
-	.offers {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-		gap: var(--gok-space-300);
-		margin: 0;
-		padding: 0;
-		list-style: none;
-	}
 
 	.offer-cell {
 		display: flex;

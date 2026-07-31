@@ -137,7 +137,7 @@
 	.empty-body {
 		margin: 0;
 		margin-block-start: var(--gok-space-100);
-		max-inline-size: 38rem;
+		max-inline-size: var(--measure-panel);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
 		line-height: var(--gok-type-body-regular-line);

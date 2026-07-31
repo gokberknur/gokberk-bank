@@ -186,7 +186,7 @@
 
 	.search gok-command-menu {
 		inline-size: 100%;
-		max-inline-size: 30rem;
+		max-inline-size: var(--measure-card);
 		--gok-command-menu-inline-size: 30rem;
 		--gok-command-menu-radius: var(--gok-radius-m);
 	}

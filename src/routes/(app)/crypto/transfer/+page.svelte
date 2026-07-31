@@ -62,7 +62,7 @@
 	<title>Send & receive crypto · gökberk bank</title>
 </svelte:head>
 
-<div class="page">
+<div class="page-grid">
 	<header class="head">
 		<gok-link href="/crypto">&larr; Crypto</gok-link>
 		<p class="head-eyebrow gok-eyebrow">Transfer</p>
@@ -127,11 +127,9 @@
 </div>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
-		max-inline-size: 36rem;
+	.page-grid {
+		row-gap: var(--gok-space-section);
+		max-inline-size: var(--measure-panel);
 	}
 
 	.head {

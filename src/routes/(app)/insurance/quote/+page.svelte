@@ -247,7 +247,7 @@
 	<p class="cover-caption">Add-ons can move items into cover.</p>
 {/snippet}
 
-<div class="page">
+<div class="page-grid">
 	{#if phase !== 'done'}
 		<WizardProgress
 			step={quoteStepIndex + 1}
@@ -266,9 +266,9 @@
 			</p>
 		</header>
 
-		<ul class="product-grid">
+		<ul class="product-grid grid-run">
 			{#each insurance.products as p (p.id)}
-				<li>
+				<li class="cell-third">
 					<gok-card interactive class="product-card">
 						<button type="button" class="product-button" onclick={() => chooseProduct(p.id)}>
 							<span class="product-name gok-headline-5">{p.name}</span>
@@ -601,10 +601,8 @@
 </gok-dialog>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.head {
@@ -638,9 +636,6 @@
 		list-style: none;
 		margin: 0;
 		padding: 0;
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-		gap: var(--gok-space-300);
 	}
 
 	.product-card {
@@ -1099,7 +1094,7 @@
 
 	.receipt {
 		inline-size: 100%;
-		max-inline-size: 24rem;
+		max-inline-size: var(--measure-card);
 		margin-inline: auto;
 		text-align: start;
 		padding-block-start: 0;

@@ -334,7 +334,7 @@
 
 	.hero-art {
 		flex: 1 1 22rem;
-		max-inline-size: 27rem;
+		max-inline-size: var(--measure-card);
 	}
 
 	.hero-meta {

@@ -89,7 +89,7 @@
 		</gok-empty-state>
 	</div>
 {:else}
-	<div class="page">
+	<div class="page-grid">
 		<header class="head">
 			<gok-link href="/lending">&larr; Lending</gok-link>
 			<p class="head-eyebrow gok-eyebrow">My mortgage</p>
@@ -159,7 +159,7 @@
 		</section>
 
 		<!-- Amortization -->
-		<section class="block" aria-labelledby="schedule-heading">
+		<section class="block section" aria-labelledby="schedule-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Schedule</p>
 				<h2 id="schedule-heading" class="block-title gok-headline-5">My amortization schedule</h2>
@@ -184,14 +184,14 @@
 		</section>
 
 		<!-- Rate switch -->
-		<section class="block" aria-labelledby="switch-heading">
+		<section class="block section" aria-labelledby="switch-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Rate switch</p>
 				<h2 id="switch-heading" class="block-title gok-headline-5">Switch my deal</h2>
 			</div>
-			<ul class="switch-grid">
+			<ul class="switch-grid grid-run">
 				{#each ms.rateSwitchProducts as product (product.id)}
-					<li class="switch-cell">
+					<li class="switch-cell cell-third">
 						<gok-card>
 							<div class="switch">
 								<h3 class="switch-label gok-headline-6">{product.label}</h3>
@@ -224,7 +224,7 @@
 		</section>
 
 		<!-- Documents -->
-		<section class="block" aria-labelledby="documents-heading">
+		<section class="block section" aria-labelledby="documents-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Documents</p>
 				<h2 id="documents-heading" class="block-title gok-headline-5">My mortgage documents</h2>
@@ -248,15 +248,14 @@
 {/if}
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
-		max-inline-size: 52rem;
+	/* No own cap: the page canvas is the shell's, so this route sits on the same measure as
+	   every other page instead of a bespoke one. */
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.missing {
-		max-inline-size: 36rem;
+		max-inline-size: var(--measure-panel);
 	}
 
 	.missing-title {
@@ -382,11 +381,7 @@
 	}
 
 	/* ── Blocks ── */
-	.block {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-400);
-	}
+	/* `.section` (the spine) supplies display, tracks and row-gap. */
 
 	.block-titles {
 		display: flex;
@@ -421,11 +416,8 @@
 		color: var(--gok-color-text-muted);
 	}
 
-	/* ── Rate-switch grid ── */
+	/* ── Rate-switch grid — on the spine (tracks + gutter from `.grid-run`) ── */
 	.switch-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-		gap: var(--gok-space-400);
 		margin: 0;
 		padding: 0;
 		list-style: none;

@@ -645,7 +645,7 @@
 	}
 
 	.step-fields.wide {
-		max-inline-size: 40rem;
+		max-inline-size: var(--measure-panel);
 	}
 
 	.quiet {

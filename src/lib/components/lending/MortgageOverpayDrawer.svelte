@@ -514,7 +514,7 @@
 
 	.receipt {
 		inline-size: 100%;
-		max-inline-size: 22rem;
+		max-inline-size: var(--measure-rail);
 		margin-inline: auto;
 		text-align: start;
 		padding-block-start: var(--gok-space-300);

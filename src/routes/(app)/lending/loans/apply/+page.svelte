@@ -953,7 +953,7 @@
 
 	.done-ledger {
 		inline-size: 100%;
-		max-inline-size: 24rem;
+		max-inline-size: var(--measure-card);
 		margin-inline: auto;
 		text-align: start;
 	}

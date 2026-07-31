@@ -548,7 +548,7 @@
 
 	.block-sub {
 		margin: 0;
-		max-inline-size: 42rem;
+		max-inline-size: var(--measure-panel);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
 		line-height: var(--gok-type-body-small-line);
@@ -750,7 +750,7 @@
 		margin: 0;
 		padding: 0;
 		list-style: none;
-		max-inline-size: 36rem;
+		max-inline-size: var(--measure-panel);
 	}
 
 	.row {
@@ -836,7 +836,7 @@
 
 	.remainder-alert {
 		display: block;
-		max-inline-size: 42rem;
+		max-inline-size: var(--measure-panel);
 	}
 
 	/* --- Send --- */
@@ -852,7 +852,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-100);
-		max-inline-size: 36rem;
+		max-inline-size: var(--measure-panel);
 	}
 
 	.progress-money {
@@ -870,7 +870,7 @@
 		margin: 0;
 		padding: 0;
 		list-style: none;
-		max-inline-size: 42rem;
+		max-inline-size: var(--measure-panel);
 	}
 
 	.track-row {

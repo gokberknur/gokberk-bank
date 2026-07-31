@@ -38,7 +38,7 @@
 
 	.main {
 		inline-size: 100%;
-		max-inline-size: 44rem;
+		max-inline-size: var(--measure-panel);
 	}
 
 	@media (max-width: 40rem) {
