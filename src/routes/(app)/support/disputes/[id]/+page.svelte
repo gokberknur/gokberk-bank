@@ -74,7 +74,7 @@
 		</gok-empty-state>
 	</div>
 {:else}
-	<div class="page">
+	<div class="page-grid">
 		<header class="head">
 			<gok-link href="/support">&larr; Support</gok-link>
 
@@ -116,7 +116,7 @@
 		</header>
 
 		<!-- Where the dispute is. -->
-		<section class="block" aria-labelledby="status-heading">
+		<section class="block section" aria-labelledby="status-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Status</p>
 				<h2 id="status-heading" class="block-title gok-headline-5">Where my dispute is</h2>
@@ -143,7 +143,7 @@
 		<!-- Resolution — once it lands. Upheld reads calm-positive; declined calm-factual,
 		     never blame. -->
 		{#if isUpheld || isDeclined}
-			<section class="block" aria-labelledby="resolution-heading">
+			<section class="block section" aria-labelledby="resolution-heading">
 				<div class="block-titles">
 					<p class="block-eyebrow gok-eyebrow">Resolution</p>
 					<h2 id="resolution-heading" class="block-title gok-headline-5">
@@ -165,7 +165,7 @@
 		{/if}
 
 		<!-- What I raised — my statement + the evidence (read-only). -->
-		<section class="block" aria-labelledby="raised-heading">
+		<section class="block section" aria-labelledby="raised-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">My account</p>
 				<h2 id="raised-heading" class="block-title gok-headline-5">What I raised</h2>
@@ -199,7 +199,7 @@
 
 		<!-- Documents — deferred to the vault. -->
 		{#if dispute.documents.length > 0}
-			<section class="block" aria-labelledby="documents-heading">
+			<section class="block section" aria-labelledby="documents-heading">
 				<div class="block-titles">
 					<p class="block-eyebrow gok-eyebrow">Documents</p>
 					<h2 id="documents-heading" class="block-title gok-headline-5">My documents</h2>
@@ -270,10 +270,8 @@
 {/if}
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.missing {
@@ -362,11 +360,8 @@
 	}
 
 	/* ── Blocks ── */
-	.block {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-400);
-	}
+	/* `.section` (the spine) supplies display, tracks and row-gap. A local `display: flex`
+	   would win — route styles are unlayered — and collapse the subgrid beneath it. */
 
 	.block-titles {
 		display: flex;

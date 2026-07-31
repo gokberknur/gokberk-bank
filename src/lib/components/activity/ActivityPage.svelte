@@ -40,7 +40,7 @@
 	}
 </script>
 
-<div class="page">
+<div class="page-grid">
 	<header class="head">
 		<div class="head-text">
 			<p class="eyebrow gok-eyebrow">Activity</p>
@@ -112,10 +112,8 @@
 />
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.head {
@@ -130,7 +128,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-100);
-		max-inline-size: 44rem;
+		max-inline-size: var(--measure-panel);
 	}
 
 	.eyebrow {

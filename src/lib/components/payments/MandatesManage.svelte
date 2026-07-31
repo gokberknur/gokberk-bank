@@ -268,7 +268,7 @@
 	}
 </script>
 
-<div class="page">
+<div class="page-grid">
 	<header class="head">
 		<p class="head-eyebrow gok-eyebrow">Payments</p>
 		<h1 class="head-title gok-headline-2">Direct debits</h1>
@@ -379,7 +379,7 @@
 			</dl>
 
 			<!-- The next pull — what's coming, or nothing once cancelled. -->
-			<div class="block">
+			<div class="block section">
 				<p class="block-label gok-eyebrow">Upcoming collection</p>
 				{#if selected.next}
 					<div class="upcoming-line">
@@ -396,7 +396,7 @@
 			</div>
 
 			<!-- Collection history — every pull, each with a rule + glyph + word chip. -->
-			<div class="block">
+			<div class="block section">
 				<p class="block-label gok-eyebrow">Collection history</p>
 				<ul class="history" aria-label="Collection history">
 					{#each selected.collections as collection (collection.id)}
@@ -558,10 +558,8 @@
 </gok-drawer>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.head {
@@ -712,7 +710,7 @@
 	.empty-body {
 		margin: 0;
 		margin-block-start: var(--gok-space-100);
-		max-inline-size: 32rem;
+		max-inline-size: var(--measure-form);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
 		line-height: var(--gok-type-body-regular-line);

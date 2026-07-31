@@ -151,7 +151,7 @@
 	<title>My plans · gökberk bank</title>
 </svelte:head>
 
-<div class="page">
+<div class="page-grid">
 	<PageHeader eyebrow="Plans" title="My plans" {caption}>
 		{#snippet actions()}
 			<gok-link href="/invest/plans/new">
@@ -186,10 +186,8 @@
 </div>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.empty {

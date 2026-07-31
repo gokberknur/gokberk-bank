@@ -191,7 +191,7 @@
 		</gok-empty-state>
 	</div>
 {:else}
-	<div class="page">
+	<div class="page-grid">
 		<header class="head">
 			<gok-link href="/crypto">&larr; Crypto</gok-link>
 
@@ -246,7 +246,7 @@
 		</StickyActionBar>
 
 		<!-- Price chart -->
-		<section class="block" aria-labelledby="chart-heading">
+		<section class="block section" aria-labelledby="chart-heading">
 			<div class="block-head chart-head">
 				<div>
 					<p class="block-eyebrow gok-eyebrow">Price</p>
@@ -268,7 +268,7 @@
 		</section>
 
 		<!-- Key facts -->
-		<section class="block" aria-labelledby="facts-heading">
+		<section class="block section" aria-labelledby="facts-heading">
 			<div class="block-head">
 				<p class="block-eyebrow gok-eyebrow">Fundamentals</p>
 				<h2 id="facts-heading" class="block-title gok-headline-5">Key facts</h2>
@@ -296,7 +296,7 @@
 		</section>
 
 		<!-- My position -->
-		<section class="block" aria-labelledby="position-heading">
+		<section class="block section" aria-labelledby="position-heading">
 			<div class="block-head">
 				<p class="block-eyebrow gok-eyebrow">Holding</p>
 				<h2 id="position-heading" class="block-title gok-headline-5">My position</h2>
@@ -329,10 +329,8 @@
 {/if}
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	/* --- Not found --- */
@@ -455,11 +453,8 @@
 	}
 
 	/* --- Content blocks --- */
-	.block {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-400);
-	}
+	/* `.section` (the spine) supplies display, tracks and row-gap. A local `display: flex`
+	   would win — route styles are unlayered — and collapse the subgrid beneath it. */
 
 	.block-head {
 		display: flex;
@@ -485,7 +480,10 @@
 		gap: var(--gok-space-400);
 	}
 
-	/* --- Key/value ledger grid --- */
+	/* --- Key/value ledger grid ---
+	   Deliberately NOT on the spine: this is an in-panel <dl> of stat pairs, and its panel does
+	   not span the whole page grid, so the page's tracks would be the wrong tracks. Recorded as a
+	   permanent allowance in scripts/check-layout.mjs, not as unmigrated work. */
 	.stats {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));

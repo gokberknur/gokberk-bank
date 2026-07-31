@@ -113,7 +113,7 @@
 	.row-note {
 		display: block;
 		margin-block-start: var(--gok-space-100);
-		max-inline-size: 32rem;
+		max-inline-size: var(--measure-form);
 		font-size: var(--gok-type-body-small-size);
 		line-height: var(--gok-type-body-small-line);
 		font-weight: var(--gok-font-weight-regular);

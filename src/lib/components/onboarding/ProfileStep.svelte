@@ -73,6 +73,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-400);
-		max-inline-size: 32rem;
+		max-inline-size: var(--measure-form);
 	}
 </style>

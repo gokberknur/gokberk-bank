@@ -77,7 +77,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-300);
-		max-inline-size: 36rem;
+		max-inline-size: var(--measure-panel);
 	}
 
 	.caption {

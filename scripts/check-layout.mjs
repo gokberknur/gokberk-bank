@@ -30,6 +30,101 @@ import { dirname, join, relative } from 'node:path';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(ROOT, 'src');
 const KNOWN_PATH = join(dirname(fileURLToPath(import.meta.url)), 'layout-known.json');
+
+// PERMANENT, reasoned exceptions — distinct from KNOWN, which is a shrinking migration backlog.
+// KNOWN must reach zero; ALLOW never does, because these are correct as they stand. Every entry
+// needs a reason, and "not migrated yet" is not one — that is what KNOWN is for.
+const ALLOW = new Map([
+	[
+		'COLUMNS src/routes/(app)/crypto/[symbol]/+page.svelte',
+		'`.stats` is an in-panel key/value <dl>, not a page-level card run. Its panel does not span the whole spine, so page tracks would be the wrong tracks.'
+	],
+	[
+		'COLUMNS src/routes/(app)/invest/instrument/[symbol]/+page.svelte',
+		'Same in-panel `.stats` ledger as the crypto instrument page.'
+	],
+	[
+		'COLUMNS src/routes/(app)/lending/loans/[id]/+page.svelte',
+		'`.facts` is an in-panel key/value strip between hairlines, not a card run — its panel does not span the spine.'
+	],
+	[
+		'COLUMNS src/routes/(app)/lending/mortgages/[id]/+page.svelte',
+		'Same in-panel `.facts` strip; the page\'s real card run (rate-switch) IS on the spine.'
+	],
+	[
+		'COLUMNS src/routes/(app)/lending/credit-line/[id]/+page.svelte',
+		'Same in-panel `.facts` strip as the loan and mortgage detail pages.'
+	],
+	// Content truncation caps, not layout measures: these size a piece of TEXT so it ellipsises,
+	// which is the `--field-*` family's job, not a page/panel measure role.
+	[
+		'MEASURE src/lib/components/invest/WatchTable.svelte',
+		'`.sym-name` caps an instrument name so it truncates in its cell.'
+	],
+	[
+		'MEASURE src/lib/components/invest/InstrumentGrid.svelte',
+		'Same `.sym-name` truncation cap as WatchTable.'
+	],
+	[
+		'MEASURE src/routes/(app)/invest/+page.svelte',
+		'Same `.sym-name` truncation cap in the holdings grid.'
+	],
+	[
+		'MEASURE src/routes/(app)/payments/request/+page.svelte',
+		'`.qr-note` caps a caption under a QR code to the code\'s own width.'
+	],
+	[
+		'MEASURE src/routes/(app)/payments/request/[step]/+page.svelte',
+		'Same `.qr-note` caption cap as the request hub.'
+	],
+	// ── Component internals: a component owns its own structure; the spine owns where the
+	// component sits. Putting a toolbar row or a table row on page tracks would be wrong.
+	[
+		'COLUMNS src/routes/(app)/+layout.svelte',
+		'`.shell` IS the app-shell grid (topbar/rail/main), not page content.'
+	],
+	[
+		'COLUMNS src/routes/(app)/budgets/+page.svelte',
+		'`.sub-card` is a `1fr auto` label/value row inside a card.'
+	],
+	[
+		'COLUMNS src/routes/(app)/cards/[id]/+page.svelte',
+		'`.spend-body` pairs a fixed 18rem chart column with a fluid list — an intrinsic first track, not a spine span.'
+	],
+	[
+		'COLUMNS src/routes/(app)/crypto/+page.svelte',
+		'`.bal` is a five-column table row.'
+	],
+	[
+		'COLUMNS src/routes/(app)/payments/scheduled/new/+page.svelte',
+		'`.run` is a `1fr auto auto` row of controls.'
+	],
+	[
+		'COLUMNS src/routes/(app)/security/+layout.svelte',
+		'`.posture-stats` is an in-layout stat strip above the security sub-routes, not page content.'
+	],
+	[
+		'COLUMNS src/routes/(app)/accounts/pots/[id]/+page.svelte',
+		'`.figures` is a two-up intrinsic figure pair (`minmax(8rem, auto)`) inside a card.'
+	],
+	[
+		'COLUMNS src/routes/(app)/accounts/[id]/statements/+page.svelte',
+		'`.doc-meta` is a two-column metadata list inside a statement row.'
+	],
+	[
+		'COLUMNS src/routes/(app)/security/2fa/+page.svelte',
+		'`.code-grid` lays out recovery codes — a content matrix, like the QR grid.'
+	],
+	// ── The card-art track, already documented in CardStrip itself.
+	[
+		'MEASURE src/lib/components/cards/CardStrip.svelte',
+		'Card art is fixed-aspect media at a real physical size; its 16rem track and width are intrinsic.'
+	],
+	[
+		'MEASURE src/lib/components/cards/CardArt.svelte',
+		'Same fixed-aspect card art.'
+	]
+]);
 const EXTS = ['.svelte', '.css'];
 
 // The spine itself, and the app-global sheet that defines the measure roles, are the source of
@@ -78,7 +173,9 @@ for (const file of walk(SRC)) {
 			for (const m of line.matchAll(rule.re)) {
 				const value = m[1].trim().replace(/\s+/g, ' ');
 				if (rule.ok(value)) continue;
-				found.push({ key: `${rule.id} ${rel}`, rule: rule.id, file: rel, line: i + 1, value, hint: rule.hint });
+				const key = `${rule.id} ${rel}`;
+				if (ALLOW.has(key)) continue;
+				found.push({ key, rule: rule.id, file: rel, line: i + 1, value, hint: rule.hint });
 			}
 		});
 	}
@@ -121,5 +218,5 @@ if (stale.length > 0) {
 }
 
 console.log(
-	`✔ layout-lint: no new drift (${known.length} known violation(s) awaiting migration).`
+	`✔ layout-lint: no new drift (${known.length} awaiting migration, ${ALLOW.size} permanently allowed).`
 );

@@ -113,7 +113,7 @@
 	<title>My loan · gökberk bank</title>
 </svelte:head>
 
-<div class="page">
+<div class="page-grid">
 	<header class="head">
 		<gok-link href="/lending">&larr; Lending</gok-link>
 		<p class="head-eyebrow gok-eyebrow">My loan</p>
@@ -201,7 +201,7 @@
 	</section>
 
 	<!-- Glide-path preview -->
-	<section class="block" aria-labelledby="glide-heading">
+	<section class="block section" aria-labelledby="glide-heading">
 		<div class="block-titles">
 			<p class="block-eyebrow gok-eyebrow">Balance over time</p>
 			<h2 id="glide-heading" class="block-title gok-headline-5">My glide to zero</h2>
@@ -215,7 +215,7 @@
 	</section>
 
 	<!-- Repayment schedule -->
-	<section class="block" aria-labelledby="schedule-heading">
+	<section class="block section" aria-labelledby="schedule-heading">
 		<div class="block-titles">
 			<p class="block-eyebrow gok-eyebrow">Schedule</p>
 			<h2 id="schedule-heading" class="block-title gok-headline-5">My repayment schedule</h2>
@@ -231,7 +231,7 @@
 	</section>
 
 	<!-- Documents -->
-	<section class="block" aria-labelledby="documents-heading">
+	<section class="block section" aria-labelledby="documents-heading">
 		<div class="block-titles">
 			<p class="block-eyebrow gok-eyebrow">Documents</p>
 			<h2 id="documents-heading" class="block-title gok-headline-5">My loan documents</h2>
@@ -260,11 +260,10 @@
 <PayoffDialog bind:open={payoffOpen} />
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
-		max-inline-size: 52rem;
+	/* No own cap: the page canvas is the shell's, so this route sits on the same measure as
+	   every other page instead of a bespoke one. */
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	/* ── Header ── */
@@ -393,11 +392,7 @@
 	}
 
 	/* ── Blocks ── */
-	.block {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-400);
-	}
+	/* `.section` (the spine) supplies display, tracks and row-gap. */
 
 	.block-titles {
 		display: flex;

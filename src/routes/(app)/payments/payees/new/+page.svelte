@@ -151,7 +151,7 @@
 	}
 </script>
 
-<div class="page">
+<div class="page-grid">
 	<header class="head">
 		<BackLink href="/payments/payees" label="Payees" />
 		<p class="eyebrow gok-eyebrow">Payments</p>
@@ -293,10 +293,8 @@
 </div>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.head {
@@ -323,7 +321,7 @@
 	}
 
 	.fields {
-		max-inline-size: 32rem;
+		max-inline-size: var(--measure-form);
 	}
 
 	.lead {
@@ -346,7 +344,7 @@
 		display: flex;
 		align-items: flex-start;
 		gap: var(--gok-space-300);
-		max-inline-size: 36rem;
+		max-inline-size: var(--measure-panel);
 	}
 
 	.cop-mark {
@@ -390,7 +388,7 @@
 		flex-direction: column;
 		gap: 0;
 		margin: 0;
-		max-inline-size: 32rem;
+		max-inline-size: var(--measure-form);
 	}
 
 	.row {

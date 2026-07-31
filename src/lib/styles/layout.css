@@ -71,7 +71,7 @@
 	 * The plain `grid-template-columns` before the subgrid line is a same-cascade fallback: a
 	 * browser without subgrid keeps a working 12-track grid instead of dropping the declaration.
 	 */
-	.section {
+	.page-grid .section {
 		grid-column: 1 / -1;
 		display: grid;
 		grid-template-columns: repeat(var(--gok-grid-columns), minmax(0, 1fr));
@@ -84,7 +84,7 @@
 	 * so list items land on the page spine too rather than on tracks of the list's own. Also
 	 * resets list chrome, since most runs are `<ul>`s.
 	 */
-	.grid-run {
+	.page-grid .grid-run {
 		grid-column: 1 / -1;
 		display: grid;
 		grid-template-columns: repeat(var(--gok-grid-columns), minmax(0, 1fr));
@@ -109,41 +109,49 @@
 	 * a wide table, a long IBAN or a chart's intrinsic width would otherwise push its track past
 	 * its share and blow out the whole row.
 	 */
-	:where(.section > *, .grid-run > *) {
+	.page-grid :where(.section > *, .grid-run > *) {
 		grid-column: 1 / -1;
 		min-inline-size: 0;
 	}
 
 	/* ─────────────  CELL ROLES  ─────────────
+	 * Every spine class is scoped under `.page-grid`. Not cosmetic: `.section` is an ordinary
+	 * word, and two UNMIGRATED routes (/profile, /payments/topup) already shipped
+	 * `class="section"` of their own. Wave 1 made the global rule match them. It happened to be
+	 * harmless — both declare their own `display: flex` and `gap`, and unlayered route styles
+	 * beat the layer — but that is luck, not design: a route with `class="section"` and no
+	 * display rule of its own would have had its children auto-placed into track 1. Scoping
+	 * makes the collision impossible instead of survivable.
+	 *
 	 * The only spans anyone writes. Named for the job, not the number, so a role can be retuned
 	 * once here instead of hunted through 82 routes.
 	 */
-	.cell-full {
+	.page-grid .cell-full {
 		grid-column: span 12;
 	}
 
-	.cell-main {
+	.page-grid .cell-main {
 		grid-column: span 8;
 	}
 
-	.cell-half {
+	.page-grid .cell-half {
 		grid-column: span 6;
 	}
 
-	.cell-third {
+	.page-grid .cell-third {
 		grid-column: span 4;
 	}
 
-	.cell-side {
+	.page-grid .cell-side {
 		grid-column: span 4;
 	}
 
-	.cell-quarter {
+	.page-grid .cell-quarter {
 		grid-column: span 3;
 	}
 
 	/* Six across the full spine — and, usefully, four across an 8-track main column. */
-	.cell-sixth {
+	.page-grid .cell-sixth {
 		grid-column: span 2;
 	}
 
@@ -157,18 +165,18 @@
 	 * `@container` (see the tile components).
 	 */
 	@media (width < 64rem) {
-		.cell-main {
+		.page-grid .cell-main {
 			grid-column: span 12;
 		}
 
 		.cell-side,
 		.cell-third,
-		.cell-quarter {
+		.page-grid .cell-quarter {
 			grid-column: span 6;
 		}
 
 		/* Still four across, now of the full spine rather than an 8-track column. */
-		.cell-sixth {
+		.page-grid .cell-sixth {
 			grid-column: span 3;
 		}
 	}
@@ -180,14 +188,36 @@
 	 * easy to beat; an override has to be able to win.
 	 */
 	@media (width < 40rem) {
-		[class*='cell-'] {
+		.page-grid [class*='cell-'] {
 			grid-column: 1 / -1;
 		}
 
 		/* The one exception to full-width-on-phone: a compact action tile stays paired, because
 		   four full-width buttons is a scroll where two rows of two is a glance. */
-		.cell-sixth {
+		.page-grid .cell-sixth {
 			grid-column: span 6;
+		}
+	}
+
+	/* ─────────────  NARROW-PHONE ROW GAP  ─────────────
+	 * A horizontal row — a Back/Continue pair, a label-and-value line, a chip cluster — tightens
+	 * its gap on a very narrow phone so its two ends still fit on one line. This exact rule,
+	 * `gap: 400` narrowing to `200` at 24.375rem (390px), was written inline in 19 separate
+	 * files, each carrying its own `@media` block. One token, one media query, nineteen deletions.
+	 *
+	 * Deliberately named for the BEHAVIOUR, not for "actions": the 19 rows are a mix of action
+	 * pairs and key/value lines, and the rule was always the same either way.
+	 *
+	 * A row opts in by reading this token instead of a raw space token; nothing is imposed on a
+	 * `.row` class the spine does not own.
+	 */
+	:root {
+		--gap-action-row: var(--gok-space-400);
+	}
+
+	@media (width <= 24.375rem) {
+		:root {
+			--gap-action-row: var(--gok-space-200);
 		}
 	}
 
@@ -205,19 +235,19 @@
 	 * the card's regions. Logged in docs/dogfooding/findings.md; when the DS ships that part,
 	 * these three rules can be replaced by one subgrid declaration.
 	 */
-	.line-eyebrow {
+	.page-grid .line-eyebrow {
 		min-block-size: var(--gok-type-eyebrow-line);
 	}
 
-	.line-figure {
+	.page-grid .line-figure {
 		min-block-size: var(--gok-type-metric-line);
 	}
 
-	.line-figure-s {
+	.page-grid .line-figure-s {
 		min-block-size: var(--gok-type-metric-small-line);
 	}
 
-	.line-delta {
+	.page-grid .line-delta {
 		min-block-size: var(--gok-type-body-small-line);
 	}
 

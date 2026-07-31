@@ -190,7 +190,7 @@
 	<title>Ask for money · gökberk bank</title>
 </svelte:head>
 
-<div class="page">
+<div class="page-grid">
 	<header class="head">
 		<BackLink href="/payments/request" label="Requests" />
 		<p class="eyebrow gok-eyebrow">Request money</p>
@@ -378,10 +378,8 @@
 </div>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.head {
@@ -403,7 +401,7 @@
 
 	.lead {
 		margin: 0;
-		max-inline-size: 46rem;
+		max-inline-size: var(--measure-read);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
 		line-height: var(--gok-type-body-regular-line);
@@ -508,7 +506,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-400);
-		max-inline-size: 32rem;
+		max-inline-size: var(--measure-form);
 	}
 
 	.open-ask {
@@ -579,7 +577,7 @@
 
 	.share-lead {
 		margin: 0;
-		max-inline-size: 46rem;
+		max-inline-size: var(--measure-read);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
 		line-height: var(--gok-type-body-regular-line);
@@ -634,7 +632,7 @@
 		flex-direction: column;
 		gap: 0;
 		margin: 0;
-		max-inline-size: 32rem;
+		max-inline-size: var(--measure-form);
 	}
 
 	.summary-row {

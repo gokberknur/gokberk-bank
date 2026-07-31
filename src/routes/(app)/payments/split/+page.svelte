@@ -195,7 +195,7 @@
 	<title>Split a bill · gökberk bank</title>
 </svelte:head>
 
-<div class="page">
+<div class="page-grid">
 	<header class="head">
 		<BackLink href="/payments" label="Payments" />
 		<p class="eyebrow gok-eyebrow">Payments</p>
@@ -208,7 +208,7 @@
 
 	{#if phase === 'build'}
 		<!-- ── 1 · The bill ─────────────────────────────────────────────────────── -->
-		<section class="block" aria-labelledby="bill-heading">
+		<section class="block section" aria-labelledby="bill-heading">
 			<div class="block-head">
 				<p class="block-eyebrow gok-eyebrow">The bill</p>
 				<h2 id="bill-heading" class="block-title gok-headline-5">What am I splitting?</h2>
@@ -239,7 +239,7 @@
 		</section>
 
 		<!-- ── 2 · People ───────────────────────────────────────────────────────── -->
-		<section class="block" aria-labelledby="people-heading">
+		<section class="block section" aria-labelledby="people-heading">
 			<div class="block-head">
 				<p class="block-eyebrow gok-eyebrow">People</p>
 				<h2 id="people-heading" class="block-title gok-headline-5">Who's splitting it?</h2>
@@ -331,7 +331,7 @@
 		</section>
 
 		<!-- ── 3 · Method + amounts ─────────────────────────────────────────────── -->
-		<section class="block" aria-labelledby="method-heading">
+		<section class="block section" aria-labelledby="method-heading">
 			<div class="block-head">
 				<p class="block-eyebrow gok-eyebrow">Shares</p>
 				<h2 id="method-heading" class="block-title gok-headline-5">How should it split?</h2>
@@ -436,7 +436,7 @@
 		</footer>
 	{:else}
 		<!-- ── 5 · Track · the just-sent split. Freshly minted, so every share is Open. ── -->
-		<section class="block" aria-labelledby="track-heading">
+		<section class="block section" aria-labelledby="track-heading">
 			<div class="block-head">
 				<p class="block-eyebrow gok-eyebrow">Track</p>
 				<h2 id="track-heading" class="block-title gok-headline-5">I'm collecting</h2>
@@ -489,10 +489,8 @@
 </div>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.head {
@@ -516,7 +514,7 @@
 
 	.lead {
 		margin: 0;
-		max-inline-size: 46rem;
+		max-inline-size: var(--measure-read);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
 		line-height: var(--gok-type-body-regular-line);
@@ -550,7 +548,7 @@
 
 	.block-sub {
 		margin: 0;
-		max-inline-size: 42rem;
+		max-inline-size: var(--measure-panel);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
 		line-height: var(--gok-type-body-small-line);
@@ -561,7 +559,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-400);
-		max-inline-size: 32rem;
+		max-inline-size: var(--measure-form);
 	}
 
 	/* --- People chips --- */
@@ -636,7 +634,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-300);
-		max-inline-size: 32rem;
+		max-inline-size: var(--measure-form);
 	}
 
 	.field {
@@ -752,7 +750,7 @@
 		margin: 0;
 		padding: 0;
 		list-style: none;
-		max-inline-size: 36rem;
+		max-inline-size: var(--measure-panel);
 	}
 
 	.row {
@@ -838,7 +836,7 @@
 
 	.remainder-alert {
 		display: block;
-		max-inline-size: 42rem;
+		max-inline-size: var(--measure-panel);
 	}
 
 	/* --- Send --- */
@@ -854,7 +852,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-100);
-		max-inline-size: 36rem;
+		max-inline-size: var(--measure-panel);
 	}
 
 	.progress-money {
@@ -872,7 +870,7 @@
 		margin: 0;
 		padding: 0;
 		list-style: none;
-		max-inline-size: 42rem;
+		max-inline-size: var(--measure-panel);
 	}
 
 	.track-row {

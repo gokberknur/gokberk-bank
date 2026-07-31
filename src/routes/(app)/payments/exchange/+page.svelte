@@ -172,7 +172,7 @@
 	<title>Exchange · gökberk bank</title>
 </svelte:head>
 
-<div class="page">
+<div class="page-grid">
 	{#if phase === 'success' && receipt}
 		<!-- Success · INSTANT (C02). Both wallets have already moved — no pending. -->
 		<section class="outcome">
@@ -400,10 +400,8 @@
 />
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.head {
@@ -624,7 +622,7 @@
 
 	.receipt {
 		inline-size: 100%;
-		max-inline-size: 22rem;
+		max-inline-size: var(--measure-rail);
 		margin-inline: auto;
 		text-align: start;
 		padding-block-start: var(--gok-space-300);

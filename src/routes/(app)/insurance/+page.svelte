@@ -83,7 +83,7 @@
 	{/if}
 {/snippet}
 
-<div class="page">
+<div class="page-grid">
 	<header class="head">
 		<p class="head-eyebrow gok-eyebrow">Insurance</p>
 		<h1 class="head-title gok-headline-2">Cover, kept honest</h1>
@@ -91,7 +91,7 @@
 	</header>
 
 	<!-- My policies — the cover I already hold. -->
-	<section class="block" aria-labelledby="policies-heading">
+	<section class="block section" aria-labelledby="policies-heading">
 		<div class="block-titles">
 			<p class="block-eyebrow gok-eyebrow">My cover</p>
 			<h2 id="policies-heading" class="block-title gok-headline-5">My policies</h2>
@@ -103,9 +103,9 @@
 				<p class="empty-body">When I take out cover, my policies show up here.</p>
 			</gok-empty-state>
 		{:else}
-			<ul class="policy-grid">
+			<ul class="policy-grid grid-run">
 				{#each myPolicies as { policy, product } (policy.id)}
-					<li class="policy-cell">
+					<li class="policy-cell cell-third">
 						<gok-card interactive style="position: relative">
 							<a
 								class="stretched"
@@ -150,7 +150,7 @@
 	</section>
 
 	<!-- My claims — what I've filed, and the way in to file another. -->
-	<section class="block" aria-labelledby="claims-heading">
+	<section class="block section" aria-labelledby="claims-heading">
 		<div class="block-titles">
 			<p class="block-eyebrow gok-eyebrow">My claims</p>
 			<h2 id="claims-heading" class="block-title gok-headline-5">What I've filed</h2>
@@ -191,15 +191,15 @@
 	</section>
 
 	<!-- Products — what I can add. -->
-	<section class="block" aria-labelledby="products-heading">
+	<section class="block section" aria-labelledby="products-heading">
 		<div class="block-titles">
 			<p class="block-eyebrow gok-eyebrow">Products</p>
 			<h2 id="products-heading" class="block-title gok-headline-5">What I can cover</h2>
 		</div>
 
-		<ul class="product-grid">
+		<ul class="product-grid grid-run">
 			{#each insurance.products as product (product.id)}
-				<li class="product-cell">
+				<li class="product-cell cell-third">
 					<gok-card interactive style="position: relative">
 						<a
 							class="stretched"
@@ -225,10 +225,8 @@
 </div>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	/* ── Header ── */
@@ -257,11 +255,8 @@
 	}
 
 	/* ── Blocks ── */
-	.block {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-400);
-	}
+	/* `.section` (the spine) supplies display, tracks and row-gap. A local `display: flex`
+	   would win — route styles are unlayered — and collapse the subgrid beneath it. */
 
 	.block-titles {
 		display: flex;
@@ -277,17 +272,6 @@
 	.block-title {
 		margin: 0;
 		color: var(--gok-color-text);
-	}
-
-	/* ── Policy + product grids ── */
-	.policy-grid,
-	.product-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-		gap: var(--gok-space-400);
-		margin: 0;
-		padding: 0;
-		list-style: none;
 	}
 
 	.policy-cell,

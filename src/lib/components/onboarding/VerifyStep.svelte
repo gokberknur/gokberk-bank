@@ -96,7 +96,7 @@
 		flex-direction: column;
 		gap: var(--gok-space-400);
 		align-items: flex-start;
-		max-inline-size: 36rem;
+		max-inline-size: var(--measure-panel);
 	}
 
 	.lead {
@@ -118,7 +118,7 @@
 
 	.verifying gok-alert {
 		display: block;
-		max-inline-size: 32rem;
+		max-inline-size: var(--measure-form);
 	}
 
 	.help {
@@ -126,7 +126,7 @@
 		flex-direction: column;
 		align-items: flex-start;
 		gap: var(--gok-space-400);
-		max-inline-size: 36rem;
+		max-inline-size: var(--measure-panel);
 	}
 
 	.help gok-alert {

@@ -18,7 +18,7 @@
 	<title>Pots · gökberk bank</title>
 </svelte:head>
 
-<div class="page">
+<div class="page-grid">
 	<header class="head">
 		<BackLink href="/accounts" label="Accounts" />
 		<p class="eyebrow gok-eyebrow">Accounts</p>
@@ -50,9 +50,9 @@
 			</gok-link>
 		</gok-empty-state>
 	{:else}
-		<ul class="grid">
+		<ul class="grid grid-run">
 			{#each all as pot (pot.id)}
-				<li class="cell">
+				<li class="cell cell-third">
 					<PotCard {pot} />
 				</li>
 			{/each}
@@ -61,10 +61,8 @@
 </div>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.head {
@@ -122,14 +120,6 @@
 		color: var(--gok-color-text-muted);
 	}
 
-	.grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-		gap: var(--gok-space-400);
-		margin: 0;
-		padding: 0;
-		list-style: none;
-	}
 
 	.cell {
 		display: flex;
@@ -147,7 +137,7 @@
 	.empty-body {
 		margin: 0;
 		margin-block-start: var(--gok-space-100);
-		max-inline-size: 38rem;
+		max-inline-size: var(--measure-panel);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
 		line-height: var(--gok-type-body-regular-line);

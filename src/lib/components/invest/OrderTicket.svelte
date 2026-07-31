@@ -575,7 +575,7 @@
 		display: flex;
 		align-items: baseline;
 		justify-content: space-between;
-		gap: var(--gok-space-400);
+		gap: var(--gap-action-row);
 	}
 
 	.row dt {
@@ -734,7 +734,7 @@
 
 	.receipt {
 		inline-size: 100%;
-		max-inline-size: 22rem;
+		max-inline-size: var(--measure-rail);
 		margin-inline: auto;
 		text-align: start;
 		padding-block-start: var(--gok-space-300);
@@ -748,9 +748,4 @@
 		gap: var(--gok-space-200);
 	}
 
-	@media (max-width: 24.375rem) {
-		.row {
-			gap: var(--gok-space-200);
-		}
-	}
 </style>

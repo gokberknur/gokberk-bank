@@ -87,7 +87,7 @@
 		</gok-empty-state>
 	</div>
 {:else}
-	<div class="page">
+	<div class="page-grid">
 		<header class="head">
 			<gok-link href="/lending">&larr; Lending</gok-link>
 			<p class="head-eyebrow gok-eyebrow">My credit line</p>
@@ -156,7 +156,7 @@
 		</section>
 
 		<!-- Statement -->
-		<section class="block" aria-labelledby="statement-heading">
+		<section class="block section" aria-labelledby="statement-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Statement</p>
 				<h2 id="statement-heading" class="block-title gok-headline-5">This month's transactions</h2>
@@ -184,15 +184,14 @@
 {/if}
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
-		max-inline-size: 52rem;
+	/* No own cap: the page canvas is the shell's, so this route sits on the same measure as
+	   every other page instead of a bespoke one. */
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.missing {
-		max-inline-size: 36rem;
+		max-inline-size: var(--measure-panel);
 	}
 
 	.missing-title {
@@ -327,11 +326,7 @@
 	}
 
 	/* ── Blocks ── */
-	.block {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-400);
-	}
+	/* `.section` (the spine) supplies display, tracks and row-gap. */
 
 	.block-titles {
 		display: flex;

@@ -14,9 +14,12 @@
 /*
  * Content measure scale (app-local). These are semantic *measures*, not arbitrary widths —
  * pick the role, not a number:
- *   --measure-read  long-form reading (disclosures, policy text, review ledgers)
- *   --measure-form  a form / wizard column (labelled inputs stacked in one column)
- *   --measure-rail  a side panel / summary rail beside the main column
+ *   --measure-read   long-form reading (disclosures, policy text, review ledgers)
+ *   --measure-panel  a wizard step / settings / detail panel column — wider than one field
+ *                    column, narrower than prose
+ *   --measure-form   a form column (labelled inputs stacked in one column)
+ *   --measure-card   a standalone card that should not stretch (auth, a small dialog body)
+ *   --measure-rail   a side panel / summary rail beside the main column
  *
  * The fourth role — the page canvas — is NOT app-local: it reads the design system's
  * `--gok-container-content` (75rem). The bespoke `--measure-page` that used to sit here was
@@ -27,7 +30,9 @@
  */
 :root {
 	--measure-read: 46rem;
+	--measure-panel: 40rem;
 	--measure-form: 32rem;
+	--measure-card: 26rem;
 	--measure-rail: 22rem;
 	/* Field content widths — sized to the value, in ch so they track the type. */
 	--field-money: 16ch;
@@ -38,8 +43,16 @@
 	max-inline-size: var(--measure-read);
 }
 
+.measure-panel {
+	max-inline-size: var(--measure-panel);
+}
+
 .measure-form {
 	max-inline-size: var(--measure-form);
+}
+
+.measure-card {
+	max-inline-size: var(--measure-card);
 }
 
 .measure-rail {

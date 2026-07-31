@@ -150,7 +150,7 @@
 		</gok-empty-state>
 	</div>
 {:else}
-	<div class="page">
+	<div class="page-grid">
 		<BackLink href="/invest/plans" label="Plans" />
 
 		<PageHeader eyebrow="Savings plan" title={plan.name} />
@@ -321,10 +321,8 @@
 {/if}
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	/* --- Status + schedule summary --- */

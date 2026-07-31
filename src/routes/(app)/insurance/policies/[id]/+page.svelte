@@ -123,7 +123,7 @@
 		</gok-empty-state>
 	</div>
 {:else}
-	<div class="page">
+	<div class="page-grid">
 		<header class="head">
 			<gok-link href="/insurance">&larr; Insurance</gok-link>
 
@@ -174,7 +174,7 @@
 
 		<!-- Cover summary — the signature section. Covered and not-covered render with
 		     identical type, size and weight; only the leading mark and heading differ. -->
-		<section class="block" aria-labelledby="cover-heading">
+		<section class="block section" aria-labelledby="cover-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Cover summary</p>
 				<h2 id="cover-heading" class="block-title gok-headline-5">What my cover does and doesn't do</h2>
@@ -233,7 +233,7 @@
 		</section>
 
 		<!-- Policy details — the terms ledger. -->
-		<section class="block" aria-labelledby="details-heading">
+		<section class="block section" aria-labelledby="details-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Policy details</p>
 				<h2 id="details-heading" class="block-title gok-headline-5">My policy</h2>
@@ -270,7 +270,7 @@
 		</section>
 
 		<!-- Documents — deferred to the D-series vault; each is a "Soon". -->
-		<section class="block" aria-labelledby="documents-heading">
+		<section class="block section" aria-labelledby="documents-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Documents</p>
 				<h2 id="documents-heading" class="block-title gok-headline-5">My documents</h2>
@@ -292,7 +292,7 @@
 
 		<!-- Claims — what's been filed against this policy, and the way in to file one. -->
 		{#if isActive || policyClaims.length > 0}
-			<section class="block" aria-labelledby="claims-heading">
+			<section class="block section" aria-labelledby="claims-heading">
 				<div class="block-titles">
 					<p class="block-eyebrow gok-eyebrow">Claims</p>
 					<h2 id="claims-heading" class="block-title gok-headline-5">Claims on this policy</h2>
@@ -326,7 +326,7 @@
 		{/if}
 
 		<!-- Payment schedule — a single calm line. -->
-		<section class="block" aria-labelledby="schedule-heading">
+		<section class="block section" aria-labelledby="schedule-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Payment schedule</p>
 				<h2 id="schedule-heading" class="block-title gok-headline-5">My payments</h2>
@@ -383,10 +383,8 @@
 {/if}
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.missing {
@@ -475,11 +473,8 @@
 	}
 
 	/* ── Blocks ── */
-	.block {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-400);
-	}
+	/* `.section` (the spine) supplies display, tracks and row-gap. A local `display: flex`
+	   would win — route styles are unlayered — and collapse the subgrid beneath it. */
 
 	.block-titles {
 		display: flex;

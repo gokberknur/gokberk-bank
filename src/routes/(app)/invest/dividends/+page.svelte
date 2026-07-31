@@ -89,7 +89,7 @@
 	<title>Dividends · gökberk bank</title>
 </svelte:head>
 
-<div class="page">
+<div class="page-grid">
 	<header class="head">
 		<BackLink href="/invest" label="Investments" />
 		<p class="head-eyebrow gok-eyebrow">Dividends</p>
@@ -155,11 +155,10 @@
 </div>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
-		max-inline-size: 60rem;
+	/* No own cap: the page canvas is the shell's, so this route sits on the same measure as
+	   every other page instead of a bespoke one. */
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	/* ── Header ── */

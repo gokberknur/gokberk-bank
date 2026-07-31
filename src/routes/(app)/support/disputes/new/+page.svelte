@@ -154,7 +154,7 @@
 	<title>Dispute a charge · gökberk bank</title>
 </svelte:head>
 
-<div class="page">
+<div class="page-grid">
 	<header class="head">
 		<gok-link href="/support">&larr; Support</gok-link>
 		<p class="eyebrow gok-eyebrow">Card dispute</p>
@@ -478,10 +478,8 @@
 </gok-dialog>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	.head {
@@ -503,7 +501,7 @@
 
 	.lead {
 		margin: 0;
-		max-inline-size: 46rem;
+		max-inline-size: var(--measure-read);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
 		line-height: var(--gok-type-body-regular-line);
@@ -518,7 +516,7 @@
 	}
 
 	.fields {
-		max-inline-size: 32rem;
+		max-inline-size: var(--measure-form);
 	}
 
 	/* --- Charge + reason radio-cards --- */
@@ -622,7 +620,7 @@
 		display: flex;
 		align-items: baseline;
 		justify-content: space-between;
-		gap: var(--gok-space-400);
+		gap: var(--gap-action-row);
 		padding-block: var(--gok-space-300);
 		border-block-start: var(--gok-border-width-hairline) solid var(--gok-color-border);
 	}
@@ -840,9 +838,4 @@
 		border: 0;
 	}
 
-	@media (max-width: 24.375rem) {
-		.row {
-			gap: var(--gok-space-200);
-		}
-	}
 </style>

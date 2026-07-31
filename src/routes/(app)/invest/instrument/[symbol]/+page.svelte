@@ -344,7 +344,7 @@
 		</gok-empty-state>
 	</div>
 {:else}
-	<div class="page">
+	<div class="page-grid">
 		<header class="head">
 			<BackLink href="/invest" label="Investments" />
 
@@ -643,14 +643,18 @@
 {/if}
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
-	/* Each tab panel's content column. Carries the inter-section rhythm that .page's gap
-	   used to provide, now that the research sections live inside the tab panels. */
+	/* Each tab panel's content column, carrying the inter-section rhythm that `.page`'s gap used
+	   to provide.
+
+	   NOT a `.section`: the spine cannot reach in here. `<gok-tab-panel>` sits between this column
+	   and `.page-grid` as a `display: block` web component, so a subgrid chain breaks at the
+	   custom-element boundary — the same family as the `gok-card` `part="content"` gap (dogfooding
+	   #49/#50). Tried it; the blocks below resolved against zero tracks. The page has no card runs
+	   that need page-track alignment, so a plain flex column is the honest answer here. */
 	.tab-body {
 		display: flex;
 		flex-direction: column;
@@ -790,6 +794,11 @@
 	}
 
 	/* --- Content blocks --- */
+	/* Deliberately NOT `.section`. These blocks live inside `<gok-tab-panel>`, a `display: block`
+	   custom element, so a subgrid chain from `.page-grid` dies at the custom-element boundary
+	   (dogfooding #50). Measured: as `.section` they computed `grid-template-columns: none` and
+	   resolved against zero tracks. A claim that resolves to nothing is worse than no claim, so
+	   they stay a plain flex column until the DS can pass tracks through a wrapper. */
 	.block {
 		display: flex;
 		flex-direction: column;
@@ -850,7 +859,10 @@
 		color: var(--gok-color-text-muted);
 	}
 
-	/* --- Key/value ledger grid --- */
+	/* --- Key/value ledger grid ---
+	   Deliberately NOT on the spine: this is an in-panel <dl> of stat pairs, and its panel does
+	   not span the whole page grid, so the page's tracks would be the wrong tracks. Recorded as a
+	   permanent allowance in scripts/check-layout.mjs, not as unmigrated work. */
 	.stats {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));

@@ -120,7 +120,7 @@
 	</details>
 {/snippet}
 
-<div class="page">
+<div class="page-grid">
 	<gok-page-header
 		eyebrow="Support"
 		heading="How can I help myself today?"
@@ -299,10 +299,8 @@
 </div>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	/* --- Section scaffolding --- */

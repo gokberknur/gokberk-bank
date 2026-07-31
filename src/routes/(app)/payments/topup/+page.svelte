@@ -130,7 +130,7 @@
 	<title>Top up · gökberk bank</title>
 </svelte:head>
 
-<div class="page">
+<div class="page-grid">
 	{#if done && receipt}
 		{#if receipt.settled}
 			<!-- Instant (card): settled, the money is there now, the balance has risen. -->
@@ -265,8 +265,8 @@
 		<!-- 1 · Amount + destination ------------------------------------------- -->
 		<section class="section" aria-labelledby="amount-heading">
 			<h2 id="amount-heading" class="section-title gok-headline-5">How much, and where</h2>
-			<div class="amount-grid">
-				<div class="field">
+			<div class="amount-grid grid-run">
+				<div class="field cell-half">
 					<gok-select
 						label="Add to"
 						{@attach setProps({ value: topup.walletId })}
@@ -278,7 +278,7 @@
 					</gok-select>
 				</div>
 
-				<div class="field">
+				<div class="field cell-half">
 					<MoneyInput
 						bind:value={amountValue}
 						{currency}
@@ -410,10 +410,8 @@
 </gok-dialog>
 
 <style>
-	.page {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-section);
+	.page-grid {
+		row-gap: var(--gok-space-section);
 	}
 
 	/* --- Header --- */
@@ -443,21 +441,16 @@
 	}
 
 	/* --- Sections --- */
-	.section {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-400);
-	}
+	/* This route already used `class="section"` before the spine existed; now that its wrapper is
+	   `.page-grid` the scoped spine rule takes over and supplies display, tracks and row-gap. */
 
 	.section-title {
 		margin: 0;
 		color: var(--gok-color-text);
 	}
 
+	/* Two form fields side by side on the spine, stacking on a phone. */
 	.amount-grid {
-		display: grid;
-		gap: var(--gok-space-400);
-		grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
 		align-items: start;
 	}
 
@@ -544,7 +537,7 @@
 		display: flex;
 		align-items: baseline;
 		justify-content: space-between;
-		gap: var(--gok-space-400);
+		gap: var(--gap-action-row);
 	}
 
 	.row dt {
@@ -665,7 +658,7 @@
 
 	.receipt {
 		inline-size: 100%;
-		max-inline-size: 24rem;
+		max-inline-size: var(--measure-card);
 		margin-inline: auto;
 		text-align: start;
 		padding-block-start: var(--gok-space-300);
@@ -679,9 +672,4 @@
 		gap: var(--gok-space-200);
 	}
 
-	@media (max-width: 24.375rem) {
-		.row {
-			gap: var(--gok-space-200);
-		}
-	}
 </style>
