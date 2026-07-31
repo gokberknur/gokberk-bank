@@ -18,7 +18,6 @@
 	"COLUMNS src/routes/(app)/lending/loans/[id]/+page.svelte",
 	"COLUMNS src/routes/(app)/lending/mortgages/[id]/+page.svelte",
 	"COLUMNS src/routes/(app)/lending/mortgages/calculator/+page.svelte",
-	"COLUMNS src/routes/(app)/payments/+page.svelte",
 	"COLUMNS src/routes/(app)/payments/exchange/+page.svelte",
 	"COLUMNS src/routes/(app)/payments/scheduled/new/+page.svelte",
 	"COLUMNS src/routes/(app)/payments/topup/+page.svelte",
