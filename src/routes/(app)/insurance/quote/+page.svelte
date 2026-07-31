@@ -676,17 +676,25 @@
 		color: var(--gok-color-text);
 	}
 
-	/* ── Configure: two-region layout ───────────────────────────────────────── */
+	/* ── Configure: two-region layout ─────────────────────────────────────────
+	   Tracks from the spine; the two-up breakpoint stays this route's own (60rem). */
 	.configure {
 		display: grid;
-		grid-template-columns: 1fr;
+		grid-template-columns: subgrid;
 		gap: var(--gok-space-section);
+	}
+
+	.configure > :global(*) {
+		grid-column: 1 / -1;
 	}
 
 	@media (min-width: 60rem) {
 		.configure {
-			grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 			align-items: start;
+		}
+
+		.configure > :global(*) {
+			grid-column: span 6;
 		}
 	}
 
@@ -882,15 +890,22 @@
 	 * word — meaning by heading + word, never by visual de-emphasis. Both glyphs
 	 * use the same neutral ink so neither list "reads louder" than the other.
 	 */
+	/* Tracks from the spine; the two-up breakpoint stays this route's own (30rem). */
 	.cover-pair {
 		display: grid;
-		grid-template-columns: 1fr;
+		grid-template-columns: subgrid;
 		gap: var(--gok-space-400);
 	}
 
+	/* Stacked by default: a subgrid child gets no span of its own, so without this each child
+	   would be auto-placed into a single track and render at a twelfth of the width. */
+	.cover-pair > :global(*) {
+		grid-column: 1 / -1;
+	}
+
 	@media (min-width: 30rem) {
-		.cover-pair {
-			grid-template-columns: 1fr 1fr;
+		.cover-pair > :global(*) {
+			grid-column: span 6;
 		}
 	}
 

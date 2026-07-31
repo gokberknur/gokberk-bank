@@ -269,7 +269,7 @@
 
 	<!-- ── Amortization charts ── -->
 	{#if valid && amort.length > 0}
-		<section class="charts" aria-labelledby="charts-heading">
+		<section class="charts section" aria-labelledby="charts-heading">
 			<div class="block-titles">
 				<p class="block-eyebrow gok-eyebrow">Over the term</p>
 				<h2 id="charts-heading" class="block-title gok-headline-5">How the balance falls</h2>
@@ -380,12 +380,17 @@
 		color: var(--gok-color-text);
 	}
 
-	/* ── Two-column layout (collapses below 48rem) ── */
+	/* ── Two-column layout (collapses below 48rem) ──
+	   Tracks from the spine; the breakpoint stays this route's own. */
 	.layout {
 		display: grid;
-		grid-template-columns: 1fr;
+		grid-template-columns: subgrid;
 		gap: var(--gok-space-section);
 		align-items: start;
+	}
+
+	.layout > :global(*) {
+		grid-column: 1 / -1;
 	}
 
 	.section-title {
@@ -545,10 +550,9 @@
 	}
 
 	/* ── Charts ── */
+	/* A `.section`, so it passes the page's tracks down to `.chart-grid`. */
 	.charts {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-400);
+		row-gap: var(--gok-space-400);
 	}
 
 	.block-titles {
@@ -577,8 +581,12 @@
 
 	.chart-grid {
 		display: grid;
-		grid-template-columns: 1fr;
+		grid-template-columns: subgrid;
 		gap: var(--gok-space-500);
+	}
+
+	.chart-grid > :global(*) {
+		grid-column: 1 / -1;
 	}
 
 	.chart {
@@ -636,12 +644,12 @@
 			display: none;
 		}
 
-		.layout {
-			grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		.layout > :global(*),
+		.chart-grid > :global(*) {
+			grid-column: span 6;
 		}
 
 		.chart-grid {
-			grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 			gap: var(--gok-space-700);
 		}
 	}

@@ -19,9 +19,11 @@
 // uses are correct content spacing. Linting it would push authors to widen content gaps, which is
 // the opposite of the intent. It stays a written convention, enforced in review.
 //
-// KNOWN carries the violations that existed when the spine landed. It is a ratchet: a file
-// leaves the list when it is migrated and may never be added back. Anything not in KNOWN is a
-// hard failure. Run with `--prune` to rewrite KNOWN after a migration wave.
+// KNOWN carried the violations that existed when the spine landed — a ratchet that could only
+// shrink. The migration is complete and it reached zero, so `scripts/layout-known.json` is gone
+// and every violation is now a hard failure on sight. The loading code stays (a missing file
+// reads as an empty list) so a future wave can reintroduce a backlog rather than weaken a rule,
+// and `--prune` still works for that.
 
 import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -110,6 +112,10 @@ const ALLOW = new Map([
 	[
 		'COLUMNS src/routes/(app)/accounts/[id]/statements/+page.svelte',
 		'`.doc-meta` is a two-column metadata list inside a statement row.'
+	],
+	[
+		'COLUMNS src/routes/(app)/payments/exchange/+page.svelte',
+		'`.wallets` is a From-swap-To row with an intrinsic middle track (`1fr auto 1fr`); `.amounts` is a linked amount pair inside the same capped panel.'
 	],
 	[
 		'COLUMNS src/routes/(app)/security/2fa/+page.svelte',
@@ -218,5 +224,7 @@ if (stale.length > 0) {
 }
 
 console.log(
-	`✔ layout-lint: no new drift (${known.length} awaiting migration, ${ALLOW.size} permanently allowed).`
+	known.length === 0
+		? `✔ layout-lint: clean — zero backlog, ${ALLOW.size} reasoned exception(s).`
+		: `✔ layout-lint: no new drift (${known.length} awaiting migration, ${ALLOW.size} permanently allowed).`
 );

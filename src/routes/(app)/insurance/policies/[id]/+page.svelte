@@ -496,16 +496,27 @@
 	   Both columns share every type rule. The ONLY difference is the leading glyph
 	   (a check vs a cross) and the heading word. Exclusions are not smaller, greyer
 	   or hidden — that equal weight is the brand's honesty made visible. */
+	/* Tracks from the spine. Cover and exclusions sit at equal weight, so they claim half
+	   each at this route's 40rem breakpoint — which is also the spine's own collapse. */
 	.cover-grid {
 		display: grid;
-		grid-template-columns: 1fr;
+		grid-template-columns: subgrid;
 		gap: var(--gok-space-500);
+	}
+
+	/* Stacked by default: a subgrid child gets no span of its own, so without this each child
+	   would be auto-placed into a single track and render at a twelfth of the width. */
+	.cover-grid > :global(*) {
+		grid-column: 1 / -1;
 	}
 
 	@media (min-width: 40rem) {
 		.cover-grid {
-			grid-template-columns: 1fr 1fr;
 			gap: var(--gok-space-600);
+		}
+
+		.cover-grid > :global(*) {
+			grid-column: span 6;
 		}
 	}
 

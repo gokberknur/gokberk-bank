@@ -181,7 +181,7 @@
 	<!-- 3 · Movers — DE-EMPHASISED market context, placed last. Symmetric (Gainers AND Losers
 	     always shown) so it reads as context, never a buy-list. Order is by move magnitude, so
 	     these grids aren't sortable. -->
-	<section id="movers" class="movers anchored" aria-labelledby="movers-heading">
+	<section id="movers" class="movers anchored section" aria-labelledby="movers-heading">
 		<div class="movers-head">
 			<p class="movers-eyebrow gok-eyebrow">Movers</p>
 			<h2 id="movers-heading" class="movers-title gok-headline-5">Biggest moves today</h2>
@@ -328,10 +328,10 @@
 	}
 
 	/* ── 3 · Movers — de-emphasised, symmetric ── */
+	/* A `.section`, so it passes the page's tracks down to `.movers-grid` — without that link
+	   the subgrid dies here and the two panels each get an implicit track of their own. */
 	.movers {
-		display: flex;
-		flex-direction: column;
-		gap: var(--gok-space-400);
+		row-gap: var(--gok-space-400);
 	}
 
 	.movers-head {
@@ -359,15 +359,22 @@
 	}
 
 	/* Two panels side by side on desktop (≥ 64rem); stacked below so each grid keeps its width. */
+	/* Tracks from the spine; the two-up breakpoint stays this route's own (64rem). */
 	.movers-grid {
 		display: grid;
-		grid-template-columns: 1fr;
+		grid-template-columns: subgrid;
 		gap: var(--gok-space-500);
 	}
 
+	/* Stacked by default: a subgrid child gets no span of its own, so without this each child
+	   would be auto-placed into a single track and render at a twelfth of the width. */
+	.movers-grid > :global(*) {
+		grid-column: 1 / -1;
+	}
+
 	@media (min-width: 64rem) {
-		.movers-grid {
-			grid-template-columns: 1fr 1fr;
+		.movers-grid > :global(*) {
+			grid-column: span 6;
 		}
 	}
 
