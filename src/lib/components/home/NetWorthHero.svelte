@@ -112,6 +112,7 @@
 
 	.arrow {
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 	}
 
 	.cta {

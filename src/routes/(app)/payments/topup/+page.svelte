@@ -560,6 +560,7 @@
 	.row dd .mono {
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
 

@@ -301,6 +301,7 @@
 		margin: 0;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -308,6 +309,7 @@
 		margin: 0;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		text-align: end;
 		color: var(--gok-color-text);
 	}
@@ -407,12 +409,14 @@
 	.evidence-name {
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text);
 	}
 
 	.evidence-meta {
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -454,6 +458,7 @@
 	.doc-label {
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text);
 	}
 

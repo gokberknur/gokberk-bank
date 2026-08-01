@@ -426,8 +426,8 @@
 	.head-sub {
 		margin: 0;
 		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-regular-line);
+		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -460,6 +460,7 @@
 		background: var(--gok-color-surface);
 		color: var(--gok-color-text);
 		font-size: var(--gok-type-body-large-size);
+		line-height: var(--gok-type-body-large-line);
 		cursor: pointer;
 		transition:
 			border-color var(--gok-motion-duration-fast) var(--gok-motion-ease-standard),
@@ -553,6 +554,7 @@
 	.row dd.mono {
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 	}
 
 	.row-inline {

@@ -185,6 +185,7 @@
 
 	.head-window {
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		font-weight: var(--gok-font-weight-regular);
 		color: var(--gok-color-text-muted);
 	}
@@ -295,6 +296,7 @@
 	.bal-name {
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		font-weight: var(--gok-font-weight-semibold);
 		color: var(--gok-color-text);
 		overflow: hidden;
@@ -305,6 +307,7 @@
 	.bal-symbol {
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 		flex: none;
 	}
@@ -313,6 +316,7 @@
 		grid-area: units;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text);
 	}
 
@@ -320,6 +324,7 @@
 		grid-area: price;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -328,6 +333,7 @@
 		justify-self: end;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		font-weight: var(--gok-font-weight-semibold);
 		color: var(--gok-color-text);
 	}
@@ -337,6 +343,7 @@
 		justify-self: end;
 		align-self: center;
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 	}
 
 	/* ── Empty ── */

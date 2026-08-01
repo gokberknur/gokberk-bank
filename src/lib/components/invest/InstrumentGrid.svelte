@@ -282,6 +282,7 @@
 		border-collapse: collapse;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 	}
 
 	.grid th,
@@ -321,6 +322,7 @@
 		letter-spacing: 0.04em;
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-footnote-size);
+		line-height: var(--gok-type-footnote-line);
 		cursor: pointer;
 	}
 
@@ -383,6 +385,7 @@
 
 	.sym-name {
 		font-size: var(--gok-type-footnote-size);
+		line-height: var(--gok-type-footnote-line);
 		color: var(--gok-color-text-muted);
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -457,6 +460,7 @@
 		justify-content: space-between;
 		gap: var(--gok-space-300);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 	}
 
 	.card-last {
@@ -466,6 +470,7 @@
 
 	.card-sub {
 		font-size: var(--gok-type-footnote-size);
+		line-height: var(--gok-type-footnote-line);
 	}
 
 	.card-buy {

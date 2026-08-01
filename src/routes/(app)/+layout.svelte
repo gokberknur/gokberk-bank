@@ -125,6 +125,7 @@
 		border-radius: var(--gok-radius-s);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		text-decoration: none;
 		transform: translateY(calc(-100% - var(--gok-space-400)));
 		transition: transform var(--gok-motion-duration-fast) var(--gok-motion-ease-standard);

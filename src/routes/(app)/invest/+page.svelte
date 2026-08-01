@@ -630,6 +630,7 @@
 	.delta-label {
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-footnote-size);
+		line-height: var(--gok-type-footnote-line);
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
 		color: var(--gok-color-text-muted);
@@ -661,6 +662,7 @@
 
 	.delta-pct {
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 	}
 
 	.head-caption {
@@ -732,6 +734,7 @@
 	.legend-name {
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text);
 	}
 
@@ -744,6 +747,7 @@
 	.legend-value {
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text);
 	}
 
@@ -751,6 +755,7 @@
 		min-inline-size: 4rem;
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		text-align: end;
 		color: var(--gok-color-text-muted);
 	}
@@ -766,6 +771,7 @@
 		border-collapse: collapse;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 	}
 
 	.grid th,
@@ -806,6 +812,7 @@
 		letter-spacing: 0.04em;
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-footnote-size);
+		line-height: var(--gok-type-footnote-line);
 		cursor: pointer;
 	}
 
@@ -862,6 +869,7 @@
 
 	.sym-name {
 		font-size: var(--gok-type-footnote-size);
+		line-height: var(--gok-type-footnote-line);
 		color: var(--gok-color-text-muted);
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -982,12 +990,14 @@
 		flex: 1 1 auto;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text);
 	}
 
 	.chart-legend-value {
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
 

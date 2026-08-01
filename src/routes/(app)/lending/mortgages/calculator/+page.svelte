@@ -344,8 +344,8 @@
 	.head-sub {
 		margin: 0;
 		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-regular-line);
+		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -416,6 +416,7 @@
 		margin: 0;
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -427,6 +428,7 @@
 		gap: var(--gok-space-300);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text);
 	}
 
@@ -454,6 +456,7 @@
 		justify-content: space-between;
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -462,6 +465,12 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--gok-space-400);
+	}
+
+	/* The results card sits in the calculator's column, not across the page — its inset
+	   comes down a step so it stays within one step of the 16 gap in the ledger below. */
+	.results gok-card {
+		--gok-card-padding: var(--gok-space-500);
 	}
 
 	.ledger {
@@ -515,6 +524,7 @@
 		margin: 0;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -522,6 +532,7 @@
 		margin: 0;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text);
 	}
 
@@ -546,6 +557,7 @@
 		margin: 0;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -635,6 +647,7 @@
 		margin: 0;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
 

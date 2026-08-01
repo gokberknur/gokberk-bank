@@ -235,6 +235,7 @@
 	.jump-link {
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-footnote-size);
+		line-height: var(--gok-type-footnote-line);
 		color: var(--gok-color-text-muted);
 		text-decoration: none;
 	}

@@ -344,6 +344,7 @@
 
 	.opt-name {
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -361,6 +362,7 @@
 	.opt-type {
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-footnote-size);
+		line-height: var(--gok-type-footnote-line);
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
 		color: var(--gok-color-text-muted);
@@ -368,6 +370,7 @@
 
 	.opt-price {
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text);
 	}
 

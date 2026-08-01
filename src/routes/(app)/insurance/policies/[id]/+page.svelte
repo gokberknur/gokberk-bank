@@ -440,6 +440,7 @@
 		margin: 0;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -468,6 +469,7 @@
 	.head-cadence {
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		font-weight: var(--gok-font-weight-regular);
 		color: var(--gok-color-text-muted);
 	}
@@ -596,6 +598,7 @@
 		margin: 0;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -603,6 +606,7 @@
 		margin: 0;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		text-align: end;
 		color: var(--gok-color-text);
 	}
@@ -630,6 +634,7 @@
 	.doc-name {
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text);
 	}
 
@@ -686,6 +691,7 @@
 	.claim-ref {
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		font-weight: var(--gok-font-weight-medium, var(--gok-font-weight-semibold));
 		color: var(--gok-color-text);
 	}

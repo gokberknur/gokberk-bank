@@ -348,8 +348,8 @@
 		margin: 0;
 		margin-block-start: var(--gok-space-100);
 		font-family: var(--gok-font-family-text);
-		font-size: var(--gok-type-body-regular-size);
-		line-height: var(--gok-type-body-regular-line);
+		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -471,6 +471,7 @@
 	.doc-meta-row dd.mono {
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 	}
 
 	/* --- Opening / closing facts --- */
@@ -507,6 +508,11 @@
 		inline-size: 100%;
 		border-collapse: collapse;
 		font-family: var(--gok-font-family-text);
+		/* The UI workhorse, matching gok-table and the app's three other hand-built grids.
+		   Without it the cells inherited the page's 16/24 and this archive read a size
+		   larger than every other table in the app. */
+		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 	}
 
 	.doc-caption {
