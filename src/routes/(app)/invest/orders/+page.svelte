@@ -605,6 +605,7 @@
 
 	.sym-name {
 		font-size: var(--gok-type-footnote-size);
+		line-height: var(--gok-type-footnote-line);
 		color: var(--gok-color-text-muted);
 	}
 

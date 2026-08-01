@@ -821,6 +821,7 @@
 	.steps-label {
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
 	}
@@ -1192,18 +1193,21 @@
 	.product-rate {
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text);
 	}
 
 	.product-aprc {
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
 
 	.product-monthly {
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
 

@@ -271,12 +271,14 @@
 	.iban {
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-large-size);
+		line-height: var(--gok-type-body-large-line);
 		letter-spacing: 0.04em;
 	}
 
 	.mono {
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 	}
 
 	.topup-line {
@@ -304,6 +306,7 @@
 
 		.iban {
 			font-size: var(--gok-type-body-regular-size);
+			line-height: var(--gok-type-body-regular-line);
 		}
 	}
 </style>

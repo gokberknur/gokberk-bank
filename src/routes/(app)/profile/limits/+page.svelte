@@ -119,6 +119,7 @@
 		padding: var(--gok-space-300) var(--gok-space-400);
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-eyebrow-size);
+		line-height: var(--gok-type-eyebrow-line);
 		letter-spacing: var(--gok-type-eyebrow-tracking);
 		text-transform: uppercase;
 		color: var(--gok-color-text-muted);
@@ -160,6 +161,7 @@
 		margin-block-start: var(--gok-space-100);
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-eyebrow-size);
+		line-height: var(--gok-type-eyebrow-line);
 		letter-spacing: var(--gok-type-eyebrow-tracking);
 		text-transform: uppercase;
 		color: var(--gok-color-text-muted);

@@ -213,6 +213,7 @@
 		block-size: 1.5rem;
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-caption-size);
+		line-height: var(--gok-type-caption-line);
 		font-variant-numeric: tabular-nums;
 	}
 

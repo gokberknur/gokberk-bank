@@ -202,6 +202,7 @@
 		background: var(--gok-color-surface);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
 

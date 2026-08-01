@@ -104,6 +104,9 @@
 		gap: var(--gok-space-400);
 		inline-size: 100%;
 		overflow: hidden;
+		/* A tier tile is a card in a known-count grid, not a page panel: the inset stays
+		   within a step of the 16 gap above rather than framing it at the system's 32. */
+		--gok-card-padding: var(--gok-space-500);
 	}
 
 	/* The single accent mark — a hairline top-rule that firms to the accent only on

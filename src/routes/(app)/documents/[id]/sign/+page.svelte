@@ -448,6 +448,7 @@
 		border-block-start: var(--gok-border-width-hairline) solid var(--gok-color-border);
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-caption-size);
+		line-height: var(--gok-type-caption-line);
 		letter-spacing: 0.04em;
 		text-transform: uppercase;
 		color: var(--gok-color-text-muted);
@@ -549,6 +550,7 @@
 	.ref {
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 	}
 
 	.signed-actions {

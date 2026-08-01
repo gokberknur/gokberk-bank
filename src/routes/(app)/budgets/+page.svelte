@@ -449,6 +449,7 @@
 	.legend-name {
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text);
 	}
 
@@ -461,6 +462,7 @@
 	.legend-value {
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text);
 	}
 
@@ -468,6 +470,7 @@
 		min-inline-size: 3rem;
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		text-align: end;
 		color: var(--gok-color-text-muted);
 	}
@@ -507,6 +510,7 @@
 	.budget-label {
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		font-weight: var(--gok-font-weight-semibold);
 		color: var(--gok-color-text);
 	}
@@ -541,6 +545,7 @@
 	.budget-figures {
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -601,6 +606,7 @@
 		margin: 0;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -616,6 +622,7 @@
 		margin: 0;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text);
 	}
 
@@ -653,6 +660,7 @@
 		min-inline-size: 1.5rem;
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -661,6 +669,7 @@
 		min-inline-size: 0;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text);
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -670,6 +679,7 @@
 	.merchant-count {
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -677,6 +687,7 @@
 		min-inline-size: 5rem;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		text-align: end;
 		color: var(--gok-color-text);
 	}
@@ -696,6 +707,7 @@
 		grid-column: 1 / 2;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		font-weight: var(--gok-font-weight-semibold);
 		color: var(--gok-color-text);
 	}
@@ -705,6 +717,7 @@
 		grid-row: 1 / 2;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		text-align: end;
 		color: var(--gok-color-text);
 	}
@@ -713,6 +726,7 @@
 		grid-column: 1 / 2;
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-footnote-size);
+		line-height: var(--gok-type-footnote-line);
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
 		color: var(--gok-color-text-muted);
@@ -722,6 +736,7 @@
 		grid-column: 2 / 3;
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		text-align: end;
 		color: var(--gok-color-text-muted);
 	}
@@ -730,6 +745,7 @@
 		margin: 0;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -760,6 +776,7 @@
 		flex: 1 1 auto;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text);
 	}
 
@@ -772,12 +789,14 @@
 	.mom-current {
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-regular-size);
+		line-height: var(--gok-type-body-regular-line);
 		color: var(--gok-color-text);
 	}
 
 	.mom-prior {
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-footnote-size);
+		line-height: var(--gok-type-footnote-line);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -790,6 +809,7 @@
 		justify-content: flex-end;
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -808,6 +828,7 @@
 
 	.delta-pct {
 		font-size: var(--gok-type-footnote-size);
+		line-height: var(--gok-type-footnote-line);
 	}
 
 	/* ── Empty ── */

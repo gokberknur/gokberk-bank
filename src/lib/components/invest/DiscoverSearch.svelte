@@ -301,6 +301,7 @@
 	.opt-name {
 		min-inline-size: 0;
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -309,6 +310,7 @@
 
 	.opt-price {
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text);
 		text-align: end;
 	}
