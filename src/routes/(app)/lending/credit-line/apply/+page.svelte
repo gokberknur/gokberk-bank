@@ -237,11 +237,13 @@
 					<p class="hint" role="status">{amountHint}</p>
 				{/if}
 				<div class="actions">
+					<!-- `type="submit"` is real from design system 0.9.0 (gok-button is form-associated
+					     and calls requestSubmit()), so the form's own onsubmit is the single path in.
+					     A click handler here as well would run the check twice. -->
 					<gok-button
 						variant="primary"
 						type="submit"
 						{@attach setProps({ disabled: !amountValid })}
-						{@attach on('click', checkEligibility)}
 					>
 						Check eligibility
 					</gok-button>
