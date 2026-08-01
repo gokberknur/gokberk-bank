@@ -441,6 +441,7 @@
 	.sheet-ticker {
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-large-size);
+		line-height: var(--gok-type-body-large-line);
 		font-weight: var(--gok-font-weight-semibold);
 		color: var(--gok-color-text);
 	}
@@ -448,6 +449,7 @@
 	.sheet-meta {
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text-muted);
 	}
 
@@ -536,6 +538,7 @@
 		border-radius: var(--gok-radius-pill);
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		color: var(--gok-color-text);
 	}
 

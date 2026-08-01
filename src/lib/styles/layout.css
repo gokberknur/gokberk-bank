@@ -221,6 +221,32 @@
 		}
 	}
 
+	/* ─────────────  CARD INSET BY CELL ROLE  ─────────────
+	 * A card's padding should sit within about one step of the gaps inside it. Padding much
+	 * larger than the internal gaps makes the card read as a frame around loose parts rather
+	 * than one object — so the inset scales with the SURFACE, not with the page.
+	 *
+	 * The design system's default is 32, which is right for a panel, a dialog, a drawer or a
+	 * full-width page section — and wrong for a tile. Measured across 20 routes: every one of
+	 * the 39 cards sitting in a `.cell-third` renders at 331px with 4–8px internal gaps, and
+	 * every one of them was carrying a 32 inset. Four steps of padding around four of gap.
+	 *
+	 * The spine already knows how big each surface is, so the inset derives from the cell role
+	 * instead of being restated per route. `.cell-third` and narrower is a tile (16);
+	 * `.cell-half` and `.cell-side` are grid cards (24); `.cell-full` and `.cell-main` are
+	 * panels and keep the system default. Retuned once here, like every other cell property.
+	 *
+	 * Scoped to `.page-grid` and set on the cell (not the card) so it inherits to a card at any
+	 * depth — a tile is often wrapped in an `<li>` or an `<a>`.
+	 */
+	.page-grid :is(.cell-third, .cell-quarter, .cell-sixth) {
+		--gok-card-padding: var(--gok-space-400);
+	}
+
+	.page-grid :is(.cell-half, .cell-side) {
+		--gok-card-padding: var(--gok-space-500);
+	}
+
 	/* ─────────────  RESERVED LINES  ─────────────
 	 * Baseline alignment across a row of tiles without subgrid. Each line reserves its type
 	 * role's line-height, so a tile missing a delta still occupies the same vertical steps as

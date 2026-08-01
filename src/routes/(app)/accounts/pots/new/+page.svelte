@@ -228,6 +228,7 @@
 		block-size: 2.75rem;
 		padding: 0;
 		font-size: var(--gok-type-body-large-size);
+		line-height: var(--gok-type-body-large-line);
 		background: var(--gok-color-surface);
 		border: var(--gok-border-width-hairline) solid var(--gok-color-border);
 		border-radius: var(--gok-radius-m);

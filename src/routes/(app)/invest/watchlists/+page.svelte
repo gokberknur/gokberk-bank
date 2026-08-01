@@ -291,6 +291,7 @@
 	.tab-new {
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-footnote-size);
+		line-height: var(--gok-type-footnote-line);
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
 		border-style: dashed;
@@ -330,6 +331,7 @@
 		margin: 0;
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-footnote-size);
+		line-height: var(--gok-type-footnote-line);
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
 		color: var(--gok-color-text-muted);

@@ -752,6 +752,9 @@
 	.estimate,
 	.offer {
 		display: block;
+		/* Half-width cards in the form column, not full-width page panels — the inset
+		   comes down a step from the system default so it reads as one object. */
+		--gok-card-padding: var(--gok-space-500);
 	}
 
 	.card-eyebrow {
@@ -815,6 +818,7 @@
 	.row dd.mono {
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 	}
 
 	/* --- Step 3 · finances --- */

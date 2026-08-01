@@ -88,6 +88,7 @@
 	.title {
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-footnote-size);
+		line-height: var(--gok-type-footnote-line);
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
 		color: var(--gok-color-text-muted);
@@ -96,6 +97,7 @@
 	.value {
 		font-family: var(--gok-font-family-text);
 		font-size: var(--gok-type-body-large-size);
+		line-height: var(--gok-type-body-large-line);
 		font-weight: 600;
 		color: var(--gok-color-text);
 		font-variant-numeric: tabular-nums;

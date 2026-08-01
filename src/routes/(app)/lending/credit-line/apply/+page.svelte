@@ -511,6 +511,7 @@
 	.steps-label {
 		font-family: var(--gok-font-family-mono);
 		font-size: var(--gok-type-body-small-size);
+		line-height: var(--gok-type-body-small-line);
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
 	}
