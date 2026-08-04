@@ -305,7 +305,6 @@
 			heading="Stop this plan?"
 			no-dismiss
 			{@attach setProps({ open: stopOpen })}
-			{@attach on('gok-cancel', () => (stopOpen = false))}
 		>
 			<p class="confirm-body">
 				Stop the {CADENCE_LABEL[plan.cadence].toLowerCase()} plan into <strong>{plan.name}</strong>? It won’t run

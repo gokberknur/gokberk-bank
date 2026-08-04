@@ -240,16 +240,16 @@
 		{/if}
 	</div>
 
-	<!-- Withdraw — a forced decision: irreversible, so no scrim/Escape dismissal, and
-	     the copy names the reference. This is a standalone dialog (not nested), so a
-	     plain close handler is correct. -->
+	<!-- Withdraw — a forced decision: irreversible, so no scrim/Escape dismissal. gok-dialog
+	     fires gok-cancel on ANY dismiss attempt (Escape/scrim) even under no-dismiss — only
+	     gok-close (a real self-close, which here only follows the app setting open=false from
+	     the button below) is wired, so Escape/scrim can't silently close this dialog. -->
 	<gok-dialog
 		tone="danger"
 		size="s"
 		heading="Withdraw my dispute?"
 		no-dismiss
 		{@attach setProps({ open: withdrawOpen })}
-		{@attach on('gok-cancel', closeWithdraw)}
 		{@attach on('gok-close', closeWithdraw)}
 	>
 		<p class="withdraw-body">

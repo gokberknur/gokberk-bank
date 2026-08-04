@@ -172,7 +172,6 @@
 		heading="Confirm rate switch"
 		no-dismiss
 		{@attach setProps({ open: confirmOpen })}
-		{@attach on('gok-cancel', closeConfirm)}
 		{@attach on('gok-close', closeConfirm)}
 	>
 		{#if product}

@@ -24,12 +24,15 @@
 		<!--
 			Apply the persisted theme + density before first paint, so there is no
 			flash of the wrong theme. The gok-* components and tokens both read these
-			data-attributes on <html>.
+			data-attributes on <html>. Only write data-theme when a choice was actually
+			stored — tokens.css now ships `color-scheme: light dark` (DS 0.10.0-beta.0),
+			so an unset attribute already renders the OS scheme; pinning 'light' here for
+			every first-time visitor would fight that and re-introduce the bug it fixed.
 		-->
 		<script>
 			try {
 				var t = localStorage.getItem('gok-theme');
-				document.documentElement.dataset.theme = t === 'dark' ? 'dark' : 'light';
+				if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
 				var d = localStorage.getItem('gok-density');
 				if (d === 'compact') document.documentElement.dataset.density = 'compact';
 			} catch (e) {}

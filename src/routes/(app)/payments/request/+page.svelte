@@ -277,7 +277,6 @@
 	heading="Cancel this request?"
 	no-dismiss
 	{@attach setProps({ open: confirmOpen })}
-	{@attach on('gok-cancel', dismissCancel)}
 	{@attach on('gok-close', dismissCancel)}
 >
 	<p class="confirm-body">

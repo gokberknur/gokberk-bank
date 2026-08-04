@@ -541,7 +541,6 @@
 	heading="Sign my credit agreement"
 	no-dismiss
 	{@attach setProps({ open: signOpen })}
-	{@attach on('gok-cancel', closeSign)}
 	{@attach on('gok-close', closeSign)}
 >
 	<p class="sign-body">
