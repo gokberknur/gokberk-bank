@@ -57,7 +57,6 @@
 	tone={upgrade ? undefined : 'danger'}
 	heading={to ? `Switch to ${to}?` : 'Switch plan?'}
 	{@attach setProps({ open })}
-	{@attach on('gok-cancel', close)}
 	{@attach on('gok-close', close)}
 >
 	{#if to && target}

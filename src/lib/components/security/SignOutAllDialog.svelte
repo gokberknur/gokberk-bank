@@ -24,7 +24,6 @@
 	heading="Sign out everywhere?"
 	no-dismiss
 	{@attach setProps({ open })}
-	{@attach on('gok-cancel', onCancel)}
 	{@attach on('gok-close', onCancel)}
 >
 	<p class="body">

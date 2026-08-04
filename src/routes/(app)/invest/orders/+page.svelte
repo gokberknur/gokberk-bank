@@ -422,7 +422,6 @@
 		heading="Cancel my order?"
 		no-dismiss
 		{@attach setProps({ open: cancelOpen })}
-		{@attach on('gok-cancel', closeCancel)}
 		{@attach on('gok-close', closeCancel)}
 	>
 		{#if selectedOrder}

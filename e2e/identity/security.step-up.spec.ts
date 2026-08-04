@@ -8,12 +8,13 @@ import { test, expect, gotoApp } from '../support/fixtures';
  *  2. A completed revoke removes the device AND is written to /security/activity
  *     (regression guard: this log write is only observable via CLIENT-SIDE nav — a
  *     full reload resets the in-memory store to seed, which previously masked it).
- *  3. "Sign out everywhere" is a forced-decision dialog that, once armed (passkey
- *     approved), cannot be dismissed by Escape.
+ *  3. "Sign out everywhere" hands off from a cancellable step-up gate to a genuine
+ *     forced-decision dialog (tone="danger" no-dismiss) that cannot be dismissed by
+ *     Escape — the step-up gate itself stays Escapable at every stage on purpose.
  *
- * Note: gok-dialog carries role="dialog" on a shadow-DOM node while its action
- * buttons are slotted light-DOM — so the buttons are queried at PAGE level (only one
- * step-up dialog is open at a time, keeping names unique), not scoped under the dialog.
+ * Note: gok-dialog exposes an accessible dialog role (native <dialog>, DS 0.10.0+)
+ * while its action buttons are slotted light-DOM — so the buttons are queried at PAGE
+ * level (only one dialog is open at a time, keeping names unique), not scoped under it.
  *
  * Spec: onboarding-security/O03.
  */
@@ -54,7 +55,7 @@ test('completed revoke removes the device and writes to the activity log', async
 
 	// CLIENT-SIDE navigation to the log (NOT page.goto — that would reset the store).
 	await page
-		.getByRole('navigation', { name: 'Security areas' })
+		.getByRole('navigation', { name: 'Security sections' })
 		.getByRole('link', { name: 'Activity' })
 		.click();
 	await expect(page).toHaveURL(/\/security\/activity$/);
@@ -64,21 +65,36 @@ test('completed revoke removes the device and writes to the activity log', async
 test('"Sign out everywhere" is a forced decision that cannot be Escaped once armed', async ({ page }) => {
 	await gotoApp(page, '/security/sessions');
 
+	// Both the step-up gate and the forced-decision dialog carry the same
+	// "Sign out everywhere?" heading and briefly cross-fade on handoff (DS 0.10.0's
+	// dialog exit transition), so `getByRole('dialog', { name })` alone is ambiguous
+	// while both are in the DOM — scope by each dialog's own body copy instead.
 	await page.getByRole('button', { name: 'Sign out everywhere' }).click();
-	const dialog = page.getByRole('dialog', { name: /Sign out everywhere/i });
-	await expect(dialog).toBeVisible();
+	const stepUp = page
+		.locator('gok-dialog')
+		.filter({ hasText: "First, a quick check it's me" })
+		.getByLabel('Sign out everywhere?');
+	await expect(stepUp).toBeVisible();
 
-	// Arm it via step-up.
+	// Step-up itself stays cancellable by Escape at every stage — declining a step-up
+	// must always be possible (StepUp.svelte) — so arming it hands off to the actual
+	// forced-decision dialog, which is where Escape must stop working.
 	await page.getByRole('button', { name: 'Approve with passkey' }).click();
-	const confirm = page.getByRole('button', { name: 'Continue' });
-	await expect(confirm).toBeEnabled();
+	const proceed = page.getByRole('button', { name: 'Continue' });
+	await expect(proceed).toBeEnabled();
+	await proceed.click();
 
-	// Armed forced-decision must NOT dismiss on Escape.
+	const confirmDialog = page
+		.locator('gok-dialog')
+		.filter({ hasText: 'This signs out every other device' })
+		.getByLabel('Sign out everywhere?');
+	await expect(confirmDialog).toBeVisible();
+
+	// Forced-decision (no-dismiss) must NOT dismiss on Escape.
 	await page.keyboard.press('Escape');
-	await expect(dialog).toBeVisible();
-	await expect(confirm).toBeVisible();
+	await expect(confirmDialog).toBeVisible();
 
 	// Leave without signing out.
-	await page.getByRole('button', { name: 'Cancel' }).click();
-	await expect(dialog).toBeHidden();
+	await page.getByRole('button', { name: 'Stay signed in here' }).click();
+	await expect(confirmDialog).toBeHidden();
 });

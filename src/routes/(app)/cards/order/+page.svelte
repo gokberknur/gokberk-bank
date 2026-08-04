@@ -398,7 +398,6 @@
 		heading="Order this card"
 		no-dismiss
 		{@attach setProps({ open: orderOpen })}
-		{@attach on('gok-cancel', closeOrder)}
 		{@attach on('gok-close', closeOrder)}
 	>
 		<p class="confirm-body">

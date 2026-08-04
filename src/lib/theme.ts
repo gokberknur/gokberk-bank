@@ -12,9 +12,12 @@
 
 export type Theme = 'light' | 'dark';
 
-/** The theme currently applied to `<html data-theme>` (defaults to light). */
+/** The theme currently on screen: the pinned `data-theme` attribute if one is set,
+ *  otherwise the OS scheme the page is following unpinned (DS 0.10.0-beta.0). */
 export function currentTheme(): Theme {
-	return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+	const pinned = document.documentElement.getAttribute('data-theme');
+	if (pinned === 'dark' || pinned === 'light') return pinned;
+	return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 /** Apply a theme: flip `data-theme` (re-themes the page + syncs every `gok-theme-switch`)
